@@ -38,10 +38,7 @@ func withSoftRlimit(res int, soft uint64, name string, fn func() error) error {
 		return fmt.Errorf("resource: soft %s must be > 0", name)
 	}
 	next := old
-	if soft > old.Max {
-		soft = old.Max
-	}
-	next.Cur = soft
+	setSoftRlimit(&next, soft)
 	if err := unix.Setrlimit(res, &next); err != nil {
 		return fmt.Errorf("resource: setrlimit %s: %w", name, err)
 	}

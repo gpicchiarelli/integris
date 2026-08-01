@@ -6,10 +6,14 @@ import "golang.org/x/sys/unix"
 
 func captureBirth(st *unix.Stat_t, saved *sourceTimes) {
 	_ = st
-	_ = saved
+	saved.birth = unix.Timespec{}
+	saved.hasBirth = false
 }
 
 func applyBirth(path string, saved sourceTimes) error {
-	_, _ = path, saved
+	_ = path
+	if saved.hasBirth {
+		_ = saved.birth
+	}
 	return nil
 }
