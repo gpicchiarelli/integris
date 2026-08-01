@@ -108,7 +108,7 @@
       "requirements": ["INT-IC3-0002"],
       "criterion": "No external value allocates or admits work before limit validation; exhaustion produces bounded cleanup, truthful status, and preserves recovery evidence.",
       "evidence": ["EVD-RESOURCE-001"],
-      "status": "planned",
+      "status": "implemented",
       "owner": "gpicchiarelli"
     },
     {

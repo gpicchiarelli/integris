@@ -140,6 +140,31 @@ func run(root string) error {
 				"independent security review of evidence not recorded",
 			},
 		},
+		{
+			id:   "EVD-RESOURCE-001",
+			dir:  "evidence/resource",
+			file: "EVD-RESOURCE-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/resource/", "-count=1"},
+			},
+			residual: []string{
+				"system-level saturation (fd/disk/CPU) pending platform harness",
+				"independent security review of evidence not recorded",
+			},
+		},
+		{
+			id:   "EVD-DELETE-001",
+			dir:  "evidence/deletion",
+			file: "EVD-DELETE-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/deletion/", "-count=1"},
+			},
+			residual: []string{
+				"descriptor-relative quarantine move not yet wired to path OS adapter",
+				"independent security review required for IC-1",
+				"VER-DELETE-001 remains planned until review closes",
+			},
+		},
 	}
 
 	for _, c := range campaigns {

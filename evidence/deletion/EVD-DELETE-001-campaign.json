@@ -1,0 +1,24 @@
+{
+  "evidence_id": "EVD-DELETE-001",
+  "source_revision": "97a9e2a19fd71f9aae7b668924c25bf1171cc2d7",
+  "produced_at": "2026-08-01T12:32:09Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go test ./internal/deletion/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/deletion\t0.248s\n",
+      "stdout_sha256": "8f484b4653a2d232968c6723bb7e1dd8b936cd82548363bcfeb859588aa4a05b"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "descriptor-relative quarantine move not yet wired to path OS adapter",
+    "independent security review required for IC-1",
+    "VER-DELETE-001 remains planned until review closes"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}
