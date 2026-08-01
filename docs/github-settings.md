@@ -18,3 +18,8 @@ an administrator records screenshots/API evidence that `main` has:
 Do not add a placeholder `CODEOWNERS`: a nonexistent user/team creates a false
 control. Add the file only after real technical, security, and assurance owners
 are assigned, then make it a required review source.
+
+For private repositories without GitHub Advanced Security, the CodeQL workflow
+MUST run analysis with upload disabled and preserve its SARIF as a short-lived
+workflow artifact. Enabling dashboard upload and secret-scanning controls remains
+an external prerequisite when the required GitHub plan becomes available.
