@@ -56,8 +56,8 @@ func ProbeScratch(scratchDir string) (ProbeResult, error) {
 		{ID: plan.CapACL, Result: plan.ResultUnknown},
 		probeXattr(dir),
 		probeBSDFlags(dir),
-		{ID: plan.CapSparse, Result: plan.ResultUnknown},
-		{ID: plan.CapResourceFork, Result: plan.ResultUnknown},
+		probeSparse(dir),
+		probeResourceFork(dir),
 		{ID: plan.CapTimes, Result: plan.ResultUnknown},
 		{ID: plan.CapIdentityMap, Result: plan.ResultUnknown},
 		{ID: plan.CapMount, Result: plan.ResultUnknown},
@@ -198,6 +198,40 @@ func xattrName() string {
 		return "user.integris.probe"
 	}
 	return "integris.probe"
+}
+
+// probeSparse detects holey files via SEEK_HOLE / SEEK_DATA on a gapped write.
+func probeSparse(dir string) Fact {
+	path := filepath.Join(dir, "sparse-probe")
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_EXCL, 0o600)
+	if err != nil {
+		return Fact{ID: plan.CapSparse, Result: plan.ResultUnknown}
+	}
+	defer func() {
+		_ = f.Close()
+		_ = os.Remove(path)
+	}()
+	const gap int64 = 1 << 20 // 1 MiB hole between extents
+	if _, err := f.WriteAt([]byte("head"), 0); err != nil {
+		return Fact{ID: plan.CapSparse, Result: plan.ResultUnknown}
+	}
+	if _, err := f.WriteAt([]byte("tail"), gap); err != nil {
+		return Fact{ID: plan.CapSparse, Result: plan.ResultUnknown}
+	}
+	hole, err := f.Seek(0, unix.SEEK_HOLE)
+	if err != nil {
+		return Fact{ID: plan.CapSparse, Result: plan.ResultUnrepresentable, DetailDigest: codec.SHA256([]byte("seek-hole"))}
+	}
+	if hole > 0 && hole < gap {
+		return Fact{ID: plan.CapSparse, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte("seek-hole"))}
+	}
+	// Some filesystems only report EOF as a hole; SEEK_DATA from mid-gap
+	// should jump to the second extent if sparse.
+	data, err := f.Seek(4096, unix.SEEK_DATA)
+	if err == nil && data == gap {
+		return Fact{ID: plan.CapSparse, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte("seek-data"))}
+	}
+	return Fact{ID: plan.CapSparse, Result: plan.ResultUnrepresentable, DetailDigest: codec.SHA256([]byte("no-hole"))}
 }
 
 // probeXattr round-trips an extended attribute on a scratch file.

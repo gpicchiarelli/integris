@@ -176,7 +176,8 @@ func run(root string) error {
 			residual: []string{
 				"CapCOW empirical via platform.CloneFile (Darwin clonefile→LOSSLESS; copy→UNREPRESENTABLE)",
 				"CapXattr/CapBSDFlags empirical (Setxattr/Getxattr; Darwin/FreeBSD/OpenBSD chflags)",
-				"ACL/sparse/resource-fork probes still UNKNOWN placeholders",
+				"CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
+				"ACL/CapTimes probes still UNKNOWN placeholders",
 				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",
 				"VER-FS-001 remains planned until review closes",
