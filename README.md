@@ -1,0 +1,70 @@
+# Integris
+
+[![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](LICENSE)
+
+Integris is the engineering baseline for a high-integrity replication system
+targeting macOS, FreeBSD, Linux, and OpenBSD. It is designed around prior
+specification, privilege separation, capability-oriented security, an
+authenticated protocol, transactional application, verifiable persistence,
+targeted formal methods, adversarial testing, and attestable supply chains.
+
+> [!IMPORTANT]
+> Integris is **not a usable replication daemon**, is **not certified**, and
+> makes no SIL, safety-critical, or standards-conformance claim. This repository
+> currently establishes the assurance system that must exist before product
+> implementation begins.
+
+## What is here
+
+- machine-readable requirements, hazards, threats, and verification evidence;
+- a fail-closed traceability validator and generated traceability matrix;
+- security architecture, transaction, journal, protocol, filesystem, and
+  cryptography specifications;
+- executable TLA+ models for the transaction and session state machines;
+- a restricted Go profile and platform confinement matrix;
+- review, change-control, release, vulnerability-response, and retirement rules;
+- pinned, least-privilege GitHub workflows and a reproducible-build contract.
+
+The governing invariant is:
+
+> Every significant decision has a requirement, rationale, risk analysis,
+> verifiable specification, verification method, produced evidence, and named
+> approval role.
+
+## Start here
+
+1. Read the [assurance case](docs/assurance-case.md).
+2. Review the [scope and claims](docs/scope-and-claims.md).
+3. Inspect the [requirements](assurance/requirements.json) and generated
+   [traceability matrix](docs/traceability.md).
+4. Read [CONTRIBUTING.md](CONTRIBUTING.md) before proposing a change.
+5. Run the local quality gate:
+
+```sh
+make verify
+```
+
+Go 1.26.5 is the pinned bootstrap toolchain. Product code may only begin after
+the entrance criteria in [ROADMAP.md](ROADMAP.md) are approved.
+
+## Repository map
+
+```text
+assurance/       machine-readable assurance records
+cmd/             assurance tooling (not product code)
+docs/            normative specifications and engineering policy
+formal/          executable formal models and model-checker configurations
+.github/         review policy, templates, and automated controls
+```
+
+Normative words **MUST**, **MUST NOT**, **SHOULD**, and **MAY** are interpreted
+as described by RFC 2119 and RFC 8174 only where they appear in capitals.
+
+## Status
+
+The project is at **M0 — assurance baseline**. See [ROADMAP.md](ROADMAP.md).
+No production release or compatibility promise exists yet.
+
+## License
+
+BSD 3-Clause. See [LICENSE](LICENSE).

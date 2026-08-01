@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "evidence": [
+    {"id": "EVD-ARCH-001", "verification": "VER-ARCH-001", "status": "planned", "location": "evidence/platform/authority/", "producer": "platform-test-harness", "reviewer_role": "security-reviewer"},
+    {"id": "EVD-PATH-001", "verification": "VER-PATH-001", "status": "planned", "location": "evidence/path/", "producer": "path-test-harness", "reviewer_role": "security-reviewer"},
+    {"id": "EVD-PROTO-001", "verification": "VER-PROTO-001", "status": "planned", "location": "evidence/protocol/", "producer": "protocol-conformance-suite", "reviewer_role": "cryptography-reviewer"},
+    {"id": "EVD-JOURNAL-001", "verification": "VER-JOURNAL-001", "status": "planned", "location": "evidence/journal/", "producer": "journal-fault-harness", "reviewer_role": "assurance-owner"},
+    {"id": "EVD-TXN-001", "verification": "VER-TXN-001", "status": "planned", "location": "evidence/transaction/", "producer": "transaction-model-and-tests", "reviewer_role": "security-reviewer"},
+    {"id": "EVD-DELETE-001", "verification": "VER-DELETE-001", "status": "planned", "location": "evidence/deletion/", "producer": "destructive-operation-harness", "reviewer_role": "assurance-owner"},
+    {"id": "EVD-FS-001", "verification": "VER-FS-001", "status": "planned", "location": "evidence/platform/filesystem/", "producer": "filesystem-capability-suite", "reviewer_role": "technical-reviewer"},
+    {"id": "EVD-PLAN-001", "verification": "VER-PLAN-001", "status": "planned", "location": "evidence/planner/", "producer": "planner-property-suite", "reviewer_role": "technical-reviewer"},
+    {"id": "EVD-CONFIG-001", "verification": "VER-CONFIG-001", "status": "planned", "location": "evidence/configuration/", "producer": "configuration-test-suite", "reviewer_role": "security-reviewer"},
+    {"id": "EVD-RESOURCE-001", "verification": "VER-RESOURCE-001", "status": "planned", "location": "evidence/resource/", "producer": "resource-saturation-suite", "reviewer_role": "security-reviewer"},
+    {"id": "EVD-RECOVERY-001", "verification": "VER-RECOVERY-001", "status": "planned", "location": "evidence/recovery/", "producer": "crash-recovery-harness", "reviewer_role": "assurance-owner"},
+    {"id": "EVD-RELEASE-001", "verification": "VER-RELEASE-001", "status": "planned", "location": "evidence/releases/", "producer": "independent-release-verifier", "reviewer_role": "assurance-owner"},
+    {"id": "EVD-ASSURANCE-001", "verification": "VER-ASSURANCE-001", "status": "produced", "location": "docs/traceability.md", "producer": "integris-assure", "reviewer_role": "assurance-owner"}
+  ]
+}

@@ -1,0 +1,45 @@
+name: Formal models
+
+on:
+  push:
+    branches: [main]
+    paths: ["formal/**", ".github/workflows/formal.yml"]
+  pull_request:
+    paths: ["formal/**", ".github/workflows/formal.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  model-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      TLA_VERSION: "1.8.0"
+      TLA_SHA256: "e22f8ffb4bacdea0a871f444dd94fe5fb0d8013b3388ae39e82e26f852c735d5"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Fetch and verify TLA+ tools
+        run: |
+          curl --fail --location --proto '=https' --tlsv1.2 --retry 3 \
+            --output "$RUNNER_TEMP/tla2tools.jar" \
+            "https://github.com/tlaplus/tlaplus/releases/download/v${TLA_VERSION}/tla2tools.jar"
+          echo "${TLA_SHA256}  ${RUNNER_TEMP}/tla2tools.jar" | sha256sum --check --strict
+      - name: Check transaction model
+        run: >-
+          java -XX:+UseParallelGC -cp "$RUNNER_TEMP/tla2tools.jar" tlc2.TLC
+          -workers auto -config formal/transaction/Transaction.cfg
+          formal/transaction/Transaction.tla
+      - name: Check session model
+        run: >-
+          java -XX:+UseParallelGC -cp "$RUNNER_TEMP/tla2tools.jar" tlc2.TLC
+          -workers auto -config formal/session/Session.cfg
+          formal/session/Session.tla

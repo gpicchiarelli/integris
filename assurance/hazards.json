@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "analysis": "preliminary-hazard-analysis",
+  "hazards": [
+    {
+      "id": "HAZ-0001",
+      "title": "Irreversible archive data loss",
+      "severity": "catastrophic",
+      "causes": ["unauthorized overwrite or deletion", "path escape", "failed rollback", "silent semantic loss"],
+      "consequence": "Authorized archive content cannot be recovered.",
+      "controls": ["INT-IC1-0001", "INT-IC1-0002", "INT-IC1-0004", "INT-IC1-0005", "INT-IC1-0006", "INT-IC2-0003"],
+      "residual_risk": "Storage/media failure and operator loss of all recovery copies remain; quantified operational analysis is pending.",
+      "owner": "safety-owner"
+    },
+    {
+      "id": "HAZ-0002",
+      "title": "Partially published or inconsistent state",
+      "severity": "critical",
+      "causes": ["crash between writes", "incorrect sync assumptions", "resource exhaustion", "nondeterministic plan"],
+      "consequence": "Archive and journal disagree or expose a mixture not covered by the declared guarantee.",
+      "controls": ["INT-IC2-0001", "INT-IC1-0004", "INT-IC2-0002", "INT-IC3-0002", "INT-IC2-0003"],
+      "residual_risk": "Filesystem and hardware durability behavior requires per-platform empirical validation.",
+      "owner": "safety-owner"
+    },
+    {
+      "id": "HAZ-0003",
+      "title": "Replication from wrong source or into wrong archive",
+      "severity": "catastrophic",
+      "causes": ["identity confusion", "configuration error", "authorization detached from archive"],
+      "consequence": "Authentic but unauthorized content replaces the intended archive.",
+      "controls": ["INT-IC1-0003", "INT-IC1-0004", "INT-IC3-0001"],
+      "residual_risk": "Compromise of all configured trust roots is not mitigated by protocol binding.",
+      "owner": "safety-owner"
+    },
+    {
+      "id": "HAZ-0004",
+      "title": "Mass deletion propagation",
+      "severity": "catastrophic",
+      "causes": ["empty/incomplete source", "bad policy", "threshold arithmetic error", "resource-driven purge"],
+      "consequence": "A large valid archive subset becomes unavailable or permanently lost.",
+      "controls": ["INT-IC1-0005", "INT-IC3-0001"],
+      "residual_risk": "Authorized malicious deletion remains possible; separate human/organizational controls are pending.",
+      "owner": "safety-owner"
+    },
+    {
+      "id": "HAZ-0005",
+      "title": "Corruption accepted as authentic content",
+      "severity": "catastrophic",
+      "causes": ["manifest/protocol flaw", "journal alteration", "semantic conversion", "supply-chain compromise"],
+      "consequence": "Damaged or substituted data is published and reported valid.",
+      "controls": ["INT-IC1-0003", "INT-IC2-0001", "INT-IC1-0004", "INT-IC1-0006", "INT-IC2-0002", "INT-IC3-0003", "INT-IC3-0004"],
+      "residual_risk": "Common cryptographic or compiler compromise remains until independent evidence exists.",
+      "owner": "safety-owner"
+    },
+    {
+      "id": "HAZ-0006",
+      "title": "False attestation of success",
+      "severity": "critical",
+      "causes": ["confirmation before durability", "lost evidence", "resource exhaustion", "tampered release"],
+      "consequence": "Operators discard recovery options based on an untrue completion result.",
+      "controls": ["INT-IC2-0001", "INT-IC3-0002", "INT-IC2-0003", "INT-IC3-0003", "INT-IC3-0004"],
+      "residual_risk": "Underlying hardware can acknowledge persistence dishonestly; platform guarantee must state this limit.",
+      "owner": "safety-owner"
+    },
+    {
+      "id": "HAZ-0007",
+      "title": "Mutation outside assigned root or volume",
+      "severity": "catastrophic",
+      "causes": ["path traversal", "symlink substitution", "mount crossing", "wrong descriptor", "configuration confusion"],
+      "consequence": "Unrelated system or user data is modified.",
+      "controls": ["INT-IC1-0001", "INT-IC1-0002", "INT-IC1-0004", "INT-IC3-0001"],
+      "residual_risk": "Hostile kernel or compromised privileged launcher can confer a false root.",
+      "owner": "safety-owner"
+    },
+    {
+      "id": "HAZ-0008",
+      "title": "Long-term identity key compromise",
+      "severity": "critical",
+      "causes": ["excess process authority", "secret logging", "weak lifecycle", "host compromise"],
+      "consequence": "An attacker impersonates an authorized node until revocation and recovery complete.",
+      "controls": ["INT-IC1-0001", "INT-IC1-0003"],
+      "residual_risk": "Endpoint compromise during legitimate key use remains; isolated signer design is pending.",
+      "owner": "security-owner"
+    }
+  ]
+}
