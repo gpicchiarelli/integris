@@ -79,7 +79,8 @@ evidence, and no open IC-1 defects.
 with transcript-bound keys; `TypeNegotiateOffer` / `TypeNegotiateAccept` carry
 versions and suite IDs on the wire (offer allow-list + accept confirm);
 mutual provisional HMAC peer-auth (`i2r`+`r2i`) and archive-auth proofs exist;
-Noise/TLS handshake and PQ remain open.
+consolidated hostile-peer Driver refuse matrix
+(`internal/protocol/hostile_peer_test.go`); Noise/TLS handshake and PQ remain open.
 
 Exit: independent protocol/cryptographic review and published test vectors.
 

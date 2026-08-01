@@ -53,6 +53,8 @@ required before promoting protocol evidence.
 - Driver encode/decode of sealed `TypeData` in `internal/protocol`
 - Transcript-bound `InstallTrafficKey` after Activate with matching peer keys
 - Mutual HMAC peer-auth (`i2r`+`r2i`) + archive-auth proof + e2e AEAD path
+- Hostile-peer Driver refuse matrix (`hostile_peer_test.go`): unknown suite,
+  accept mismatch, bad HMAC/archive proof, MAC/AEAD tamper, early Data, seq/sid gaps
 - Session.tla `PeerAuthIsMutual` invariant
 - EVD-PROTO-001 remains **planned**
 

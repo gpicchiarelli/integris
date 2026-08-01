@@ -68,6 +68,7 @@ is accepted.
 - OS SIGKILL harness via `integris-crash-stub` + `FilePublisher.KillAt` + `launcher.RunEngineering`;
 - OS SIGKILL harness for journal J-* via `CrashSegment.KillAt` + crash-stub `mode=journal`;
 - `internal/platform.SyncFile`/`SyncDir` with Darwin `F_FULLFSYNC` (INT-IC4-0001) on journal, recovery, quarantine, and key-FD sync paths;
+- Consolidated hostile-peer `protocol.Driver` refuse matrix (`hostile_peer_test.go`);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;

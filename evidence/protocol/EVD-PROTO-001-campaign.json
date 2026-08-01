@@ -1,32 +1,32 @@
 {
   "evidence_id": "EVD-PROTO-001",
-  "source_revision": "e2a80069d4b9da93faf367c3379f6d8288fa53f1",
-  "produced_at": "2026-08-01T17:48:25Z",
+  "source_revision": "82d9f0d623cd03f4fc065d29f3bf082a60c57347",
+  "produced_at": "2026-08-01T18:02:49Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/session/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.234s\n",
-      "stdout_sha256": "6ff56f27ecf916e262650f379ba7731bc5db0d90e4cbbde6626423cd280756f9"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.249s\n",
+      "stdout_sha256": "2465f5601481736c56a032c3a46429a8f3a43dc610307ee31e579a3dc948a97f"
     },
     {
       "command": "go test ./internal/protocol/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.262s\n",
-      "stdout_sha256": "8150390844a4bc578980d371b88d6e0950b7a4357203deee99e9bd4c47e6c76f"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.271s\n",
+      "stdout_sha256": "1267af26e254b924ae8ca0d0ea91784c22f24e51e8104545cdfbec340ee9a7b7"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.228s\n",
-      "stdout_sha256": "cbff4a3a2a10b0063b4a5dbcef6c1988483a66de8df750cade1f7245ee43203c"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.259s\n",
+      "stdout_sha256": "8c886f5589ac6b7a8f84733604dc371a4d01f2f5f1cc4db7c11b74547412a3d9"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); wire NegotiateOffer/Accept carry suite selection; Noise/TLS/PQ pending superseding IP-C",
+    "provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); wire NegotiateOffer/Accept + hostile-peer Driver refuse matrix; Noise/TLS/PQ pending superseding IP-C",
     "independent cryptography review required",
     "VER-PROTO-001 remains planned until crypto review"
   ],
