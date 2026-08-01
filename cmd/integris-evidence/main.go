@@ -153,6 +153,7 @@ func run(root string) error {
 				"RLIMIT_NOFILE descriptor saturation harness complete (WithSoftNOFILE)",
 				"RLIMIT_FSIZE disk-write saturation harness complete (WithSoftFSIZE → EFBIG; not ENOSPC)",
 				"RLIMIT_CPU process CPU-time harness complete (WithSoftCPU → SIGXCPU; not system-wide load)",
+				"RLIMIT_AS address/data-space harness complete (WithSoftAS → ENOMEM mmap; Darwin unenforceable; OpenBSD RLIMIT_DATA)",
 				"true ENOSPC full-volume harness complete (Darwin hdiutil 2MiB HFS+ image → unix.ENOSPC)",
 				"independent security review of evidence not recorded",
 			},
