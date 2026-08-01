@@ -79,7 +79,10 @@ frames — accepted only inside OS isolation envelopes from IP-A-0001.
 
 - Unit: round-trip, role mismatch, duplicate sequence, close, oversize payload.
 - Property: sequences never go backwards on a live channel.
-- Later M2: hostile IPC suite under VER-ARCH-001 platform probes.
+- Hostile IPC refuse matrix (`hostile_test.go`): forged/wrong MAC, truncation,
+  magic/version/nonce/role/sequence/length abuse, TypeCritical, post-close
+  encode/decode, truncated stream prefix (VER-ARCH-001 engineering probes;
+  EVD-ARCH remains planned).
 - Acceptance mapped to INT-IC1-0001 inventory + INT-IC3-0002 admission.
 
 ## Retirement/rollback plan
