@@ -194,7 +194,7 @@ func run(root string) error {
 				"session AEAD + mutual HMAC peer/archive-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
 				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge; Darwin Seatbelt (cgo)",
 				"NEG-FS/EXEC/PTRACE + full role-semantic conferral NEG-* (net/parser/plan/audit/journal) via role stub",
-				"MAC key via sealed memfd/anon-unlinked FD (default fd4) or optional SCM_RIGHTS",
+				"MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
 				"independent cryptography/security review required for IC-1",
 				"VER-PROTO-001 / VER-ARCH-001 remain planned",
 			},

@@ -20,8 +20,9 @@ type Runtime struct {
 	Fabric   *SocketFabric
 	RootKey  []byte
 	Children map[authority.ProcessRole]*launcher.Handle
-	// KeyViaSCM confers MAC keys with SCM_RIGHTS after spawn (socket-only ExtraFiles).
-	KeyViaSCM bool
+	// KeyViaExtraFiles uses legacy ExtraFiles fd4 key conferral.
+	// Default (false) uses SCM_RIGHTS after spawn.
+	KeyViaExtraFiles bool
 }
 
 // OpenRuntime builds launch tokens and a socket fabric. It does not spawn.
@@ -68,45 +69,34 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 	}
 	confer, slotKinds := r.childInventory(role)
 
-	if r.KeyViaSCM {
-		parentEp, err := r.Fabric.Endpoint(peer, role)
-		if err != nil {
-			_ = sock.Close()
-			return err
-		}
+	if r.KeyViaExtraFiles {
 		_ = ep.Conn.Close()
 		ep.Conn = nil
 		h, err := launcher.Start(ctx, launcher.Request{
-			Executable:      executable,
-			Role:            role,
-			Peer:            peer,
-			Nonce:           r.Fabric.Nonce,
-			MACKey:          macKey,
-			Socket:          sock,
-			EngineeringMode: true,
-			KeyViaSCM:       true,
-			Confer:          confer,
-			SlotKinds:       slotKinds,
+			Executable:       executable,
+			Role:             role,
+			Peer:             peer,
+			Nonce:            r.Fabric.Nonce,
+			MACKey:           macKey,
+			Socket:           sock,
+			EngineeringMode:  true,
+			KeyViaExtraFiles: true,
+			Confer:           confer,
+			SlotKinds:        slotKinds,
 		})
 		_ = sock.Close()
 		if err != nil {
 			return err
 		}
-		if h.KeyFD == nil {
-			_ = h.Cmd.Process.Kill()
-			return fail("key", "missing SCM key FD")
-		}
-		if err := ipc.SendFD(parentEp.Conn, h.KeyFD); err != nil {
-			_ = h.KeyFD.Close()
-			_ = h.Cmd.Process.Kill()
-			return fail("rights", err.Error())
-		}
-		_ = h.KeyFD.Close()
-		h.KeyFD = nil
 		r.Children[role] = h
 		return nil
 	}
 
+	parentEp, err := r.Fabric.Endpoint(peer, role)
+	if err != nil {
+		_ = sock.Close()
+		return err
+	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
 	h, err := launcher.Start(ctx, launcher.Request{
@@ -124,6 +114,17 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 	if err != nil {
 		return err
 	}
+	if h.KeyFD == nil {
+		_ = h.Cmd.Process.Kill()
+		return fail("key", "missing SCM key FD")
+	}
+	if err := ipc.SendFD(parentEp.Conn, h.KeyFD); err != nil {
+		_ = h.KeyFD.Close()
+		_ = h.Cmd.Process.Kill()
+		return fail("rights", err.Error())
+	}
+	_ = h.KeyFD.Close()
+	h.KeyFD = nil
 	r.Children[role] = h
 	return nil
 }

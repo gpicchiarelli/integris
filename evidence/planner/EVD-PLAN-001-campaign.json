@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-PLAN-001",
-  "source_revision": "7d2a31f3d64cfd67374f605f1d6e88389f85f7cb",
-  "produced_at": "2026-08-01T13:48:03Z",
+  "source_revision": "00135e9ebb955fd507cf0993640c505acb307e90",
+  "produced_at": "2026-08-01T13:50:57Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/plan/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/plan\t0.242s\n",
-      "stdout_sha256": "4c1e19f272b4b97b941f04927c12b12e7abd6c60862028debba22754e369cc40"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/plan\t0.252s\n",
+      "stdout_sha256": "df125eda2c159d534248f4a0043c2254d0b822314311b35742c79eda247bc49b"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

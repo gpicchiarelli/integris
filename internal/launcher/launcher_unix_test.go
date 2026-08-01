@@ -100,11 +100,20 @@ func TestLaunchStubIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	if h.KeyFD == nil {
+		t.Fatal("expected KeyFD for default SCM path")
+	}
 
 	parent, err := fab.Endpoint(authority.RoleNet, authority.RoleParser)
 	if err != nil {
 		t.Fatal(err)
 	}
+	if err := ipc.SendFD(parent.Conn, h.KeyFD); err != nil {
+		t.Fatal(err)
+	}
+	_ = h.KeyFD.Close()
+	h.KeyFD = nil
+
 	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("ping"))
 	if err != nil {
 		t.Fatal(err)
@@ -137,16 +146,15 @@ func TestLaunchStubIPC(t *testing.T) {
 			t.Fatalf("expected NEG-EXEC denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	}
-	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
-		!bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportMemfd)) {
-		t.Fatalf("missing key transport in %q", resp.Payload)
+	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {
+		t.Fatalf("missing default scm key transport in %q", resp.Payload)
 	}
 	if err := h.Wait(); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestLaunchStubIPCViaSCM(t *testing.T) {
+func TestLaunchStubIPCViaExtraFiles(t *testing.T) {
 	root, err := moduleRoot(t)
 	if err != nil {
 		t.Fatal(err)
@@ -191,7 +199,6 @@ func TestLaunchStubIPCViaSCM(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer sockFile.Close()
-	// Keep childEp.Conn closed; parent side sends SCM_RIGHTS.
 	_ = childEp.Conn.Close()
 	childEp.Conn = nil
 
@@ -203,33 +210,27 @@ func TestLaunchStubIPCViaSCM(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	h, err := launcher.Start(ctx, launcher.Request{
-		Executable:      bin,
-		Role:            authority.RoleParser,
-		Peer:            authority.RoleNet,
-		Nonce:           nonce,
-		MACKey:          macKey,
-		Socket:          sockFile,
-		EngineeringMode: true,
-		KeyViaSCM:       true,
+		Executable:       bin,
+		Role:             authority.RoleParser,
+		Peer:             authority.RoleNet,
+		Nonce:            nonce,
+		MACKey:           macKey,
+		Socket:           sockFile,
+		EngineeringMode:  true,
+		KeyViaExtraFiles: true,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.KeyFD == nil {
-		t.Fatal("expected KeyFD for SCM path")
+	if h.KeyFD != nil {
+		t.Fatal("legacy ExtraFiles path must not return KeyFD")
 	}
 
 	parent, err := fab.Endpoint(authority.RoleNet, authority.RoleParser)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := ipc.SendFD(parent.Conn, h.KeyFD); err != nil {
-		t.Fatal(err)
-	}
-	_ = h.KeyFD.Close()
-	h.KeyFD = nil
-
-	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("scm"))
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("extra"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -244,11 +245,12 @@ func TestLaunchStubIPCViaSCM(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:scm|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:extra|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
-	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {
-		t.Fatalf("missing scm key transport in %q", resp.Payload)
+	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
+		!bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportMemfd)) {
+		t.Fatalf("missing legacy key transport in %q", resp.Payload)
 	}
 	if err := h.Wait(); err != nil {
 		t.Fatal(err)

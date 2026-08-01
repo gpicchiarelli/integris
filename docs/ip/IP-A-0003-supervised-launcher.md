@@ -40,17 +40,17 @@ profile defect.
 
 `launcher.Start` may start a single absolute executable with:
 
-- `ExtraFiles` containing exactly the conferred IPC socket end(s);
+- `ExtraFiles` containing the conferred IPC socket end(s) (socket-only by default);
 - argv/env limited to role, peer, session nonce, and key-transport label
   (non-secret);
-- MAC key conferred on **fd 4** via `CreateKeyFD` (`ExtraFiles[1]`), never via
-  environment (default ABI):
+- MAC key via `CreateKeyFD`, never via environment:
+  - **default ABI:** ExtraFiles is socket-only (IPC on **fd 3**); parent sends the
+    key FD with `SCM_RIGHTS` (`ipc.SendFD` on `Handle.KeyFD`) before the first
+    authenticated frame;
+  - **legacy opt-in** (`KeyViaExtraFiles`): key on **fd 4** (`ExtraFiles[1]`);
   - **Linux:** sealed `memfd` (`F_SEAL_WRITE|SHRINK|GROW|SEAL`);
   - **other Unix:** unlinked temp file reopened `O_RDONLY` (engineering residual
     until memfd seals land);
-- optional `KeyViaSCM`: ExtraFiles is socket-only; parent sends the key FD with
-  `SCM_RIGHTS` (`ipc.SendFD`) before the first authenticated frame;
-- IPC socket on **fd 3** (`ExtraFiles[0]`);
 - a finite `context` deadline for wait;
 - `EngineeringMode=true` required; when false, Start refuses (release path not
   yet implemented).
@@ -70,8 +70,8 @@ directory owned for the test/run.
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-EXEC`, `NEG-PTRACE`)
   and role-semantic conferral probes (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`,
   `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`, `NEG-JOURNAL-NET`) over IPC.
-- SCM_RIGHTS key passing over the IPC socket (optional `KeyViaSCM`; fd-4 ExtraFiles
-  remains the default ABI). Underlying FD may still be memfd/anon-unlinked.
+- Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles` for
+  engineering callers that cannot yet SendFD after spawn.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
   apply is not claimed equivalent).
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
@@ -122,7 +122,8 @@ Superseding IP requires sealed key + confinement on all release platforms before
 
 ## Dissent and unresolved questions
 
-- Exact fd number ABI (currently ExtraFiles → fd 3 IPC, fd 4 key FD).
+- Exact fd number ABI (default: ExtraFiles → fd 3 IPC + SCM_RIGHTS key; legacy
+  fd 4 ExtraFiles key path remains opt-in).
 - Whether release builds embed role binaries or invoke verified install paths.
 
 ## Decision and approvals

@@ -51,7 +51,7 @@ pending independent review, crypto suite, and platform probes.
 pledge (OpenBSD), Capsicum+cap_rights_limit (FreeBSD), or Seatbelt sandbox_init
 (Darwin, cgo); stub reports NEG-FS/EXEC/PTRACE and full role-semantic conferral
 NEG-*; Runtime orchestrates spawn; sealed MAC key FD (Linux memfd; anon-unlinked
-elsewhere) with optional SCM_RIGHTS; provisional session AEAD with suite
+elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys
 (IP-C-0002). Finished handshake/PQ and IC-1 review remain open.
 

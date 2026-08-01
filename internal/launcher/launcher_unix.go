@@ -18,8 +18,8 @@ import (
 type Handle struct {
 	Cmd  *exec.Cmd
 	Role authority.ProcessRole
-	// KeyFD is non-nil when Request.KeyViaSCM was set. Caller must confer it
-	// with ipc.SendFD (or SendFDFile) then Close it.
+	// KeyFD is non-nil when using the default SCM_RIGHTS path. Caller must
+	// confer it with ipc.SendFD (or SendFDFile) then Close it.
 	KeyFD *os.File
 }
 
@@ -77,25 +77,25 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 	cmd := exec.CommandContext(ctx, req.Executable)
 	cmd.Dir = work
 	h := &Handle{Cmd: cmd, Role: req.Role}
-	if req.KeyViaSCM {
-		env = append(env, EnvKeyTransport+"="+string(KeyTransportSCMRights))
-		cmd.Env = env
-		cmd.ExtraFiles = []*os.File{req.Socket}
+	if req.KeyViaExtraFiles {
+		env = append(env, EnvKeyTransport+"="+string(transport))
+		cmd.Env = env // intentional: do not inherit parent env; no MAC key in env
+		cmd.ExtraFiles = []*os.File{req.Socket, keyFD}
 		if err := cmd.Start(); err != nil {
 			_ = keyFD.Close()
 			return nil, fail("start", err.Error())
 		}
-		h.KeyFD = keyFD
+		_ = keyFD.Close() // child holds the dup'd FD
 		return h, nil
 	}
-	env = append(env, EnvKeyTransport+"="+string(transport))
-	cmd.Env = env // intentional: do not inherit parent env; no MAC key in env
-	cmd.ExtraFiles = []*os.File{req.Socket, keyFD}
+	env = append(env, EnvKeyTransport+"="+string(KeyTransportSCMRights))
+	cmd.Env = env
+	cmd.ExtraFiles = []*os.File{req.Socket}
 	if err := cmd.Start(); err != nil {
 		_ = keyFD.Close()
 		return nil, fail("start", err.Error())
 	}
-	_ = keyFD.Close() // child holds the dup'd FD
+	h.KeyFD = keyFD
 	return h, nil
 }
 

@@ -21,7 +21,8 @@ const (
 	ModeEngineering = "engineering"
 	// IPCFileFD is the child's inherited IPC socket (ExtraFiles[0] → fd 3).
 	IPCFileFD = 3
-	// KeyFileFD is the child's inherited sealed MAC-key FD (ExtraFiles[1] → fd 4).
+	// KeyFileFD is the child's inherited sealed MAC-key FD when using the
+	// legacy ExtraFiles path (ExtraFiles[1] → fd 4).
 	KeyFileFD = 4
 )
 
@@ -50,9 +51,10 @@ type Request struct {
 	MACKey          []byte
 	Socket          *os.File
 	EngineeringMode bool
-	// KeyViaSCM, when true, confers the MAC key FD via SCM_RIGHTS after start
-	// (ExtraFiles is socket-only). Caller must SendFD Handle.KeyFD then Close it.
-	KeyViaSCM bool
+	// KeyViaExtraFiles selects the legacy ExtraFiles fd4 key path.
+	// Default (false) confers the MAC key via SCM_RIGHTS after start
+	// (ExtraFiles is socket-only); caller must SendFD Handle.KeyFD then Close it.
+	KeyViaExtraFiles bool
 	// Confer and SlotKinds are non-secret inventory labels for role-semantic probes.
 	Confer      []authority.Capability
 	SlotKinds   []string

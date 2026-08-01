@@ -39,7 +39,7 @@ is accepted.
 - mutual `i2r`+`r2i` peer-auth before `PEER_AUTHENTICATED` (Session.tla + Driver);
 - provisional HMAC archive-authorization proof over post-peer-auth transcript;
 - sealed MAC key conferral: Linux memfd seals; other Unix anon-unlinked FD (IP-A-0003);
-- optional SCM_RIGHTS MAC key conferral (`KeyViaSCM`; fd4 ExtraFiles remains default);
+- SCM_RIGHTS MAC key conferral as default ABI (`KeyViaExtraFiles` opts into legacy fd4);
 - `supervisor.Runtime` multi-child engineering spawn helper;
 - session negotiation transcript binding (provisional);
 - engineering module inventory in `integris-release-digest`;

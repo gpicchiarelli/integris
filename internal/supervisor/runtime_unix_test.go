@@ -88,6 +88,9 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 	if !bytes.Contains(resp.Payload, []byte("|NEG-PARSER-NET:denied_as_expected")) {
 		t.Fatalf("parser role semantic probe missing/failed in %q", resp.Payload)
 	}
+	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {
+		t.Fatalf("missing default scm key in %q", resp.Payload)
+	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd", "freebsd":
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
@@ -102,7 +105,7 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 	}
 }
 
-func TestRuntimeStartChildSCM(t *testing.T) {
+func TestRuntimeStartChildExtraFiles(t *testing.T) {
 	root, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {
 		t.Fatal(err)
@@ -137,7 +140,7 @@ func TestRuntimeStartChildSCM(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer rt.Close()
-	rt.KeyViaSCM = true
+	rt.KeyViaExtraFiles = true
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -149,7 +152,7 @@ func TestRuntimeStartChildSCM(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("runtime-scm"))
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("runtime-extra"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -164,11 +167,12 @@ func TestRuntimeStartChildSCM(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:runtime-scm|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:runtime-extra|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
-	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {
-		t.Fatalf("missing scm key in %q", resp.Payload)
+	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
+		!bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportMemfd)) {
+		t.Fatalf("missing legacy key in %q", resp.Payload)
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {
 		t.Fatal(err)
