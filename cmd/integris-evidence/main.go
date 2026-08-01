@@ -191,7 +191,7 @@ func run(root string) error {
 				{"go", "test", "./internal/launcher/", "-count=1"},
 			},
 			residual: []string{
-				"session AEAD is engineering-only (IP-C-0002); handshake/PQ deferred",
+				"session AEAD + suite negotiation engineering-only (IP-C-0002); mutual auth/PQ deferred",
 				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge",
 				"NEG-FS-OPEN reported by role stub; broader role negative probes incomplete",
 				"MAC key via pipe fd (not sealed memfd/SCM yet)",

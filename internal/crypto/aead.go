@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
+	"github.com/gpicchiarelli/integris/internal/codec"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
@@ -78,4 +79,21 @@ func newAEAD(key []byte) (cipher.AEAD, error) {
 		return nil, fail("aead", err.Error())
 	}
 	return aead, nil
+}
+
+// TrafficKey derives a provisional session AEAD key bound to the negotiation
+// transcript digest (IP-C-0002). Suite must be SuiteIDAEAD.
+func TrafficKey(rootKey []byte, transcriptDig codec.Digest, sessionID [16]byte, suite string) ([]byte, error) {
+	if suite != SuiteIDAEAD {
+		return nil, fail("suite", "unsupported suite "+suite)
+	}
+	if len(rootKey) < 16 {
+		return nil, fail("key", "root key must be at least 16 bytes")
+	}
+	info := make([]byte, 0, len(suite)+1+16+codec.DigestSize)
+	info = append(info, []byte(suite)...)
+	info = append(info, 0)
+	info = append(info, sessionID[:]...)
+	info = append(info, transcriptDig[:]...)
+	return HKDFSHA256(rootKey, nil, info, AEADKeySize)
 }

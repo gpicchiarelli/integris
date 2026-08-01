@@ -35,6 +35,15 @@ func NewDriver(offered []session.Version, sessionID [16]byte, macKey []byte, req
 	}
 }
 
+// NewDriverWithSuites constructs a driver that requires a common crypto suite
+// and binds a negotiation transcript for traffic-key derivation.
+func NewDriverWithSuites(offered []session.Version, suites []string, sessionID [16]byte, macKey []byte, requireMAC bool) *Driver {
+	d := NewDriver(offered, sessionID, macKey, requireMAC)
+	d.Session = session.NewWithSuites(offered, suites)
+	d.Session.Transcript = crypto.NewTranscript()
+	return d
+}
+
 // SetAEADKey installs a provisional session traffic key (32 bytes).
 func (d *Driver) SetAEADKey(key []byte) error {
 	if d == nil {
@@ -45,6 +54,28 @@ func (d *Driver) SetAEADKey(key []byte) error {
 	}
 	d.AEADKey = append([]byte{}, key...)
 	return nil
+}
+
+// InstallTrafficKey derives and installs an AEAD key from the session transcript
+// after Activate (IP-C-0002). Both peers must share rootKey and transcript.
+func (d *Driver) InstallTrafficKey(rootKey []byte) error {
+	if d == nil {
+		return fail("driver", "nil driver")
+	}
+	if d.Session.State != session.StateActive {
+		return fail("state", "InstallTrafficKey requires ACTIVE")
+	}
+	if d.Session.Transcript == nil {
+		return fail("transcript", "transcript required")
+	}
+	if d.Session.SelectedSuite == "" {
+		return fail("suite", "no selected suite")
+	}
+	key, err := crypto.TrafficKey(rootKey, d.Session.Transcript.Digest(), d.SessionID, d.Session.SelectedSuite)
+	if err != nil {
+		return fail("aead", err.Error())
+	}
+	return d.SetAEADKey(key)
 }
 
 func (d *Driver) dataAAD(typ MessageType, seq uint64) []byte {

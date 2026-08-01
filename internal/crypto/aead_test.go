@@ -44,3 +44,24 @@ func TestSessionAEADKeyDomain(t *testing.T) {
 		t.Fatal("session keys must differ")
 	}
 }
+
+func TestTrafficKeyTranscriptBound(t *testing.T) {
+	root := bytes.Repeat([]byte{0x33}, 32)
+	var sid [16]byte
+	sid[0] = 1
+	tr := crypto.NewTranscript()
+	_ = tr.Append("negotiate", []byte{3})
+	k1, err := crypto.TrafficKey(root, tr.Digest(), sid, crypto.SuiteIDAEAD)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tr2 := crypto.NewTranscript()
+	_ = tr2.Append("negotiate", []byte{2})
+	k2, err := crypto.TrafficKey(root, tr2.Digest(), sid, crypto.SuiteIDAEAD)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytes.Equal(k1, k2) {
+		t.Fatal("different transcripts must yield different keys")
+	}
+}

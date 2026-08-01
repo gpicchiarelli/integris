@@ -49,8 +49,9 @@ pending independent review, crypto suite, and platform probes.
 
 **Status (prelude):** engineering children apply Landlock+seccomp (Linux),
 pledge (OpenBSD), or Capsicum+cap_rights_limit (FreeBSD); stub reports
-NEG-FS-OPEN; Runtime orchestrates spawn; provisional session AEAD (IP-C-0002)
-seals TypeData. Handshake/PQ and IC-1 review remain open.
+NEG-FS-OPEN; Runtime orchestrates spawn; provisional session AEAD with suite
+negotiation and transcript-bound traffic keys (IP-C-0002). Handshake/PQ and
+IC-1 review remain open.
 
 Exit: red-team review, crash testing at every persistence point, platform
 evidence, and no open IC-1 defects.
@@ -61,6 +62,9 @@ evidence, and no open IC-1 defects.
 - downgrade-resistant negotiation;
 - resumable bounded content transfer;
 - hostile-peer and multi-version test suites.
+
+**Status (prelude):** suite allow-list + TypeData AEAD over `protocol.Driver`
+with transcript-bound keys exists; full mutual auth and PQ remain open.
 
 Exit: independent protocol/cryptographic review and published test vectors.
 

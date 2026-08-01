@@ -21,7 +21,8 @@ pretending a stable release crypto claim.
 | Element | Choice | Notes |
 |---|---|---|
 | AEAD | ChaCha20-Poly1305 (`golang.org/x/crypto`) | 32-byte key, 12-byte nonce, 16-byte tag |
-| Key derivation | HKDF-SHA256 | info = `integris-session-aead-chacha20poly1305-v1` \|\| 0x00 \|\| session_id |
+| Key derivation | HKDF-SHA256 | `SessionAEADKey` (session id only) or `TrafficKey` (suite \|\| session id \|\| transcript digest) |
+| Suite negotiation | local allow-list | `session.LocalSuites`; refuse unknown peer-only suites |
 | Nonce | `00 00 00 00 \|\| seq_be64` | per-direction sequence; never reuse under same key |
 | AAD | `INTPRO01 \|\| type_u16le \|\| session_id \|\| seq_u64le` | binds frame metadata |
 | Scope | `TypeData` bodies only when `Driver.AEADKey` set | control frames remain HMAC/MAC path |
@@ -45,6 +46,7 @@ promoting protocol evidence.
 
 - Known round-trip and AAD mismatch tests in `internal/crypto`
 - Driver encode/decode of sealed `TypeData` in `internal/protocol`
+- Transcript-bound `InstallTrafficKey` after Activate with matching peer keys
 - EVD-PROTO-001 remains **planned**
 
 ## Decision and approvals

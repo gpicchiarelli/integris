@@ -1,8 +1,9 @@
 // Package session implements the authenticated session state machine refined
 // from formal/session/Session.tla (M1 conformance surface for VER-PROTO-001).
 //
-// TLC does not prove this Go code. Cryptographic authentication is stubbed as
-// explicit boolean steps pending IP-C.
+// TLC does not prove this Go code. Peer authentication remains an explicit
+// boolean step; traffic protection uses provisional IP-C-0002 AEAD after suite
+// negotiation and transcript-bound key derivation.
 package session
 
 import (
@@ -44,6 +45,9 @@ type Session struct {
 	State             State
 	Offered           []Version
 	Selected          Version
+	OfferedSuites     []string
+	SelectedSuite     string
+	RequireSuite      bool // when true, Negotiate fails without a common suite
 	PeerAuthenticated bool
 	ArchiveAuthorized bool
 	ReceiveSequence   uint64
@@ -108,7 +112,16 @@ func fail(code, msg string) error { return &Error{Code: code, Message: msg} }
 // New starts in NEW with the peer's offered versions.
 func New(offered []Version) Session {
 	cp := append([]Version{}, offered...)
-	return Session{State: StateNew, Offered: cp}
+	return Session{State: StateNew, Offered: cp, RequireSuite: false}
+}
+
+// NewWithSuites starts in NEW with versions and peer-offered crypto suites.
+// RequireSuite is true: negotiation fails closed without a common suite.
+func NewWithSuites(offered []Version, suites []string) Session {
+	s := New(offered)
+	s.OfferedSuites = append([]string{}, suites...)
+	s.RequireSuite = true
+	return s
 }
 
 func highest(cands []Version) (Version, bool) {
@@ -155,6 +168,16 @@ func (s *Session) Negotiate() error {
 	s.bind("negotiate", []byte{byte(h)})
 	s.bindVersions("offered", s.Offered)
 	s.bindVersions("local_allowed", LocalAllowed)
+	if s.RequireSuite || len(s.OfferedSuites) > 0 {
+		suite, ok := SelectSuite(LocalSuites, s.OfferedSuites)
+		if !ok {
+			s.State = StateFailed
+			s.emit("session.failed", "suite", "no common crypto suite", observability.SeverityError)
+			return fail("suite", "no common crypto suite")
+		}
+		s.SelectedSuite = suite
+		s.bind("suite", []byte(suite))
+	}
 	return nil
 }
 
@@ -206,6 +229,9 @@ func (s *Session) Activate() error {
 	}
 	s.State = StateActive
 	s.bind("activate", []byte{byte(s.Selected)})
+	if s.SelectedSuite != "" {
+		s.bind("suite_active", []byte(s.SelectedSuite))
+	}
 	return nil
 }
 

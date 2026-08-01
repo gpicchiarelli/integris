@@ -1,7 +1,7 @@
 {
   "evidence_id": "EVD-ARCH-001",
-  "source_revision": "a533a1f0497d87dcfcfeacd1078aabc9b6c4686f",
-  "produced_at": "2026-08-01T13:11:37Z",
+  "source_revision": "07924519da7249df23accc7cb2b3de8fa75a4151",
+  "produced_at": "2026-08-01T13:14:37Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
@@ -14,31 +14,31 @@
     {
       "command": "go test ./internal/supervisor/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t0.807s\n",
-      "stdout_sha256": "804d4fe498353eb69becf4cd06a99710b161275084d5ca61e3a4784379d21490"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t0.850s\n",
+      "stdout_sha256": "e0eb57a0488265a3fad162e89b1d162acdac4df088fac297108c9669060f75c5"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.235s\n",
-      "stdout_sha256": "57699d893cc1aff35475d7dec7e66768964fd655da61b239694da00b44f63b12"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.245s\n",
+      "stdout_sha256": "961341487a27f8370e157a5df75c884256c119835c236cf0bf6439ad6484017e"
     },
     {
       "command": "go test ./internal/confine/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.254s\n",
-      "stdout_sha256": "f4811e998d2234815dda5ddf15b25a33f34985444ee735a053dd8b175d898586"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.239s\n",
+      "stdout_sha256": "c0c7d36afbe04055a116857e4ee1ef358ad022e7667c67e82e0b5b2206b09238"
     },
     {
       "command": "go test ./internal/launcher/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t0.833s\n",
-      "stdout_sha256": "0051ad4aeaf9b104e530806df244e4dec2f9d35d03b81b035b5360c58392a21d"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t0.812s\n",
+      "stdout_sha256": "82cd123217de4ad27411a7cf9c387a347213d3225a8f92029f778513471195b2"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "session AEAD is engineering-only (IP-C-0002); handshake/PQ deferred",
+    "session AEAD + suite negotiation engineering-only (IP-C-0002); mutual auth/PQ deferred",
     "engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge",
     "NEG-FS-OPEN reported by role stub; broader role negative probes incomplete",
     "MAC key via pipe fd (not sealed memfd/SCM yet)",
