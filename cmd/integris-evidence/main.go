@@ -215,6 +215,8 @@ func run(root string) error {
 				"MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
 				"Journal/Audit path allow-roots landed; other non-archive roles / FreeBSD conferred directory FDs still open",
 				"Runtime.RestartChild + RestartPair (KeyViaExtraFiles dual-live); in-place peer FD rebind still open",
+				"broader path allow-lists beyond archive caps; FreeBSD conferred directory FDs still open",
+				"Runtime.RestartChild + RestartPair (KeyViaExtraFiles dual-live); RestartChild retains AllowRoots path probes; in-place peer FD rebind still open",
 				"independent cryptography/security review required for IC-1",
 				"VER-PROTO-001 / VER-ARCH-001 remain planned",
 			},

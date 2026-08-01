@@ -99,6 +99,7 @@ is accepted.
 - TypeData chunk envelope (`offset||length||data`) + `Driver.TrackDataChunks` contiguous resume refuse matrix;
 - `resource.WithSoftNPROC` process-count saturation harness for EVD-RESOURCE (`RLIMIT_NPROC` → EAGAIN);
 - Linux `copy_file_range` fallback in `copyFileContents` (after sparse SEEK; before `io.Copy`);
+- `Runtime.RestartChild` retains `AllowRoots` path probes across respawn;
 - Darwin abrupt-detach power-fail harness for EVD-RECOVERY (`SyncFile` survive across `hdiutil` force-detach);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);

@@ -504,6 +504,7 @@ func TestRuntimeStartChildAllowRootsIndex(t *testing.T) {
 }
 
 func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
+func TestRuntimeRestartChildAllowRoots(t *testing.T) {
 	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {
 		t.Fatal(err)
@@ -516,6 +517,7 @@ func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
 	}
 
 	allowRoot := filepath.Join(t.TempDir(), "journal-root")
+	allowRoot := filepath.Join(t.TempDir(), "archive-restart")
 	if err := os.MkdirAll(allowRoot, 0o700); err != nil {
 		t.Fatal(err)
 	}
@@ -532,12 +534,16 @@ func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
 				authority.CapJournalDescriptor, authority.CapAuthenticatedRecords,
 			},
 			IPCPeers: []authority.ProcessRole{authority.RoleApply},
+			Role:     authority.RoleAuth,
+			Confer:   []authority.Capability{authority.CapIdentityHandle, authority.CapSessionKeyDerive, authority.CapAuthorizationPolicy},
+			IPCPeers: []authority.ProcessRole{authority.RoleAuth},
 		},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	key := bytes.Repeat([]byte{0x6f}, 32)
+	key := bytes.Repeat([]byte{0x71}, 32)
 	var nonce [16]byte
 	nonce[2] = 15
 	rt, err := supervisor.OpenRuntime(p, key, nonce)
@@ -712,6 +718,33 @@ func TestRuntimeStartChildAllowRootsAudit(t *testing.T) {
 		}
 	}
 	if err := rt.WaitChild(authority.RoleAudit); err != nil {
+		authority.RoleApply: {allowRoot},
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	if err := rt.StartChild(ctx, authority.RoleApply, authority.RoleAuth, bin); err != nil {
+	probe := func(label string) {
+		t.Helper()
+		parent, err := rt.Fabric.Endpoint(authority.RoleAuth, authority.RoleApply)
+		if err != nil {
+			t.Fatal(err)
+		raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte(label))
+		if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+		resp, err := parent.Chan.Decode(respRaw)
+		prefix := []byte("ack:" + label + "|NEG-FS:")
+		if !bytes.HasPrefix(resp.Payload, prefix) {
+			t.Fatalf("%q", resp.Payload)
+		switch runtime.GOOS {
+		case "darwin", "linux", "openbsd":
+			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
+				t.Fatalf("expected NEG-FS-PATH available after %s on %s: %q", label, runtime.GOOS, resp.Payload)
+			}
+		case "freebsd":
+			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:skipped")) {
+				t.Fatalf("expected NEG-FS-PATH skipped on freebsd after %s: %q", label, resp.Payload)
+	probe("roots-before-restart")
+	if err := rt.WaitChild(authority.RoleApply); err != nil {
+	if err := rt.RestartChild(ctx, authority.RoleApply, authority.RoleAuth, bin); err != nil {
+	probe("roots-after-restart")
 		t.Fatal(err)
 	}
 }

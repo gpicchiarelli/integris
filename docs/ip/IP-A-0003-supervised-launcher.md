@@ -45,6 +45,10 @@ profile defect.
   confer/slot inventory, and optional `INTEGRIS_ALLOW_ROOTS` (non-secret);
 - `supervisor.Runtime.AllowRoots` forwards absolute path roots into
   `launcher.Start` for Apply/Index/Journal/Audit engineering probes;
+- `supervisor.Runtime.AllowRoots` forwards absolute archive roots into
+  `launcher.Start` for Apply/Index engineering probes;
+- `RestartChild` reuses `Runtime.AllowRoots` for the respawned role (same
+  path allow-list as the initial `StartChild`);
 - `INTEGRIS_STUB_MODE=initiate|respond` for child↔child IPC (StartPair/RestartPair);
 - dual-live edges require `KeyViaExtraFiles` (SCM dual-spawn unsupported);
 - MAC key via `CreateKeyFD`, never via environment:
