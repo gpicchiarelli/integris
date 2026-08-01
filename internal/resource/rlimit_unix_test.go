@@ -4,6 +4,7 @@ package resource_test
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -160,8 +161,20 @@ func TestNPROCSaturationHarness(t *testing.T) {
 	if err := unix.Getrlimit(unix.RLIMIT_NPROC, &before); err != nil {
 		t.Fatal(err)
 	}
-	// soft=1: this process already counts; a further fork/exec must fail.
+	// soft=1: this process already counts; a further fork/exec must fail
+	// when the kernel enforces RLIMIT_NPROC. euid 0 with PRIV_PROC_LIMIT
+	// (typical FreeBSD CI VM) may still fork — assert ceiling + restore only.
 	err := resource.WithSoftNPROC(1, func() error {
+		var now unix.Rlimit
+		if err := unix.Getrlimit(unix.RLIMIT_NPROC, &now); err != nil {
+			return err
+		}
+		if now.Cur != 1 {
+			return fmt.Errorf("soft NPROC not lowered: %+v", now)
+		}
+		if os.Geteuid() == 0 {
+			return nil
+		}
 		cmd := exec.Command("/bin/echo", "nproc-probe")
 		err := cmd.Start()
 		if err == nil {
