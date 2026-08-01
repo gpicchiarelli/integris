@@ -4,7 +4,7 @@
 
 Baseline: **M0**
 
-Requirements: **13** · Hazards: **8** · Threats: **9**
+Requirements: **14** · Hazards: **9** · Threats: **9**
 
 A `planned` evidence record is a declared gap, not proof. Run `make verify` to validate references and freshness.
 
@@ -23,6 +23,7 @@ A `planned` evidence record is a declared gap, not proof. Run `make verify` to v
 | **INT-IC3-0002** — Pre-allocation resource limits | IC-3 | HAZ-0002<br>HAZ-0006 | THR-0006 | [docs/go-profile.md](../docs/go-profile.md)<br>[docs/specifications/observability.md](../docs/specifications/observability.md)<br>[docs/specifications/protocol.md](../docs/specifications/protocol.md) | VER-RESOURCE-001 — implemented; EVD-RESOURCE-001 (produced) | gpicchiarelli / security-reviewer<br>technical-reviewer |
 | **INT-IC3-0003** — Attestable reproducible release | IC-3 | HAZ-0005<br>HAZ-0006 | THR-0009 | [docs/release-policy.md](../docs/release-policy.md)<br>[docs/supply-chain.md](../docs/supply-chain.md) | VER-RELEASE-001 — planned; EVD-RELEASE-001 (planned) | gpicchiarelli / assurance-owner<br>security-reviewer<br>technical-reviewer |
 | **INT-IC3-0004** — Assurance record referential integrity | IC-3 | HAZ-0005<br>HAZ-0006 | THR-0009 | [assurance/README.md](../assurance/README.md)<br>[docs/assurance-case.md](../docs/assurance-case.md) | VER-ASSURANCE-001 — implemented; EVD-ASSURANCE-001 (produced) | gpicchiarelli / assurance-owner<br>technical-reviewer |
+| **INT-IC4-0001** — Exhaustive native platform optimization | IC-4 | HAZ-0002<br>HAZ-0006<br>HAZ-0009 | THR-0006 | [docs/criticality-policy.md](../docs/criticality-policy.md)<br>[docs/platform-matrix.md](../docs/platform-matrix.md)<br>[docs/specifications/platform-optimization.md](../docs/specifications/platform-optimization.md) | VER-PERF-001 — planned; EVD-PERF-001 (planned) | gpicchiarelli / assurance-owner<br>technical-reviewer |
 
 ## Requirement statements
 
@@ -155,3 +156,13 @@ Every assurance requirement, hazard, threat, verification, specification, eviden
 **Initial:** Machine-readable assurance records and referenced specifications are present<br>The traceability generator version is fixed by source revision
 
 **Final:** All identifiers and reciprocal references validate<br>The checked-in traceability matrix is byte-identical to generated output
+
+### INT-IC4-0001 — Exhaustive native platform optimization
+
+On every declared platform, Integris MUST discover, prefer, and exercise every applicable stable native operating-system and filesystem facility that improves throughput, latency, durability signaling, zero-copy transfer, cloning, event notification, or confinement for the local role, and MUST NOT ship a release path that leaves such a facility unused when it preserves all higher-criticality requirements. Portable fallbacks MAY exist only as explicitly degraded modes recorded in the capability vector; when a native facility would weaken IC-1 or IC-2, the operation MUST refuse or use a reviewed IP waiver rather than silently select a weaker portable path.
+
+**Rationale:** A portable lowest-common-denominator daemon that ignores platform-native I/O, cloning, notification, and confinement facilities wastes host capacity, increases exhaustion risk under realistic sync and backup load, and falsely implies full platform support.
+
+**Initial:** Declared minimum OS version and filesystem capability vector are known<br>Role-specific native facility inventory for the port is present
+
+**Final:** Every qualifying native facility is selected or an explicit degraded-mode/IP waiver is recorded<br>No release artifact claims full platform support while omitting a qualifying native optimization

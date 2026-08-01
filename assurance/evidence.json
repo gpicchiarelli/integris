@@ -13,6 +13,7 @@
     {"id": "EVD-RESOURCE-001", "verification": "VER-RESOURCE-001", "status": "produced", "location": "evidence/resource/EVD-RESOURCE-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "security-reviewer"},
     {"id": "EVD-RECOVERY-001", "verification": "VER-RECOVERY-001", "status": "produced", "location": "evidence/recovery/EVD-RECOVERY-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "assurance-owner"},
     {"id": "EVD-RELEASE-001", "verification": "VER-RELEASE-001", "status": "planned", "location": "evidence/releases/EVD-RELEASE-001-campaign.json", "producer": "integris-release-digest", "reviewer_role": "assurance-owner"},
-    {"id": "EVD-ASSURANCE-001", "verification": "VER-ASSURANCE-001", "status": "produced", "location": "docs/traceability.md", "producer": "integris-assure", "reviewer_role": "assurance-owner"}
+    {"id": "EVD-ASSURANCE-001", "verification": "VER-ASSURANCE-001", "status": "produced", "location": "docs/traceability.md", "producer": "integris-assure", "reviewer_role": "assurance-owner"},
+    {"id": "EVD-PERF-001", "verification": "VER-PERF-001", "status": "planned", "location": "evidence/platform/optimization/EVD-PERF-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "technical-reviewer"}
   ]
 }

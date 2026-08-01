@@ -66,11 +66,15 @@ formal methods, adversarial testing, and attestable supply chains.
 - review, change-control, release, vulnerability-response, and retirement rules;
 - pinned, least-privilege GitHub workflows and a reproducible-build contract.
 
-The governing invariant is:
+The governing invariants are:
 
 > Every significant decision has a requirement, rationale, risk analysis,
 > verifiable specification, verification method, produced evidence, and named
 > approval role.
+
+> On every declared platform, Integris must use all qualifying stable native
+> operating-system and filesystem optimizations — portable fallbacks are
+> degraded mode only (**INT-IC4-0001**).
 
 ## Start here
 
@@ -128,6 +132,11 @@ IPs and executable reference kernels exist; IC-1 path/recovery evidence and
 independent reviewers remain open. See [ROADMAP.md](ROADMAP.md).
 No production release or compatibility promise exists yet.
 
-## License
+## License and trademarks
 
-BSD 3-Clause. See [LICENSE](LICENSE).
+Copyright (c) 2026 Integris contributors. Licensed under the
+[BSD 3-Clause License](LICENSE). See [NOTICE](NOTICE).
+
+Third-party names (macOS, FreeBSD, Linux, OpenBSD, Go, TLA+, and others) are
+used only to identify platforms and tools. They remain the property of their
+owners; no affiliation or endorsement is claimed. See [TRADEMARKS.md](TRADEMARKS.md).

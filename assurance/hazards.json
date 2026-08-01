@@ -18,7 +18,7 @@
       "severity": "critical",
       "causes": ["crash between writes", "incorrect sync assumptions", "resource exhaustion", "nondeterministic plan"],
       "consequence": "Archive and journal disagree or expose a mixture not covered by the declared guarantee.",
-      "controls": ["INT-IC2-0001", "INT-IC1-0004", "INT-IC2-0002", "INT-IC3-0002", "INT-IC2-0003"],
+      "controls": ["INT-IC2-0001", "INT-IC1-0004", "INT-IC2-0002", "INT-IC3-0002", "INT-IC2-0003", "INT-IC4-0001"],
       "residual_risk": "Filesystem and hardware durability behavior requires per-platform empirical validation.",
       "owner": "gpicchiarelli"
     },
@@ -58,7 +58,7 @@
       "severity": "critical",
       "causes": ["confirmation before durability", "lost evidence", "resource exhaustion", "tampered release"],
       "consequence": "Operators discard recovery options based on an untrue completion result.",
-      "controls": ["INT-IC2-0001", "INT-IC3-0002", "INT-IC2-0003", "INT-IC3-0003", "INT-IC3-0004"],
+      "controls": ["INT-IC2-0001", "INT-IC3-0002", "INT-IC2-0003", "INT-IC3-0003", "INT-IC3-0004", "INT-IC4-0001"],
       "residual_risk": "Underlying hardware can acknowledge persistence dishonestly; platform guarantee must state this limit.",
       "owner": "gpicchiarelli"
     },
@@ -80,6 +80,16 @@
       "consequence": "An attacker impersonates an authorized node until revocation and recovery complete.",
       "controls": ["INT-IC1-0001", "INT-IC1-0003"],
       "residual_risk": "Endpoint compromise during legitimate key use remains; isolated signer design is pending.",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "HAZ-0009",
+      "title": "Native platform capacity left unused",
+      "severity": "marginal",
+      "causes": ["portable-only I/O paths", "ignored clone/reflink/sendfile facilities", "LCD event loops", "unapplied confinement primitives"],
+      "consequence": "Sync and backup fail or thrash under realistic load while the host still has unused native capacity; operators are misled about platform support.",
+      "controls": ["INT-IC4-0001"],
+      "residual_risk": "Hardware and filesystem features may be present but unstable; only stable, evidenced facilities are mandatory.",
       "owner": "gpicchiarelli"
     }
   ]

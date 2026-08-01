@@ -209,6 +209,22 @@
       "verifications": ["VER-ASSURANCE-001"],
       "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "assurance-owner"]
+    },
+    {
+      "id": "INT-IC4-0001",
+      "title": "Exhaustive native platform optimization",
+      "statement": "On every declared platform, Integris MUST discover, prefer, and exercise every applicable stable native operating-system and filesystem facility that improves throughput, latency, durability signaling, zero-copy transfer, cloning, event notification, or confinement for the local role, and MUST NOT ship a release path that leaves such a facility unused when it preserves all higher-criticality requirements. Portable fallbacks MAY exist only as explicitly degraded modes recorded in the capability vector; when a native facility would weaken IC-1 or IC-2, the operation MUST refuse or use a reviewed IP waiver rather than silently select a weaker portable path.",
+      "criticality": "IC-4",
+      "status": "approved-baseline",
+      "rationale": "A portable lowest-common-denominator daemon that ignores platform-native I/O, cloning, notification, and confinement facilities wastes host capacity, increases exhaustion risk under realistic sync and backup load, and falsely implies full platform support.",
+      "initial_conditions": ["Declared minimum OS version and filesystem capability vector are known", "Role-specific native facility inventory for the port is present"],
+      "final_conditions": ["Every qualifying native facility is selected or an explicit degraded-mode/IP waiver is recorded", "No release artifact claims full platform support while omitting a qualifying native optimization"],
+      "hazards": ["HAZ-0002", "HAZ-0006", "HAZ-0009"],
+      "threats": ["THR-0006"],
+      "specifications": ["docs/specifications/platform-optimization.md", "docs/platform-matrix.md", "docs/criticality-policy.md"],
+      "verifications": ["VER-PERF-001"],
+      "owner": "gpicchiarelli",
+      "approver_roles": ["technical-reviewer", "assurance-owner"]
     }
   ]
 }

@@ -39,7 +39,9 @@ unless an isolated, reviewed platform adapter explicitly requires otherwise.
   control flow across trust boundaries;
 - injected I/O and persistence boundaries for deterministic fault testing;
 - zero-value behavior documented; destructive actions default disabled;
-- package dependencies point inward toward small deterministic kernels.
+- package dependencies point inward toward small deterministic kernels;
+- platform adapters prefer every qualifying stable native OS/filesystem facility
+  (INT-IC4-0001); portable LCD paths are explicit degraded mode only.
 
 ## Enforcement
 

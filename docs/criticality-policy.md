@@ -34,6 +34,10 @@ Includes throughput, compression, parallelism, deduplication, and usability.
 Measured improvements must not weaken IC-1 or IC-2. When classes conflict, the
 higher-integrity requirement wins or the system refuses the operation.
 
+**INT-IC4-0001** further requires that every declared platform exercise all
+qualifying stable native OS/filesystem optimizations; ignoring available
+platform capacity is not an acceptable IC-4 posture.
+
 ## Classification process
 
 Classify by credible worst-case consequence, not implementation size. A change

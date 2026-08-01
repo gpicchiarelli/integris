@@ -143,6 +143,17 @@
       "evidence": ["EVD-ASSURANCE-001"],
       "status": "implemented",
       "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-PERF-001",
+      "title": "Native platform optimization inventory and selection",
+      "level": "platform",
+      "methods": ["per-OS facility inventory review", "capability-vector inspection", "adapter unit tests", "degraded-mode negative tests", "comparative microbenchmarks against portable fallback"],
+      "requirements": ["INT-IC4-0001"],
+      "criterion": "For each declared platform, every qualifying stable native facility in the port inventory is either exercised on the release path or covered by an explicit degraded-mode record or reviewed IP waiver; no release claims full platform support while omitting a qualifying facility.",
+      "evidence": ["EVD-PERF-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
     }
   ]
 }

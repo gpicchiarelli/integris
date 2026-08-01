@@ -8,6 +8,13 @@ Missing required confinement causes startup refusal unless an explicit,
 time-bounded development-only policy is selected; such mode cannot create a
 release artifact or claim production support.
 
+The same rule applies beyond confinement: per
+[platform-optimization.md](specifications/platform-optimization.md) and
+**INT-IC4-0001**, every port **MUST** use all qualifying stable native
+optimizations (I/O, cloning, notification, durability, confinement). Portable
+lowest-common-denominator paths are degraded mode only, never the sole release
+path on a capable platform.
+
 | Platform | Required composition | Capability discovery | Known residual risk |
 |---|---|---|---|
 | OpenBSD | dedicated account, pre-opened descriptors, `unveil`, then locked `unveil`, monotonically reduced `pledge` promises | startup self-test and child-specific negative probes | syscall categories remain broader than individual object capabilities |

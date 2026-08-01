@@ -8,6 +8,13 @@ is accepted.
 
 ### Added
 
+- **INT-IC4-0001**: exhaustive native platform optimization invariant — every
+  declared OS must use qualifying stable native I/O, cloning, notification,
+  durability, and confinement facilities; portable LCD paths are degraded mode
+  only (`docs/specifications/platform-optimization.md`, VER-PERF-001 planned);
+- `NOTICE` and `TRADEMARKS.md`: copyright holders, Integris mark limits, and
+  nominative third-party mark acknowledgments (Apple, FreeBSD, Linux, OpenBSD,
+  Go, TLA+, and related platform facilities);
 - expanded GitHub Actions surface: staticcheck/gosec, OSV, Trivy, Semgrep,
   Scorecard, gitleaks, SBOM (CycloneDX/Syft), reproducible dual-build digests
   with attestations, FreeBSD VM tests, macOS cgo Seatbelt, cross-compile matrix
@@ -60,6 +67,7 @@ is accepted.
 - Apply-side `FilePublisher` (stage→sync→rename→dirsync FailAt + Observation→Recover);
 - OS SIGKILL harness via `integris-crash-stub` + `FilePublisher.KillAt` + `launcher.RunEngineering`;
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
+- Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
 - `Runtime.StartPair`/`RestartPair` with stub initiate mode (KeyViaExtraFiles dual-live edges);
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;

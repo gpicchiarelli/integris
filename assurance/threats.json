@@ -64,7 +64,7 @@
       "assets": ["availability", "recovery capacity", "quarantine retention"],
       "trust_boundary": "external values to local resources",
       "attack": "Counts, lengths, queues, retries, sparse extents, or event volume exhaust memory, disk, CPU, or descriptors.",
-      "controls": ["INT-IC2-0001", "INT-IC1-0005", "INT-IC3-0002"],
+      "controls": ["INT-IC2-0001", "INT-IC1-0005", "INT-IC3-0002", "INT-IC4-0001"],
       "residual_risk": "Authorized workload can exceed provisioned capacity and require safe suspension.",
       "owner": "gpicchiarelli"
     },

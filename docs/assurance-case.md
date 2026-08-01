@@ -22,6 +22,7 @@ This is an engineering claim, not a certification or product-readiness claim.
 | C6 Critical invariants are modelled | Session and transaction models state checkable safety properties | `formal/` |
 | C7 Implementation is constrained | Restricted Go profile and verification plan prohibit common integrity failures | `docs/go-profile.md`, `docs/verification-plan.md` |
 | C8 Release claims are evidence-gated | Stable release requires platform, recovery, provenance, signature, and reproducibility evidence | `docs/release-policy.md` |
+| C9 Native platform capacity is used | Every declared OS exercises qualifying stable native optimizations (INT-IC4-0001) | `docs/specifications/platform-optimization.md`, `docs/platform-matrix.md` |
 
 ## Defeaters and gaps
 
