@@ -51,8 +51,8 @@ pending independent review, crypto suite, and platform probes.
 pledge (OpenBSD), or Capsicum+cap_rights_limit (FreeBSD); stub reports
 NEG-FS-OPEN; Runtime orchestrates spawn; sealed MAC key FD (Linux memfd;
 anon-unlinked elsewhere); provisional session AEAD with suite negotiation,
-HMAC peer-auth proofs, and transcript-bound traffic keys (IP-C-0002). Finished
-handshake/PQ, SCM_RIGHTS key passing, and IC-1 review remain open.
+HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys (IP-C-0002).
+Finished handshake/PQ, SCM_RIGHTS key passing, and IC-1 review remain open.
 
 Exit: red-team review, crash testing at every persistence point, platform
 evidence, and no open IC-1 defects.
@@ -65,8 +65,8 @@ evidence, and no open IC-1 defects.
 - hostile-peer and multi-version test suites.
 
 **Status (prelude):** suite allow-list + TypeData AEAD over `protocol.Driver`
-with transcript-bound keys and provisional HMAC peer-auth proofs exist; Noise/TLS
-handshake and PQ remain open.
+with transcript-bound keys and mutual provisional HMAC peer-auth (`i2r`+`r2i`)
+exist; Noise/TLS handshake and PQ remain open.
 
 Exit: independent protocol/cryptographic review and published test vectors.
 

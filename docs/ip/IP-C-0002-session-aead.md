@@ -26,7 +26,7 @@ pretending a stable release crypto claim.
 | Nonce | `00 00 00 00 \|\| seq_be64` | per-direction sequence; never reuse under same key |
 | AAD | `INTPRO01 \|\| type_u16le \|\| session_id \|\| seq_u64le` | binds frame metadata |
 | Scope | `TypeData` bodies only when `Driver.AEADKey` set | control frames remain HMAC/MAC path |
-| Peer auth (provisional) | HMAC-SHA256 proof over suite \|\| session id \|\| transcript \|\| direction | `AuthenticateProof` / `EncodePeerAuth`; not Noise/TLS |
+| Peer auth (provisional) | Mutual HMAC-SHA256 proofs (`i2r` then `r2i`) over frozen negotiate digest | `AuthenticateProof` / `EncodePeerAuth`; body = dir\|\|proof; not Noise/TLS |
 
 Suite ID strings: `integris-session-aead-chacha20poly1305-v1`,
 `integris-peer-auth-hmac-sha256-v1`.
@@ -42,15 +42,17 @@ Suite ID strings: `integris-session-aead-chacha20poly1305-v1`,
 
 Engineering-only. Sequence nonces are predictable; security relies on key
 secrecy and no nonce reuse. Peer-auth HMAC proofs share a root key and bind
-the negotiation transcript only — they are not a finished handshake.
-Independent cryptographic review required before promoting protocol evidence.
+the frozen negotiation transcript for both directions — they are not a finished
+handshake. Independent cryptographic review required before promoting protocol
+evidence.
 
 ## Verification
 
 - Known round-trip and AAD mismatch tests in `internal/crypto`
 - Driver encode/decode of sealed `TypeData` in `internal/protocol`
 - Transcript-bound `InstallTrafficKey` after Activate with matching peer keys
-- HMAC peer-auth proof tests + e2e negotiate→auth→AEAD path
+- Mutual HMAC peer-auth (`i2r`+`r2i`) + e2e negotiate→auth→AEAD path
+- Session.tla `PeerAuthIsMutual` invariant
 - EVD-PROTO-001 remains **planned**
 
 ## Decision and approvals

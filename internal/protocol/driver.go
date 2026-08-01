@@ -19,7 +19,7 @@ type Driver struct {
 	MACKey     []byte
 	AEADKey    []byte
 	AuthKey    []byte // provisional peer-auth HMAC key; enables proof on TypePeerAuth
-	AuthDir    string // "i2r" or "r2i"; default "i2r"
+	AuthDir    string // direction this peer proves on EncodePeerAuth ("i2r"|"r2i")
 	RequireMAC bool
 	// LastPlaintext is set when TypeData is opened under AEADKey.
 	LastPlaintext []byte
@@ -128,11 +128,11 @@ func (d *Driver) Handle(f Frame) error {
 		}
 	case TypePeerAuth:
 		if len(d.AuthKey) > 0 {
-			dir := d.AuthDir
-			if dir == "" {
-				dir = "i2r"
+			dir, proof, err := ParsePeerAuthBody(f.Body)
+			if err != nil {
+				return err
 			}
-			if err := d.Session.AuthenticateProof(d.AuthKey, d.SessionID, dir, f.Body); err != nil {
+			if err := d.Session.AuthenticateProof(d.AuthKey, d.SessionID, dir, proof); err != nil {
 				return err
 			}
 		} else if err := d.Session.Authenticate(); err != nil {
@@ -203,9 +203,9 @@ func (d *Driver) EncodeFrame(typ MessageType, body []byte) ([]byte, error) {
 	return raw, nil
 }
 
-// EncodePeerAuth builds a TypePeerAuth frame whose body is an HMAC proof over
-// the current negotiation transcript. Call DecodeAndHandle on both peers so
-// transcripts stay aligned.
+// EncodePeerAuth builds a TypePeerAuth frame whose body is direction||HMAC
+// over the frozen negotiation digest, then applies the proof locally so the
+// sender session matches the peer after DecodeAndHandle (independent sequences).
 func (d *Driver) EncodePeerAuth() ([]byte, error) {
 	if d == nil {
 		return nil, fail("driver", "nil driver")
@@ -221,7 +221,14 @@ func (d *Driver) EncodePeerAuth() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return d.EncodeFrame(TypePeerAuth, proof)
+	raw, err := d.EncodeFrame(TypePeerAuth, EncodePeerAuthBody(dir, proof))
+	if err != nil {
+		return nil, err
+	}
+	if err := d.Session.AuthenticateProof(d.AuthKey, d.SessionID, dir, proof); err != nil {
+		return nil, err
+	}
+	return raw, nil
 }
 
 // DecodeAndHandle decodes raw bytes then Handle.

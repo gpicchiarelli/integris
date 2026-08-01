@@ -33,6 +33,7 @@ is accepted.
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;
 - session crypto-suite allow-list + transcript-bound traffic key install;
 - provisional HMAC peer-auth proof over negotiation transcript (`AuthenticateProof`);
+- mutual `i2r`+`r2i` peer-auth before `PEER_AUTHENTICATED` (Session.tla + Driver);
 - sealed MAC key conferral: Linux memfd seals; other Unix anon-unlinked FD (IP-A-0003);
 - `supervisor.Runtime` multi-child engineering spawn helper;
 - session negotiation transcript binding (provisional);

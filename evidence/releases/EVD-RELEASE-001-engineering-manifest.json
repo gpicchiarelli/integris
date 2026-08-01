@@ -1,7 +1,7 @@
 {
   "kind": "engineering-input-digest-manifest",
-  "produced_at": "2026-08-01T13:21:00Z",
-  "source_revision": "352cb562347e5434b13220902c46d110cc7d0724",
+  "produced_at": "2026-08-01T13:25:07Z",
+  "source_revision": "365f8654567d6a2bef7128d8a5f0c70e550348e6",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "files": [
@@ -17,8 +17,8 @@
     },
     {
       "path": "ROADMAP.md",
-      "sha256": "7d8604bcd0d31108c30fda7cfc93c4f69466a13c8f2c595aad8a1769c4342250",
-      "bytes": 3476
+      "sha256": "35123d46afc65a0636aad83c5d447652025abcd4f1a6ffdb40c6e6a7a5ed219a",
+      "bytes": 3497
     },
     {
       "path": "assurance/evidence.json",

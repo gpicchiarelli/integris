@@ -2,14 +2,16 @@
 // from formal/session/Session.tla (M1 conformance surface for VER-PROTO-001).
 //
 // TLC does not prove this Go code. Peer authentication may use the boolean
-// Authenticate step (TLA conformance) or AuthenticateProof (provisional HMAC
-// over the negotiation transcript, IP-C-0002). Traffic protection uses
-// provisional AEAD after suite negotiation and transcript-bound key derivation.
+// Authenticate step (TLA conformance; both directions at once) or mutual
+// AuthenticateProof for i2r and r2i (provisional HMAC over the frozen
+// negotiation digest, IP-C-0002). Traffic protection uses provisional AEAD
+// after suite negotiation and transcript-bound key derivation.
 package session
 
 import (
 	"fmt"
 
+	"github.com/gpicchiarelli/integris/internal/codec"
 	"github.com/gpicchiarelli/integris/internal/crypto"
 	"github.com/gpicchiarelli/integris/internal/observability"
 )
@@ -50,6 +52,8 @@ type Session struct {
 	SelectedSuite     string
 	RequireSuite      bool // when true, Negotiate fails without a common suite
 	PeerAuthenticated bool
+	AuthI2R           bool // initiator→responder proof accepted
+	AuthR2I           bool // responder→initiator proof accepted
 	ArchiveAuthorized bool
 	ReceiveSequence   uint64
 	ReplayAccepted    bool
@@ -60,6 +64,9 @@ type Session struct {
 	// Transcript, when non-nil, records negotiation/auth steps for binding
 	// (provisional SHA-256 per IP-C-0001). Not a session AEAD.
 	Transcript *crypto.Transcript
+	// AuthBaseDigest is frozen at Negotiate for mutual peer-auth MACs.
+	AuthBaseDigest codec.Digest
+	AuthBaseSet    bool
 }
 
 func (s *Session) emit(id, cause, message string, sev observability.Severity) {
@@ -179,11 +186,12 @@ func (s *Session) Negotiate() error {
 		s.SelectedSuite = suite
 		s.bind("suite", []byte(suite))
 	}
+	s.freezeAuthBase()
 	return nil
 }
 
-// Authenticate records successful peer authentication without a crypto proof
-// (TLA conformance / tests). Prefer AuthenticateProof when AuthKey is available.
+// Authenticate records successful mutual peer authentication without crypto
+// proofs (TLA conformance / tests). Prefer AuthenticateProof for i2r and r2i.
 func (s *Session) Authenticate() error {
 	if s.State != StateNegotiated {
 		return fail("state", "Authenticate requires NEGOTIATED")
@@ -195,6 +203,8 @@ func (s *Session) Authenticate() error {
 		s.emit("session.failed", "downgrade", "selected version not highest candidate", observability.SeverityError)
 		return fail("downgrade", "selected version not highest candidate")
 	}
+	s.AuthI2R = true
+	s.AuthR2I = true
 	s.PeerAuthenticated = true
 	s.State = StatePeerAuthenticated
 	s.bind("peer_auth", []byte{1})
@@ -288,6 +298,11 @@ func (s Session) Invariants() error {
 	}
 	if s.ProductMutation && !(s.PeerAuthenticated && s.ArchiveAuthorized) {
 		return fail("inv", "MutationIsAuthorized violated")
+	}
+	if s.State == StatePeerAuthenticated || s.PeerAuthenticated {
+		if !(s.AuthI2R && s.AuthR2I) {
+			return fail("inv", "PeerAuthIsMutual violated")
+		}
 	}
 	return nil
 }
