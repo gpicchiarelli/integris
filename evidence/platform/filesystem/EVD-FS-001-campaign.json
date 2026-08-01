@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "71ddc744435575129bc847803339f0baa81483e7",
-  "produced_at": "2026-08-01T18:35:52Z",
+  "source_revision": "185042ac4a508fbd03901e69f94a6b2bd815610d",
+  "produced_at": "2026-08-01T18:40:42Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.260s\n",
-      "stdout_sha256": "a5c0e7f0cab14c64a307f14711a38bc614ef129fd3edad18e80ee23b8bf23722"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.318s\n",
+      "stdout_sha256": "05fe88c8face40b99c29f451eb550c8011e63b7821af7e7151c3b2493623b431"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -19,6 +19,7 @@
     "CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
     "CapTimes empirical (Chtimes + Stat Atim/Mtim)",
     "CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; other ports UNKNOWN)",
+    "CopyACL on CloneFile degraded copy (Darwin cgo; clonefile preserves ACL natively)",
     "CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
     "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",

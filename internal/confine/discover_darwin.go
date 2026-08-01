@@ -15,6 +15,6 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnknown, Detail: "launcher.CreateKeyFD uses anon-unlinked FD; memfd seals unavailable on Darwin"},
 		{ID: "DISC-FULLFSYNC", Platform: plat, Control: "durable_sync", Status: StatusAvailable, Detail: "platform.SyncFile uses F_FULLFSYNC (INT-IC4-0001)"},
 		{ID: "DISC-CLONEFILE", Platform: plat, Control: "clonefile", Status: StatusAvailable, Detail: "platform.CloneFile prefers clonefile; copy is degraded fallback (INT-IC4-0001)"},
-		{ID: "DISC-ACL", Platform: plat, Control: "extended_acl", Status: StatusAvailable, Detail: "platform.ACLRoundTrip uses acl_* when CGO enabled (INT-IC4-0001 / CapACL)"},
+		{ID: "DISC-ACL", Platform: plat, Control: "extended_acl", Status: StatusAvailable, Detail: "platform.ACLRoundTrip/CopyACL use acl_* when CGO enabled; CopyACL on CloneFile degraded copy (INT-IC4-0001 / CapACL)"},
 	}
 }

@@ -13,7 +13,8 @@ const (
 )
 
 // copyFileExclusive creates dst exclusively and copies src bytes (degraded
-// clone path). Applies SyncFile before close.
+// clone path). Applies SyncFile before close. When ACLSupported, also copies
+// the extended ACL (clonefile preserves ACLs; byte-copy would otherwise drop them).
 func copyFileExclusive(dst, src string) error {
 	if dst == "" || src == "" {
 		return fmt.Errorf("platform: empty clone path")
@@ -29,7 +30,9 @@ func copyFileExclusive(dst, src string) error {
 	}
 	cleanup := true
 	defer func() {
-		_ = out.Close()
+		if out != nil {
+			_ = out.Close()
+		}
 		if cleanup {
 			_ = os.Remove(dst)
 		}
@@ -39,6 +42,24 @@ func copyFileExclusive(dst, src string) error {
 	}
 	if err := SyncFile(out); err != nil {
 		return err
+	}
+	if err := out.Close(); err != nil {
+		return err
+	}
+	out = nil
+	if ACLSupported() {
+		if err := copyACL(dst, src); err != nil {
+			return err
+		}
+		meta, err := os.Open(dst)
+		if err != nil {
+			return err
+		}
+		syncErr := SyncFile(meta)
+		_ = meta.Close()
+		if syncErr != nil {
+			return syncErr
+		}
 	}
 	cleanup = false
 	return nil
