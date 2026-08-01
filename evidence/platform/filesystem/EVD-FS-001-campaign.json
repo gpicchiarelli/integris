@@ -2,6 +2,8 @@
   "evidence_id": "EVD-FS-001",
   "source_revision": "b6edde3fd1c5820cb7ca63089b621079a089711c",
   "produced_at": "2026-08-01T19:42:09Z",
+  "source_revision": "919394e0d4b4956357ea7fc3cf583a8379d312c9",
+  "produced_at": "2026-08-01T20:00:08Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
@@ -10,6 +12,8 @@
       "exit_code": 0,
       "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.257s\n",
       "stdout_sha256": "c1b5fdcd5713f83f241fb348732274cc58ca241d06037a6063488060eebc88d7"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.367s\n",
+      "stdout_sha256": "02361d5ac75f26f31d2d0247921e2fe354837d796966dd200f3fa0431f761101"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -24,7 +28,7 @@
     "CopyBSDFlags on CloneFile degraded copy (chflags from Stat_t.Flags; Darwin/FreeBSD/OpenBSD)",
     "CopyTimes on CloneFile degraded copy (pre-capture Stat; SyncFile then UtimesNano; Darwin Setattrlist CRTIME)",
     "CopyResourceFork on CloneFile degraded copy (Darwin ..namedfork/rsrc; skips xattr twin)",
-    "Sparse-aware CloneFile degraded copy (SEEK_DATA/SEEK_HOLE; io.Copy fallback)",
+    "Sparse-aware CloneFile degraded copy (SEEK_DATA/SEEK_HOLE; Linux copy_file_range then io.Copy fallback)",
     "CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
     "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",
