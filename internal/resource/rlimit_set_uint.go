@@ -1,4 +1,4 @@
-//go:build unix && !freebsd && !openbsd && !netbsd && !dragonfly
+//go:build unix && !freebsd && !dragonfly
 
 package resource
 
