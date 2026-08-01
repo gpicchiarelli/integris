@@ -5,7 +5,11 @@
 // explicit boolean steps pending IP-C.
 package session
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/gpicchiarelli/integris/internal/observability"
+)
 
 // Version is a protocol version identifier.
 type Version uint8
@@ -44,6 +48,24 @@ type Session struct {
 	ReceiveSequence   uint64
 	ReplayAccepted    bool
 	ProductMutation   bool
+	// Events is an optional sink for redacted session lifecycle events.
+	// Emission failures never fail session transitions.
+	Events observability.Sink
+}
+
+func (s *Session) emit(id, cause, message string, sev observability.Severity) {
+	if s == nil || s.Events == nil {
+		return
+	}
+	_ = s.Events.Emit(observability.Event{
+		ID:            observability.EventID(id),
+		Channel:       observability.ChannelSecurity,
+		Severity:      sev,
+		Component:     "session",
+		CauseCategory: cause,
+		Redaction:     observability.RedactionInternal,
+		Message:       message,
+	})
 }
 
 // Error is a typed session failure.
@@ -103,6 +125,7 @@ func (s *Session) Negotiate() error {
 	h, ok := highest(cands)
 	if !ok {
 		s.State = StateFailed
+		s.emit("session.failed", "version", "no common version", observability.SeverityError)
 		return fail("version", "no common version")
 	}
 	s.Selected = h
@@ -119,6 +142,7 @@ func (s *Session) Authenticate() error {
 	h, ok := highest(cands)
 	if !ok || s.Selected != h {
 		s.State = StateFailed
+		s.emit("session.failed", "downgrade", "selected version not highest candidate", observability.SeverityError)
 		return fail("downgrade", "selected version not highest candidate")
 	}
 	s.PeerAuthenticated = true
@@ -143,12 +167,14 @@ func (s *Session) Activate() error {
 	}
 	if !s.PeerAuthenticated || !s.ArchiveAuthorized {
 		s.State = StateFailed
+		s.emit("session.failed", "auth", "missing authentication or archive authorization", observability.SeverityError)
 		return fail("auth", "missing authentication or archive authorization")
 	}
 	cands := candidates(s.Offered)
 	h, ok := highest(cands)
 	if !ok || s.Selected != h {
 		s.State = StateFailed
+		s.emit("session.failed", "downgrade", "active session would be downgraded", observability.SeverityError)
 		return fail("downgrade", "active session would be downgraded")
 	}
 	s.State = StateActive
@@ -175,6 +201,7 @@ func (s *Session) RejectReplay() error {
 	}
 	s.ReplayAccepted = false
 	s.State = StateFailed
+	s.emit("session.failed", "replay", "replay rejected", observability.SeverityCritical)
 	return nil
 }
 
@@ -184,6 +211,7 @@ func (s *Session) Close() error {
 		return fail("state", "Close requires ACTIVE")
 	}
 	s.State = StateClosed
+	s.emit("session.closed", "close", "session closed", observability.SeverityInfo)
 	return nil
 }
 

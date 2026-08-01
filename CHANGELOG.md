@@ -22,6 +22,9 @@ is accepted.
 - draft IP-A-0002 for local IPC and IP-C-0001 provisional SHA-256 commitments;
 - draft IP-P-0001 wire protocol frame widths; HMAC on authenticated IPC channels;
 - `internal/protocol` frame codec and engineering release-digest manifest tool;
+- M2 prelude `internal/supervisor` grant planner against authority inventory;
+- recovery/session optional observability event emission;
+- protocol frame fuzz in CI (PR short + weekly);
 - M1 e2e pipeline tests (plan→journal→recovery, session+path, quarantine AT);
 - transaction conformance tests mapped to TLA+ abstract flags;
 - `integris-evidence` campaign producer and initial `evidence/` artifacts;

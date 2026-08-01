@@ -2,6 +2,7 @@ package recovery
 
 import (
 	"github.com/gpicchiarelli/integris/internal/codec"
+	"github.com/gpicchiarelli/integris/internal/observability"
 )
 
 // State is a transaction state from formal/transaction and the transaction spec.
@@ -131,6 +132,9 @@ type Policy struct {
 	// AllowConfirm permits appending a confirmation record when published and
 	// not yet confirmed. Default false (Go profile: destructive defaults off).
 	AllowConfirm bool
+	// Events receives optional redacted operational/security events. Emission
+	// failures never fail Recover (observability is not integrity evidence).
+	Events observability.Sink
 }
 
 // ActionKind names an effect performed during recovery (harness accounting).

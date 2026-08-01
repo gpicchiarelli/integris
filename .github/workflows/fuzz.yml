@@ -41,6 +41,8 @@ jobs:
             fuzz: FuzzDecodeRecord
           - package: ./internal/journal
             fuzz: FuzzReadPrefix
+          - package: ./internal/protocol
+            fuzz: FuzzDecode
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

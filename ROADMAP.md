@@ -32,11 +32,13 @@ Entrance: M0 exit criteria, an accepted IP for each kernel, and an assigned
 technical and security reviewer. Exit: complete IC-1/IC-2 evidence, continuous
 fuzzing, fault injection, and cross-platform tests.
 
-**Status:** draft IPs IP-S-0001, IP-F-0001, IP-S-0002, IP-S-0003 and reference
-packages under `internal/` exist (including observability and bounded IPC
-prelude). Produced evidence so far: EVD-JOURNAL-001, EVD-PLAN-001,
-EVD-RECOVERY-001, EVD-CONFIG-001, EVD-RESOURCE-001. IC-1 path/arch/delete/fs/txn
-campaigns remain planned pending independent review and platform probes.
+**Status:** draft IPs IP-S-0001, IP-F-0001, IP-S-0002, IP-S-0003, IP-P-0001 and
+reference packages under `internal/` exist (path, codec, journal, plan,
+recovery, config, resource, deletion, fsmodel, authority, observability, ipc,
+session, protocol; M2 prelude: supervisor grant planning). Produced evidence so
+far: EVD-JOURNAL-001, EVD-PLAN-001, EVD-RECOVERY-001, EVD-CONFIG-001,
+EVD-RESOURCE-001. IC-1 path/arch/delete/fs/txn/proto campaigns remain planned
+pending independent review, crypto suite, and platform probes.
 
 ## M2 — Privilege-separated prototype
 
@@ -44,6 +46,9 @@ campaigns remain planned pending independent review and platform probes.
 - authenticated, bounded local IPC;
 - native confinement adapters for all declared platforms;
 - destructive-operation quarantine and recovery harness.
+
+**Status (prelude):** `internal/supervisor` validates child role grants against
+the authority inventory; process spawn and OS confinement remain open.
 
 Exit: red-team review, crash testing at every persistence point, platform
 evidence, and no open IC-1 defects.

@@ -1,7 +1,7 @@
 {
   "evidence_id": "EVD-RELEASE-001",
-  "source_revision": "fcd55ae1b704e3f21c3b22938e87e838695c4f03",
-  "produced_at": "2026-08-01T12:46:04Z",
+  "source_revision": "e9987d8c96e5ec384ef60c2021db322362412b1c",
+  "produced_at": "2026-08-01T12:48:49Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [

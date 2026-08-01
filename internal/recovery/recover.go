@@ -5,7 +5,30 @@ import (
 
 	"github.com/gpicchiarelli/integris/internal/codec"
 	"github.com/gpicchiarelli/integris/internal/journal"
+	"github.com/gpicchiarelli/integris/internal/observability"
 )
+
+func emit(policy Policy, id, cause, message string, txid codec.TransactionID) {
+	if policy.Events == nil {
+		return
+	}
+	sev := observability.SeverityWarning
+	ch := observability.ChannelSecurity
+	if id == "recovery.confirmed" {
+		sev = observability.SeverityInfo
+		ch = observability.ChannelOperational
+	}
+	_ = policy.Events.Emit(observability.Event{
+		ID:            observability.EventID(id),
+		Channel:       ch,
+		Severity:      sev,
+		Component:     "recovery",
+		TransactionID: txid,
+		CauseCategory: cause,
+		Redaction:     observability.RedactionInternal,
+		Message:       message,
+	})
+}
 
 // abstractFlags refine TLA+ variables from journal + observations.
 type abstractFlags struct {
@@ -50,6 +73,7 @@ func Recover(prefix journal.Prefix, obs FSObservation, policy Policy, io Persist
 			out.State = StateIrrecoverable
 			out.IdempotentNoop = true
 			out.RecoveryCount = 1
+			emit(policy, "recovery.irrecoverable", "identity", "root/volume identity mismatch", flags.txid)
 			return out, identityErr("root/volume identity mismatch with authorization")
 		}
 	}
@@ -58,6 +82,7 @@ func Recover(prefix journal.Prefix, obs FSObservation, policy Policy, io Persist
 		out.State = StateIrrecoverable
 		out.IdempotentNoop = true
 		out.RecoveryCount = 1
+		emit(policy, "recovery.irrecoverable", "records", flags.contradiction, flags.txid)
 		return out, fatal("records", flags.contradiction, nil)
 	}
 
@@ -65,6 +90,7 @@ func Recover(prefix journal.Prefix, obs FSObservation, policy Policy, io Persist
 		out.State = StateIrrecoverable
 		out.IdempotentNoop = true
 		out.RecoveryCount = 1
+		emit(policy, "recovery.irrecoverable", "confirmation", "more than one confirmation record", flags.txid)
 		return out, fatal("confirmation", "more than one confirmation record", nil)
 	}
 
@@ -75,6 +101,7 @@ func Recover(prefix journal.Prefix, obs FSObservation, policy Policy, io Persist
 			out.State = StateIrrecoverable
 			out.IdempotentNoop = true
 			out.RecoveryCount = 1
+			emit(policy, "recovery.irrecoverable", "publication", "publication without authorization chain", flags.txid)
 			return out, fatal("publication", "linearized publication without authorization/preparation chain", nil)
 		}
 		flags.published = true
@@ -114,6 +141,7 @@ func Recover(prefix journal.Prefix, obs FSObservation, policy Policy, io Persist
 			out.State = StateIrrecoverable
 			out.IdempotentNoop = true
 			out.RecoveryCount = 1
+			emit(policy, "recovery.irrecoverable", "confirmation", "confirmation without publication", flags.txid)
 			return out, fatal("confirmation", "confirmation without publication evidence", nil)
 		}
 		out.State = StateConfirmed
@@ -151,6 +179,7 @@ func Recover(prefix journal.Prefix, obs FSObservation, policy Policy, io Persist
 			}
 			out.State = StateConfirmed
 			out.Confirmations = 1
+			emit(policy, "recovery.confirmed", "confirm", "confirmation appended", flags.txid)
 		}
 		out.IdempotentNoop = true
 		out.RecoveryCount = 1
