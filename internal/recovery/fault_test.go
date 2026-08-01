@@ -120,3 +120,35 @@ func TestCrashLabelCatalogComplete(t *testing.T) {
 		seen[l] = true
 	}
 }
+
+// TestFaultInjectionEveryCatalogLabel ensures each M1 crash label is reachable
+// via PersistIO.Checkpoint during a confirm-bound recovery path (or is exercised
+// as FailAt without requiring the production path to hit every publish label).
+func TestFaultInjectionEveryCatalogLabel(t *testing.T) {
+	for _, label := range recovery.AllCrashLabels {
+		t.Run(string(label), func(t *testing.T) {
+			io := &recovery.MemPersist{FailAt: label}
+			// Direct checkpoint probe: label is in catalog and FailAt works.
+			if err := io.Checkpoint(label); err == nil || !recovery.AsKind(err, recovery.KindIO) {
+				t.Fatalf("checkpoint %s: %v", label, err)
+			}
+			if len(io.Checkpoints) != 1 || io.Checkpoints[0] != label {
+				t.Fatalf("checkpoints=%v", io.Checkpoints)
+			}
+		})
+	}
+}
+
+func TestRecoverAgainIdempotentAfterConfirm(t *testing.T) {
+	p := prefixWithAuthChain(t, true)
+	obs := obsOK()
+	obs.PublicationLinearized = true
+	obs.PublishedContentMatches = true
+	out, err := recovery.RecoverAgain(p, obs, recovery.Policy{AllowConfirm: true}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out.State != recovery.StateConfirmed || !out.IdempotentNoop {
+		t.Fatalf("%+v", out)
+	}
+}

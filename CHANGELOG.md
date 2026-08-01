@@ -11,6 +11,8 @@ is accepted.
 - M1 draft IPs: path grammar/resolution, journal codec envelope, deterministic
   planner, idempotent crash recovery;
 - M1 reference kernels under `internal/{path,codec,journal,plan,recovery}`;
+- Unix `openat`/`O_NOFOLLOW` path adapter (`golang.org/x/sys`) with platform tests;
+- transaction conformance tests mapped to TLA+ abstract flags;
 - `integris-evidence` campaign producer and initial `evidence/` artifacts;
 - CI short fuzz and weekly fuzz for path/codec/journal kernels;
 - produced evidence EVD-JOURNAL-001 and EVD-PLAN-001;

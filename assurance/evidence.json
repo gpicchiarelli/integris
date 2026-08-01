@@ -5,7 +5,7 @@
     {"id": "EVD-PATH-001", "verification": "VER-PATH-001", "status": "planned", "location": "evidence/path/EVD-PATH-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "security-reviewer"},
     {"id": "EVD-PROTO-001", "verification": "VER-PROTO-001", "status": "planned", "location": "evidence/protocol/", "producer": "protocol-conformance-suite", "reviewer_role": "cryptography-reviewer"},
     {"id": "EVD-JOURNAL-001", "verification": "VER-JOURNAL-001", "status": "produced", "location": "evidence/journal/EVD-JOURNAL-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "assurance-owner"},
-    {"id": "EVD-TXN-001", "verification": "VER-TXN-001", "status": "planned", "location": "evidence/transaction/", "producer": "transaction-model-and-tests", "reviewer_role": "security-reviewer"},
+    {"id": "EVD-TXN-001", "verification": "VER-TXN-001", "status": "planned", "location": "evidence/transaction/EVD-TXN-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "security-reviewer"},
     {"id": "EVD-DELETE-001", "verification": "VER-DELETE-001", "status": "planned", "location": "evidence/deletion/", "producer": "destructive-operation-harness", "reviewer_role": "assurance-owner"},
     {"id": "EVD-FS-001", "verification": "VER-FS-001", "status": "planned", "location": "evidence/platform/filesystem/", "producer": "filesystem-capability-suite", "reviewer_role": "technical-reviewer"},
     {"id": "EVD-PLAN-001", "verification": "VER-PLAN-001", "status": "produced", "location": "evidence/planner/EVD-PLAN-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "technical-reviewer"},

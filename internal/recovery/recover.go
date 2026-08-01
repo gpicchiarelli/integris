@@ -321,6 +321,12 @@ func confirmOnce(txid codec.TransactionID, io PersistIO, out *Outcome) error {
 	return nil
 }
 
+// RecoverAgain re-enters recovery on the same inputs. It is identical to Recover
+// and exists so callers can document idempotent re-entry (IP-S-0003).
+func RecoverAgain(prefix journal.Prefix, obs FSObservation, policy Policy, io PersistIO) (Outcome, error) {
+	return Recover(prefix, obs, policy, io)
+}
+
 // SameBinding reports whether two digests are equal (test helper surface).
 func SameBinding(a, b codec.Digest) bool {
 	return bytes.Equal(a[:], b[:])

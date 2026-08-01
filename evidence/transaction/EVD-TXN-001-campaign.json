@@ -1,0 +1,24 @@
+{
+  "evidence_id": "EVD-TXN-001",
+  "source_revision": "a4a6ed005607fe0a8e89f89bf0ee57a27e8d00f1",
+  "produced_at": "2026-08-01T12:27:28Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go test ./internal/recovery/ -count=1 -run Conformance",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.244s\n",
+      "stdout_sha256": "6d2978512c605835bd0db11ba60fe97f2aad21ef0359af61a2006f76d23efba6"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "TLC does not prove Go; see internal/recovery/README.md",
+    "independent security review of evidence not recorded",
+    "VER-TXN-001 remains planned until review closes"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}

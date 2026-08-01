@@ -15,5 +15,7 @@ model `Recover` action, M1 progress/authorization payload conventions, broader
 crash entry conditions) are listed there and must not be narrated as formal
 proofs.
 
-Evidence IDs `EVD-RECOVERY-001` and `EVD-TXN-001` stay `planned` until real
-artifacts land under `evidence/recovery/` and `evidence/transaction/`.
+Evidence IDs `EVD-RECOVERY-001` and `EVD-TXN-001` stay `planned` until
+independent review closes residual gaps. Campaign artifacts under
+`evidence/recovery/` and `evidence/transaction/` are produced by
+`integris-evidence` and are not automatic acceptance.

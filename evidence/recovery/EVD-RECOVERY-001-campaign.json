@@ -1,22 +1,21 @@
 {
   "evidence_id": "EVD-RECOVERY-001",
-  "source_revision": "0fe5a1b5377646fbf8669cd7f1ea9065a49ed708",
-  "produced_at": "2026-08-01T12:22:20Z",
+  "source_revision": "a4a6ed005607fe0a8e89f89bf0ee57a27e8d00f1",
+  "produced_at": "2026-08-01T12:27:28Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.363s\n",
-      "stdout_sha256": "a33df29ea9a914bb9caf20c27ff56e5350787abd9411e6abb6404abb294bb0a9"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.243s\n",
+      "stdout_sha256": "13e675fac8b44b0c908bac2461ea6725fb2bf7218cc5db52a6dad656c0327ae8"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "full persistence-point crash matrix on real FS profiles pending",
-    "TLA+ refinement gaps documented in internal/recovery/README.md",
-    "VER-RECOVERY-001 remains planned until residual gaps close"
+    "real filesystem publication-profile crash matrix pending",
+    "independent assurance review of evidence not recorded"
   ],
   "extra": {
     "producer": "integris-evidence"

@@ -190,7 +190,7 @@ func checkOpened(info FileInfo, i int, last bool, opts ResolveOpts) error {
 	if last && opts.ExpectFinal != TypeUnknown && info.Type != opts.ExpectFinal {
 		return reject(RuleType, i, "final object type mismatch")
 	}
-	if !opts.AllowHardLinks && info.LinkCount > 1 {
+	if !opts.AllowHardLinks && info.Type != TypeDir && info.LinkCount > 1 {
 		return reject(RulePolicy, i, "hard link not permitted")
 	}
 	if !volumeAllowed(info.Volume, opts.Root) {

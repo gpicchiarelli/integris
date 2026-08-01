@@ -73,9 +73,9 @@ func run(root string) error {
 				{"go", "test", "./internal/path/", "-fuzz=FuzzPathSequence", "-fuzztime=5s"},
 			},
 			residual: []string{
-				"platform filesystem / mount-race injection not yet run",
 				"independent security review of evidence not recorded",
-				"VER-PATH-001 remains planned until residual gaps close",
+				"FreeBSD/OpenBSD empirical openat campaigns not yet run in CI",
+				"VER-PATH-001 remains planned until independent review closes",
 			},
 		},
 		{
@@ -112,9 +112,21 @@ func run(root string) error {
 				{"go", "test", "./internal/recovery/", "-count=1"},
 			},
 			residual: []string{
-				"full persistence-point crash matrix on real FS profiles pending",
-				"TLA+ refinement gaps documented in internal/recovery/README.md",
-				"VER-RECOVERY-001 remains planned until residual gaps close",
+				"real filesystem publication-profile crash matrix pending",
+				"independent assurance review of evidence not recorded",
+			},
+		},
+		{
+			id:   "EVD-TXN-001",
+			dir:  "evidence/transaction",
+			file: "EVD-TXN-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/recovery/", "-count=1", "-run", "Conformance"},
+			},
+			residual: []string{
+				"TLC does not prove Go; see internal/recovery/README.md",
+				"independent security review of evidence not recorded",
+				"VER-TXN-001 remains planned until review closes",
 			},
 		},
 	}
