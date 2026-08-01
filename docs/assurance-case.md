@@ -38,10 +38,13 @@ This is an engineering claim, not a certification or product-readiness claim.
 - Reproducibility requires two independent builders and cannot be established by
   the author repeating a build locally.
 - GitHub branch protection, private reporting, and environments are external
-  settings and cannot be guaranteed by files in this repository. Probe on
-  2026-08-01: `main` is unprotected; protection/ruleset APIs return plan-limited
-  403; vulnerability alerts and secret scanning are disabled (see
-  `docs/github-settings.md`).
+  settings and cannot be guaranteed by files in this repository alone. Probe on
+  2026-08-01 (evening): `main` has branch protection with required status
+  checks and `enforce_admins`; secret scanning + push protection, Dependabot
+  security updates, private vulnerability reporting, and Actions SHA pinning
+  are enabled; `.github/CODEOWNERS` is present. Residual: independent IC-1
+  reviewers still unassigned; required code-owner review deferred until a
+  second owner exists (see `docs/github-settings.md`).
 
 These are release blockers where `docs/release-policy.md` says so. The assurance
 case must never convert planned evidence into produced evidence.

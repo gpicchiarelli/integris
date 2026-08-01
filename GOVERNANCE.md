@@ -33,8 +33,14 @@ evidence `reviewer_role` values remain governance role identifiers (not people).
 approver exists. `gpicchiarelli` is the sole author and cannot satisfy ROADMAP
 M0 exit (“two independent approvers accept every IC-1 item”) or GOVERNANCE
 independence alone. Do not invent placeholder reviewer identities. Product-kernel
-merges remain gated until real independent reviewers are assigned. `CODEOWNERS`
-is intentionally absent until those people exist (see `docs/github-settings.md`).
+merges remain process-gated until real independent reviewers are assigned.
+
+`.github/CODEOWNERS` lists `@gpicchiarelli` as path owner so GitHub requests
+maintainer review on matching changes. It is **not** a substitute for
+independent IC-1 approvers. When technical, security, and assurance reviewers
+are assigned real GitHub accounts, add them to the relevant CODEOWNERS paths
+and enable “Require review from Code Owners” on `main` (see
+`docs/github-settings.md`).
 
 ## Decision process
 
