@@ -30,6 +30,9 @@ jobs:
           go-version-file: go.mod
           cache: false
       - name: Run evidence producer
+        env:
+          # Fuzz campaigns run in fuzz.yml / CI short-fuzz; keep evidence gate deterministic.
+          INTEGRIS_EVIDENCE_SKIP_FUZZ: "1"
         run: make evidence
       - name: Run release digest
         run: make release-digest

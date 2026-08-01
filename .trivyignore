@@ -1,0 +1,3 @@
+# Unfixed / informational advisories that do not affect Integris call sites
+# (confirmed via govulncheck reachable-symbol scan). Revisit on x/crypto bumps.
+GO-2026-5932

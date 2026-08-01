@@ -250,13 +250,16 @@ func run(root string) error {
 			},
 		}
 		for _, args := range c.commands {
+			if os.Getenv("INTEGRIS_EVIDENCE_SKIP_FUZZ") != "" && commandHasFuzz(args) {
+				continue
+			}
 			cr, err := runCmd(abs, args)
 			if err != nil {
 				return fmt.Errorf("%s: %w", c.id, err)
 			}
 			m.Commands = append(m.Commands, cr)
 			if cr.ExitCode != 0 {
-				return fmt.Errorf("%s: command failed: %s (exit %d)", c.id, strings.Join(args, " "), cr.ExitCode)
+				return fmt.Errorf("%s: command failed: %s (exit %d)\n%s", c.id, strings.Join(args, " "), cr.ExitCode, cr.Stdout)
 			}
 		}
 		m.ArtifactSHA = "sha256 of this JSON file after write; see sibling .sha256"
@@ -307,6 +310,15 @@ func runCmd(dir string, args []string) (commandResult, error) {
 		Stdout:   tail,
 		Digest:   hex.EncodeToString(sum[:]),
 	}, nil
+}
+
+func commandHasFuzz(args []string) bool {
+	for _, a := range args {
+		if strings.HasPrefix(a, "-fuzz=") || a == "-fuzz" {
+			return true
+		}
+	}
+	return false
 }
 
 func gitOutput(dir string, args ...string) (string, error) {

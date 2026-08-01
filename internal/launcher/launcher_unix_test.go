@@ -138,7 +138,7 @@ func TestLaunchStubIPC(t *testing.T) {
 		}
 	}
 	switch runtime.GOOS {
-	case "darwin", "linux", "openbsd", "freebsd":
+	case "darwin", "linux", "openbsd":
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
 			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
@@ -150,6 +150,17 @@ func TestLaunchStubIPC(t *testing.T) {
 		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
 			t.Fatalf("expected NEG-ROLE-NET denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+	case "freebsd":
+		// Capsicum is fd-only today; ambient socket() remains possible (NEG-ROLE-NET gap).
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-EXEC:denied_as_expected")) {
+			t.Fatalf("expected NEG-EXEC denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	}
 	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {

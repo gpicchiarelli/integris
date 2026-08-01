@@ -1,2 +1,8 @@
 # Expected unsafe in Linux Landlock/seccomp adapters (IP-A-0003 / go-profile).
 internal/confine/apply_linux.go
+
+# Deterministic math/rand is intentional in planner property tests (seeded).
+internal/plan/property_test.go
+
+# Dependabot cooldown is configured; rule false-positive on nested keys.
+.github/dependabot.yml

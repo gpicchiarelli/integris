@@ -48,11 +48,19 @@ jobs:
       - name: Guard Go profile (unsafe / plugin)
         run: |
           set -euo pipefail
-          # unsafe is prohibited by default (docs/go-profile.md).
-          if git grep -n -E '\bunsafe\.' -- ':(glob)cmd/**/*.go' ':(glob)internal/**/*.go' ':(exclude)*_test.go'; then
-            echo "unsafe. usage found outside reviewed adapters" >&2
-            exit 1
-          fi
+          # unsafe is prohibited by default (docs/go-profile.md), except reviewed
+          # platform adapters under internal/confine (Landlock/seccomp/Seatbelt).
+          hits=$(git grep -n -E '\bunsafe\.' -- ':(glob)cmd/**/*.go' ':(glob)internal/**/*.go' ':(exclude)*_test.go' || true)
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            case "$line" in
+              internal/confine/*) ;;
+              *)
+                echo "unsafe. usage found outside reviewed adapters: $line" >&2
+                exit 1
+                ;;
+            esac
+          done <<< "$hits"
           if git grep -n '"plugin"' -- ':(glob)cmd/**/*.go' ':(glob)internal/**/*.go'; then
             echo "plugin import is prohibited" >&2
             exit 1

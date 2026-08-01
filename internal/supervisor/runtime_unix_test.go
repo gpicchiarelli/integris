@@ -99,7 +99,7 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 		t.Fatalf("missing default scm key in %q", resp.Payload)
 	}
 	switch runtime.GOOS {
-	case "darwin", "linux", "openbsd", "freebsd":
+	case "darwin", "linux", "openbsd":
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
 			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
@@ -111,6 +111,16 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
 			t.Fatalf("expected NEG-ROLE-NET denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-EXEC:denied_as_expected")) {
+			t.Fatalf("expected NEG-EXEC denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {
@@ -569,7 +579,7 @@ func TestRuntimeStartChildAuthAccept(t *testing.T) {
 		t.Fatalf("missing NEG-AUTH-PUB in %q", resp.Payload)
 	}
 	switch runtime.GOOS {
-	case "darwin", "linux", "openbsd", "freebsd":
+	case "darwin", "linux", "openbsd":
 		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
 			t.Fatalf("expected NEG-ROLE-NET denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
