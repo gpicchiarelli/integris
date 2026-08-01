@@ -60,7 +60,8 @@ on FilePersist; apply-side `FilePublisher` covers stage→rename→dirsync FailA
 Observation→Recover; OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels via crash-stub
 (`CrashSegment.KillAt` / `FilePublisher.KillAt`); Darwin `F_FULLFSYNC` via
 `platform.SyncFile` and `clonefile` via `platform.CloneFile`→`PublishFrom`
-(with `CopyXattr`+`CopyACL` on degraded byte-copy); CapCOW/CapXattr/CapBSDFlags/CapSparse/
+(with `CopyXattr`+`CopyBSDFlags`+`CopyACL` on degraded byte-copy); CapCOW/CapXattr/
+CapBSDFlags/CapSparse/
 CapResourceFork/CapTimes/CapACL/CapUnicode probed in `fsmodel.ProbeScratch`;
 power-fail/unflushed pages still open);
 sealed MAC key FD (Linux memfd; anon-unlinked

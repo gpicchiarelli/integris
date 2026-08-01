@@ -82,6 +82,7 @@ is accepted.
 - Empirical CapUnicode probe in `fsmodel.ProbeScratch` (NFC/NFD é twin fold vs preserve);
 - Darwin `platform.CopyACL` (`acl_get_file`→`acl_set_file`) on CloneFile degraded copy path;
 - `platform.CopyXattr` (`listxattr`/`getxattr`/`setxattr`) on CloneFile degraded copy path;
+- `platform.CopyBSDFlags` (`chflags` from `Stat_t.Flags`) on CloneFile degraded copy path;
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
