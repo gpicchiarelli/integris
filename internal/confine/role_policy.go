@@ -23,13 +23,20 @@ func RoleMayHoldNetwork(role authority.ProcessRole) bool {
 	return err == nil && ok
 }
 
-// RoleArchiveFSMode returns the ambient archive-path mode for role.
-// CapArchiveRoots → read/write; CapReadonlyArchiveRoot → read-only; else none.
+// RoleArchiveFSMode returns the ambient path allow-root mode for role.
+// CapArchiveRoots / CapJournalDescriptor → read/write;
+// CapReadonlyArchiveRoot / CapReadonlyJournal → read-only; else none.
 func RoleArchiveFSMode(role authority.ProcessRole) ArchiveFSMode {
 	if ok, err := authority.Allows(role, authority.CapArchiveRoots); err == nil && ok {
 		return ArchiveFSReadWrite
 	}
+	if ok, err := authority.Allows(role, authority.CapJournalDescriptor); err == nil && ok {
+		return ArchiveFSReadWrite
+	}
 	if ok, err := authority.Allows(role, authority.CapReadonlyArchiveRoot); err == nil && ok {
+		return ArchiveFSReadonly
+	}
+	if ok, err := authority.Allows(role, authority.CapReadonlyJournal); err == nil && ok {
 		return ArchiveFSReadonly
 	}
 	return ArchiveFSNone

@@ -503,6 +503,219 @@ func TestRuntimeStartChildAllowRootsIndex(t *testing.T) {
 	}
 }
 
+func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	allowRoot := filepath.Join(t.TempDir(), "journal-root")
+	if err := os.MkdirAll(allowRoot, 0o700); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleApply,
+			Confer:   []authority.Capability{authority.CapArchiveRoots},
+			IPCPeers: []authority.ProcessRole{authority.RoleJournal},
+		},
+		{
+			Role: authority.RoleJournal,
+			Confer: []authority.Capability{
+				authority.CapJournalDescriptor, authority.CapAuthenticatedRecords,
+			},
+			IPCPeers: []authority.ProcessRole{authority.RoleApply},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x6f}, 32)
+	var nonce [16]byte
+	nonce[2] = 15
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+	rt.AllowRoots = map[authority.ProcessRole][]string{
+		authority.RoleJournal: {allowRoot},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := rt.StartChild(ctx, authority.RoleJournal, authority.RoleApply, bin); err != nil {
+		t.Fatal(err)
+	}
+
+	parent, err := rt.Fabric.Endpoint(authority.RoleApply, authority.RoleJournal)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("journal-roots"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:journal-roots|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-JOURNAL-NET:denied_as_expected")) {
+		t.Fatalf("missing NEG-JOURNAL-NET in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-JOURNAL-POLICY:denied_as_expected")) {
+		t.Fatalf("missing NEG-JOURNAL-POLICY in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-JOURNAL-MUTATE:denied_as_expected")) {
+		t.Fatalf("missing NEG-JOURNAL-MUTATE in %q", resp.Payload)
+	}
+	switch runtime.GOOS {
+	case "darwin", "linux", "openbsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
+			t.Fatalf("expected NEG-FS-PATH available on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-WRITE:available")) {
+			t.Fatalf("expected NEG-FS-WRITE available for journal on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:skipped")) {
+			t.Fatalf("expected NEG-FS-PATH skipped on freebsd: %q", resp.Payload)
+		}
+	}
+	if err := rt.WaitChild(authority.RoleJournal); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRuntimeStartChildAllowRootsAudit(t *testing.T) {
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	allowRoot := filepath.Join(t.TempDir(), "audit-root")
+	if err := os.MkdirAll(allowRoot, 0o700); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(allowRoot, "marker.txt"), []byte("ro"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role: authority.RoleJournal,
+			Confer: []authority.Capability{
+				authority.CapJournalDescriptor, authority.CapAuthenticatedRecords,
+			},
+			IPCPeers: []authority.ProcessRole{authority.RoleAudit},
+		},
+		{
+			Role: authority.RoleAudit,
+			Confer: []authority.Capability{
+				authority.CapReadonlyJournal, authority.CapRedactedEventSink,
+			},
+			IPCPeers: []authority.ProcessRole{authority.RoleJournal},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x70}, 32)
+	var nonce [16]byte
+	nonce[2] = 16
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+	rt.AllowRoots = map[authority.ProcessRole][]string{
+		authority.RoleAudit: {allowRoot},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := rt.StartChild(ctx, authority.RoleAudit, authority.RoleJournal, bin); err != nil {
+		t.Fatal(err)
+	}
+
+	parent, err := rt.Fabric.Endpoint(authority.RoleJournal, authority.RoleAudit)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("audit-roots"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:audit-roots|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-AUDIT-DECIDE:denied_as_expected")) {
+		t.Fatalf("missing NEG-AUDIT-DECIDE in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-AUDIT-ARCHIVES:denied_as_expected")) {
+		t.Fatalf("missing NEG-AUDIT-ARCHIVES in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-AUDIT-SECRETS:denied_as_expected")) {
+		t.Fatalf("missing NEG-AUDIT-SECRETS in %q", resp.Payload)
+	}
+	switch runtime.GOOS {
+	case "darwin", "linux", "openbsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
+			t.Fatalf("expected NEG-FS-PATH available on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-WRITE:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS-WRITE denial for audit on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:skipped")) {
+			t.Fatalf("expected NEG-FS-PATH skipped on freebsd: %q", resp.Payload)
+		}
+	}
+	if err := rt.WaitChild(authority.RoleAudit); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRuntimeStartChildAuthAccept(t *testing.T) {
 	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {

@@ -43,8 +43,8 @@ profile defect.
 - `ExtraFiles` containing the conferred IPC socket end(s) (socket-only by default);
 - argv/env limited to role, peer, session nonce, key-transport label, optional
   confer/slot inventory, and optional `INTEGRIS_ALLOW_ROOTS` (non-secret);
-- `supervisor.Runtime.AllowRoots` forwards absolute archive roots into
-  `launcher.Start` for Apply/Index engineering probes;
+- `supervisor.Runtime.AllowRoots` forwards absolute path roots into
+  `launcher.Start` for Apply/Index/Journal/Audit engineering probes;
 - `INTEGRIS_STUB_MODE=initiate|respond` for child↔child IPC (StartPair/RestartPair);
 - dual-live edges require `KeyViaExtraFiles` (SCM dual-spawn unsupported);
 - MAC key via `CreateKeyFD`, never via environment:
@@ -70,14 +70,15 @@ directory owned for the test/run.
   `cap_rights_limit` object rights beyond conferred fds). Engineering children
   call `confine.ApplyEngineeringOpts(role, opts)`:
   - Linux: `no_new_privs` + Landlock (empty or path_beneath allow-roots for
-    Apply/Index) + seccomp exec/ptrace denylist; roles without `network_sockets`
-    also deny socket/connect/bind/listen/accept*;
+    Apply/Index/Journal/Audit) + seccomp exec/ptrace denylist; roles without
+    `network_sockets` also deny socket/connect/bind/listen/accept*;
   - OpenBSD: role-parameterized `pledge` + `unveil` of allow-roots then lock;
   - FreeBSD: `cap_enter` (fd-only; path allow-lists require conferred directory FDs);
   - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
-    archive roles may receive `(allow file-read*/file-write* (subpath …))`
+    path-capable roles may receive `(allow file-read*/file-write* (subpath …))`
     allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root;
-    `NEG-FS-WRITE` asserts create under root succeeds for Apply and is denied for Index).
+    `NEG-FS-WRITE` asserts create under root succeeds for Apply/Journal and is
+    denied for Index/Audit).
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
   `NEG-FS-WRITE`, `NEG-EXEC`, `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
   (`NEG-NET-ARCHIVE`, `NEG-NET-KEYS`, `NEG-NET-JOURNAL`, `NEG-PARSER-NET`,
