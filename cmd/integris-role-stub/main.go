@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 	"github.com/gpicchiarelli/integris/internal/confine"
@@ -61,6 +63,10 @@ func run() error {
 	if rawRoots := os.Getenv(launcher.EnvAllowRoots); rawRoots != "" {
 		opts.AllowRoots = splitAllowRoots(rawRoots)
 	}
+	rootFDs := claimAllowRootFDs(os.Getenv(launcher.EnvAllowRootFDs))
+	defer closeAllowRootFDs(rootFDs)
+	opts.AllowRootFDs = rootFDs
+	_ = confine.LimitAllowRootFDs(confine.RoleArchiveFSMode(role), rootFDs...)
 	_ = confine.ApplyEngineeringOpts(role, opts)
 	negFindings := confine.NegativeEngineeringOpts(role, opts)
 	negFindings = append(negFindings, confine.NegativeRoleSemantic(confine.RoleProbeInput{
@@ -167,4 +173,35 @@ func splitAllowRoots(s string) []string {
 		}
 	}
 	return out
+}
+
+func claimAllowRootFDs(raw string) []*os.File {
+	if raw == "" {
+		return nil
+	}
+	parts := strings.Split(raw, ",")
+	out := make([]*os.File, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p == "" {
+			continue
+		}
+		fd, err := strconv.Atoi(p)
+		if err != nil || fd < 0 {
+			continue
+		}
+		f := os.NewFile(uintptr(fd), "allow-root-"+p)
+		if f != nil {
+			out = append(out, f)
+		}
+	}
+	return out
+}
+
+func closeAllowRootFDs(files []*os.File) {
+	for _, f := range files {
+		if f != nil {
+			_ = f.Close()
+		}
+	}
 }

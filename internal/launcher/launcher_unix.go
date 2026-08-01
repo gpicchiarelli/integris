@@ -84,13 +84,26 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 	if err != nil {
 		return nil, err
 	}
+	rootFiles, _, err := openAllowRootDirs(req.AllowRoots)
+	if err != nil {
+		_ = keyFD.Close()
+		return nil, err
+	}
+	defer closeFiles(rootFiles)
+
 	cmd := exec.CommandContext(ctx, req.Executable)
 	cmd.Dir = work
 	h := &Handle{Cmd: cmd, Role: req.Role}
 	if req.KeyViaExtraFiles {
 		env = append(env, EnvKeyTransport+"="+string(transport))
+		extras := make([]*os.File, 0, 2+len(rootFiles))
+		extras = append(extras, req.Socket, keyFD)
+		extras = append(extras, rootFiles...)
+		if fdEnv := allowRootFDEnv(2, len(rootFiles)); fdEnv != "" {
+			env = append(env, EnvAllowRootFDs+"="+fdEnv)
+		}
 		cmd.Env = env // intentional: do not inherit parent env; no MAC key in env
-		cmd.ExtraFiles = []*os.File{req.Socket, keyFD}
+		cmd.ExtraFiles = extras
 		if err := cmd.Start(); err != nil {
 			_ = keyFD.Close()
 			return nil, fail("start", err.Error())
@@ -99,8 +112,14 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 		return h, nil
 	}
 	env = append(env, EnvKeyTransport+"="+string(KeyTransportSCMRights))
+	extras := make([]*os.File, 0, 1+len(rootFiles))
+	extras = append(extras, req.Socket)
+	extras = append(extras, rootFiles...)
+	if fdEnv := allowRootFDEnv(1, len(rootFiles)); fdEnv != "" {
+		env = append(env, EnvAllowRootFDs+"="+fdEnv)
+	}
 	cmd.Env = env
-	cmd.ExtraFiles = []*os.File{req.Socket}
+	cmd.ExtraFiles = extras
 	if err := cmd.Start(); err != nil {
 		_ = keyFD.Close()
 		return nil, fail("start", err.Error())

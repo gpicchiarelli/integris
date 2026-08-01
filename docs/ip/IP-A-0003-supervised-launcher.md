@@ -40,9 +40,12 @@ profile defect.
 
 `launcher.Start` may start a single absolute executable with:
 
-- `ExtraFiles` containing the conferred IPC socket end(s) (socket-only by default);
+- `ExtraFiles` containing the conferred IPC socket end(s) (socket-only by default;
+  FreeBSD also appends opened allow-root directory FDs when
+  `INTEGRIS_ALLOW_ROOTS` is set, addressed by `INTEGRIS_ALLOW_ROOT_FDS`);
 - argv/env limited to role, peer, session nonce, key-transport label, optional
-  confer/slot inventory, and optional `INTEGRIS_ALLOW_ROOTS` (non-secret);
+  confer/slot inventory, and optional `INTEGRIS_ALLOW_ROOTS` /
+  `INTEGRIS_ALLOW_ROOT_FDS` (non-secret);
 - `supervisor.Runtime.AllowRoots` forwards absolute archive roots into
   `launcher.Start` for Apply/Index engineering probes;
 - `INTEGRIS_STUB_MODE=initiate|respond` for child↔child IPC (StartPair/RestartPair);
@@ -73,7 +76,9 @@ directory owned for the test/run.
     Apply/Index) + seccomp exec/ptrace denylist; roles without `network_sockets`
     also deny socket/connect/bind/listen/accept*;
   - OpenBSD: role-parameterized `pledge` + `unveil` of allow-roots then lock;
-  - FreeBSD: `cap_enter` (fd-only; path allow-lists require conferred directory FDs);
+  - FreeBSD: `cap_enter` after `LimitConferredFDs` + `LimitAllowRootFDs` on
+    conferred archive directory FDs (`NEG-FS-PATH`/`NEG-FS-WRITE` via
+    `fstat`/`openat`);
   - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
     archive roles may receive `(allow file-read*/file-write* (subpath …))`
     allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root;
@@ -94,8 +99,8 @@ directory owned for the test/run.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
   apply is not claimed equivalent).
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
-- Broader role path allow-lists beyond Apply/Index archive caps; pre-conferred
-  directory FDs on FreeBSD Capsicum.
+- Broader role path allow-lists beyond Apply/Index archive caps (FreeBSD
+  conferred directory FDs for Apply/Index archive roots are landed).
 - Dual-live crash recovery beyond kill-both `RestartPair` (in-place peer FD
   rebind while one child survives; SCM dual-spawn still unsupported).
 - Windows process model.

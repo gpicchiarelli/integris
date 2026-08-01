@@ -94,6 +94,7 @@ is accepted.
 - `resource.WithSoftCPU` process CPU-time saturation harness for EVD-RESOURCE (`RLIMIT_CPU` → SIGXCPU);
 - Darwin true-ENOSPC harness for EVD-RESOURCE (`hdiutil` 2MiB HFS+ image → `unix.ENOSPC`);
 - Darwin abrupt-detach power-fail harness for EVD-RECOVERY (`SyncFile` survive across `hdiutil` force-detach);
+- FreeBSD Capsicum conferred allow-root directory FDs (`INTEGRIS_ALLOW_ROOT_FDS` + `LimitAllowRootFDs` + `NEG-FS-PATH`/`WRITE` via openat);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
