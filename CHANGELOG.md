@@ -93,6 +93,8 @@ is accepted.
 - `resource.WithSoftFSIZE` disk-write saturation harness for EVD-RESOURCE (`RLIMIT_FSIZE` → EFBIG);
 - `resource.WithSoftCPU` process CPU-time saturation harness for EVD-RESOURCE (`RLIMIT_CPU` → SIGXCPU);
 - Darwin true-ENOSPC harness for EVD-RESOURCE (`hdiutil` 2MiB HFS+ image → `unix.ENOSPC`);
+- Restrict int64 `Rlimit` helpers to FreeBSD/DragonFly (OpenBSD/NetBSD use uint64 like Linux/Darwin);
+- TypeData chunk envelope (`offset||length||data`) + `Driver.TrackDataChunks` contiguous resume refuse matrix;
 - Darwin abrupt-detach power-fail harness for EVD-RECOVERY (`SyncFile` survive across `hdiutil` force-detach);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
