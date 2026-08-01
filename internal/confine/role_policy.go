@@ -1,6 +1,7 @@
 package confine
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
@@ -47,6 +48,9 @@ type ApplyOptions struct {
 	// AllowRoots are absolute directories permitted under RoleArchiveFSMode.
 	// Ignored when the role's archive mode is ArchiveFSNone.
 	AllowRoots []string
+	// AllowRootFDs are pre-conferred directory descriptors (FreeBSD Capsicum).
+	// NegativeFSPath/Write use openat/fstat on these after CapEnter.
+	AllowRootFDs []*os.File
 }
 
 // NormalizeAllowRoots EvalSymlinks absolute directory roots; rejects non-abs.

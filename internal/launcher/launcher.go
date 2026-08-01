@@ -19,6 +19,7 @@ const (
 	EnvConfer        = "INTEGRIS_CONFER"
 	EnvSlots         = "INTEGRIS_SLOTS"
 	EnvAllowRoots    = "INTEGRIS_ALLOW_ROOTS"
+	EnvAllowRootFDs  = "INTEGRIS_ALLOW_ROOT_FDS"
 	EnvStubMode      = "INTEGRIS_STUB_MODE"
 	ModeEngineering  = "engineering"
 	StubModeRespond  = "respond"
@@ -28,6 +29,8 @@ const (
 	// KeyFileFD is the child's inherited sealed MAC-key FD when using the
 	// legacy ExtraFiles path (ExtraFiles[1] → fd 4).
 	KeyFileFD = 4
+	// Allow-root directory FDs (FreeBSD Capsicum) follow the socket, and the
+	// legacy key FD when KeyViaExtraFiles is set: ExtraFiles[i] → fd 3+i.
 )
 
 // Error is a typed launcher failure.

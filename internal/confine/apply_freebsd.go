@@ -5,6 +5,7 @@ package confine
 import (
 	"os"
 	"runtime"
+	"strconv"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 	"golang.org/x/sys/unix"
@@ -52,7 +53,6 @@ func LimitConferredFDs(files ...*os.File) Finding {
 }
 
 func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
-	_ = opts // Capsicum is fd-only; path allow-lists require pre-conferred directory FDs.
 	_ = role
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	if err := unix.CapEnter(); err != nil {
@@ -61,8 +61,14 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 			Status: StatusUnavailable, Detail: err.Error(),
 		}}
 	}
+	detail := "capability mode entered"
+	if n := len(opts.AllowRootFDs); n > 0 {
+		detail += "; allow-root directory fds=" + strconv.Itoa(n)
+	} else if len(opts.AllowRoots) > 0 {
+		detail += "; allow-roots paths set but no conferred directory fds"
+	}
 	return []Finding{{
 		ID: "APPLY-CAPSICUM", Platform: plat, Control: "cap_enter",
-		Status: StatusAvailable, Detail: "capability mode entered (fd-only; path allow-lists N/A)",
+		Status: StatusAvailable, Detail: detail,
 	}}
 }

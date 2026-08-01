@@ -57,6 +57,8 @@ Apply/Index/Journal/Audit path allow-roots (Index/Audit readonly write denial pr
 hostile IPC refuse matrix; Apply/Index path allow-roots (Index readonly write denial probed);
 orchestrates spawn (AllowRoots→stub), RestartChild (retains AllowRoots), and RestartPair (KeyViaExtraFiles + stub initiate);
 Apply/Index path allow-roots (Index readonly write denial probed);
+Apply/Index path allow-roots (Index readonly write denial probed; FreeBSD via
+conferred directory FDs + Capsicum rights);
 journal `CrashSegment` exercises J-APPEND-PRE/MID/POST + J-META-POST on FileSegment
 with Recover round-trip; recovery-side P-* PersistIO FailAt covers STAGE/PUBLISH/CONFIRM
 on FilePersist; apply-side `FilePublisher` covers stage→rename→dirsync FailAt with

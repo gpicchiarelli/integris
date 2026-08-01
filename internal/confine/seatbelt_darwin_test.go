@@ -45,11 +45,11 @@ func TestSeatbeltAllowRootAndDeniesAmbient(t *testing.T) {
 	if rd.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-FS-READ: %+v", rd)
 	}
-	path := confine.NegativeFSPath(authority.RoleApply, opts.AllowRoots)
+	path := confine.NegativeFSPath(authority.RoleApply, opts)
 	if path.Status != confine.StatusAvailable {
 		t.Fatalf("NEG-FS-PATH: %+v", path)
 	}
-	wr := confine.NegativeFSPathWrite(authority.RoleApply, opts.AllowRoots)
+	wr := confine.NegativeFSPathWrite(authority.RoleApply, opts)
 	if wr.Status != confine.StatusAvailable {
 		t.Fatalf("NEG-FS-WRITE apply: %+v", wr)
 	}

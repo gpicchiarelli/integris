@@ -60,10 +60,11 @@ func NegativeFSRead() Finding {
 
 // NegativeFSPath attempts to open a conferred allow-root after apply.
 // Expected StatusAvailable when RoleArchiveFSMode is non-none and roots were
-// installed; otherwise skipped.
-func NegativeFSPath(role authority.ProcessRole, roots []string) Finding {
+// installed; otherwise skipped. On FreeBSD, uses a conferred directory FD.
+func NegativeFSPath(role authority.ProcessRole, opts ApplyOptions) Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	mode := RoleArchiveFSMode(role)
+	roots := opts.AllowRoots
 	if mode == ArchiveFSNone || len(roots) == 0 {
 		return Finding{
 			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
@@ -73,9 +74,15 @@ func NegativeFSPath(role authority.ProcessRole, roots []string) Finding {
 	switch runtime.GOOS {
 	case "linux", "openbsd", "darwin":
 	case "freebsd":
+		if err := probeAllowRootReadable(opts); err != nil {
+			return Finding{
+				ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
+				Status: StatusUnavailable, Detail: "allow-root fd probe failed: " + err.Error(),
+			}
+		}
 		return Finding{
 			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
-			Status: StatusSkipped, Detail: "Capsicum is fd-only; path allow-lists N/A",
+			Status: StatusAvailable, Detail: "allow-root fd fstat ok mode=" + archiveModeLabel(mode),
 		}
 	default:
 		return Finding{
@@ -110,9 +117,11 @@ func NegativeFSPath(role authority.ProcessRole, roots []string) Finding {
 
 // NegativeFSPathWrite attempts create/write under a conferred allow-root.
 // ArchiveFSReadonly roles must be denied; ArchiveFSReadWrite must succeed.
-func NegativeFSPathWrite(role authority.ProcessRole, roots []string) Finding {
+// On FreeBSD, uses openat on a conferred directory FD.
+func NegativeFSPathWrite(role authority.ProcessRole, opts ApplyOptions) Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	mode := RoleArchiveFSMode(role)
+	roots := opts.AllowRoots
 	if mode == ArchiveFSNone || len(roots) == 0 {
 		return Finding{
 			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
@@ -122,9 +131,34 @@ func NegativeFSPathWrite(role authority.ProcessRole, roots []string) Finding {
 	switch runtime.GOOS {
 	case "linux", "openbsd", "darwin":
 	case "freebsd":
+		cleanup, err := probeAllowRootCreate(opts)
+		if mode == ArchiveFSReadonly {
+			if err == nil {
+				if cleanup != nil {
+					cleanup()
+				}
+				return Finding{
+					ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+					Status: StatusUnexpectedAllow, Detail: "create under readonly allow-root fd succeeded",
+				}
+			}
+			return Finding{
+				ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+				Status: StatusDeniedExpected, Detail: err.Error(),
+			}
+		}
+		if err != nil {
+			return Finding{
+				ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+				Status: StatusUnavailable, Detail: "create under readwrite allow-root fd failed: " + err.Error(),
+			}
+		}
+		if cleanup != nil {
+			cleanup()
+		}
 		return Finding{
 			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
-			Status: StatusSkipped, Detail: "Capsicum is fd-only; path allow-lists N/A",
+			Status: StatusAvailable, Detail: "allow-root fd write ok mode=readwrite",
 		}
 	default:
 		return Finding{
@@ -194,8 +228,8 @@ func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions) []Fi
 	return []Finding{
 		NegativeFSOpen(),
 		NegativeFSRead(),
-		NegativeFSPath(role, opts.AllowRoots),
-		NegativeFSPathWrite(role, opts.AllowRoots),
+		NegativeFSPath(role, opts),
+		NegativeFSPathWrite(role, opts),
 		NegativeExec(),
 		NegativePtrace(),
 		NegativeRoleNet(role),
