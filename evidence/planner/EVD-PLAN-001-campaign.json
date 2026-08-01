@@ -1,7 +1,7 @@
 {
   "evidence_id": "EVD-PLAN-001",
-  "source_revision": "7bd47767214ed8cd44fd14fcceeb73bb485b2f4b",
-  "produced_at": "2026-08-01T17:38:32Z",
+  "source_revision": "64b01dd55aae74b3250b2ca9d23a06666e9e155c",
+  "produced_at": "2026-08-01T18:41:52Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
