@@ -11,3 +11,11 @@ func setSoftRlimit(next *unix.Rlimit, soft uint64) {
 	}
 	next.Cur = int64(soft)
 }
+
+func setSoftAndHardRlimit(next *unix.Rlimit, soft uint64) {
+	if next.Max >= 0 && soft > uint64(next.Max) {
+		soft = uint64(next.Max)
+	}
+	next.Cur = int64(soft)
+	next.Max = int64(soft)
+}

@@ -26,10 +26,6 @@ func withSoftCPU(soft uint64, fn func() error) error {
 	return withSoftRlimit(unix.RLIMIT_CPU, soft, "CPU", fn)
 }
 
-func withSoftNPROC(soft uint64, fn func() error) error {
-	return withSoftRlimit(unix.RLIMIT_NPROC, soft, "NPROC", fn)
-}
-
 func withSoftRlimit(res int, soft uint64, name string, fn func() error) error {
 	if fn == nil {
 		return fmt.Errorf("resource: nil WithSoft%s func", name)
