@@ -51,12 +51,12 @@ jobs:
         run: |
           set -euo pipefail
           # unsafe is prohibited by default (docs/go-profile.md), except reviewed
-          # platform adapters under internal/confine (Landlock/seccomp/Seatbelt).
+          # adapters: confine (Landlock/seccomp/Seatbelt) and Darwin ACL (IP-S-0002).
           hits=$(git grep -n -E '\bunsafe\.' -- ':(glob)cmd/**/*.go' ':(glob)internal/**/*.go' ':(exclude)*_test.go' || true)
           while IFS= read -r line; do
             [ -z "$line" ] && continue
             case "$line" in
-              internal/confine/*) ;;
+              internal/confine/*|internal/platform/acl_darwin.go:*) ;;
               *)
                 echo "unsafe. usage found outside reviewed adapters: $line" >&2
                 exit 1

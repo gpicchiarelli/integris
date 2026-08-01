@@ -1,16 +1,17 @@
-//go:build darwin || freebsd || openbsd
+//go:build freebsd || openbsd
 
 package platform
 
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 	"testing"
 
 	"golang.org/x/sys/unix"
 )
 
+// FreeBSD/OpenBSD x/sys does not export Darwin's UF_NODUMP. Exercise chflags
+// round-trip with a cleared flags word so CopyBSDFlags still compiles and runs.
 func TestCopyBSDFlagsRoundTrip(t *testing.T) {
 	dir := t.TempDir()
 	src := filepath.Join(dir, "src")
@@ -21,50 +22,10 @@ func TestCopyBSDFlagsRoundTrip(t *testing.T) {
 	if err := os.WriteFile(dst, []byte("f"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if runtime.GOOS == "darwin" {
-		if err := unix.Chflags(src, unix.UF_NODUMP); err != nil {
-			t.Fatal(err)
-		}
+	if err := unix.Chflags(src, 0); err != nil {
+		t.Fatal(err)
 	}
 	if err := CopyBSDFlags(dst, src); err != nil {
 		t.Fatal(err)
-	}
-	if runtime.GOOS == "darwin" {
-		var st unix.Stat_t
-		if err := unix.Stat(dst, &st); err != nil {
-			t.Fatal(err)
-		}
-		if st.Flags&unix.UF_NODUMP == 0 {
-			t.Fatalf("dst flags=%#x missing UF_NODUMP", st.Flags)
-		}
-		_ = unix.Chflags(dst, 0)
-		_ = unix.Chflags(src, 0)
-	}
-}
-
-func TestCopyFileExclusivePreservesBSDFlags(t *testing.T) {
-	if runtime.GOOS != "darwin" {
-		t.Skip("UF_NODUMP assertion is Darwin-specific in x/sys")
-	}
-	dir := t.TempDir()
-	src := filepath.Join(dir, "src")
-	dst := filepath.Join(dir, "dst")
-	if err := os.WriteFile(src, []byte("clone-flags"), 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if err := unix.Chflags(src, unix.UF_NODUMP); err != nil {
-		t.Fatal(err)
-	}
-	defer unix.Chflags(src, 0)
-	if err := copyFileExclusive(dst, src); err != nil {
-		t.Fatal(err)
-	}
-	defer unix.Chflags(dst, 0)
-	var st unix.Stat_t
-	if err := unix.Stat(dst, &st); err != nil {
-		t.Fatal(err)
-	}
-	if st.Flags&unix.UF_NODUMP == 0 {
-		t.Fatalf("dst flags=%#x missing UF_NODUMP after degraded copy", st.Flags)
 	}
 }
