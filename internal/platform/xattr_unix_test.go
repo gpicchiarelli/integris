@@ -31,7 +31,7 @@ func TestCopyXattrRoundTrip(t *testing.T) {
 	key := probeXattrKey()
 	want := []byte("probe-v1")
 	if err := unix.Setxattr(src, key, want, 0); err != nil {
-		t.Fatal(err)
+		t.Skipf("xattr unsupported on this filesystem: %v", err)
 	}
 	if err := CopyXattr(dst, src); err != nil {
 		t.Fatal(err)
@@ -70,7 +70,7 @@ func TestCopyFileExclusivePreservesXattr(t *testing.T) {
 	key := probeXattrKey()
 	want := []byte("keep")
 	if err := unix.Setxattr(src, key, want, 0); err != nil {
-		t.Fatal(err)
+		t.Skipf("xattr unsupported on this filesystem: %v", err)
 	}
 	if err := copyFileExclusive(dst, src); err != nil {
 		t.Fatal(err)
