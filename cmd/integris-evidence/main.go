@@ -112,7 +112,7 @@ func run(root string) error {
 				{"go", "test", "./internal/recovery/", "-count=1"},
 			},
 			residual: []string{
-				"J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (CopyACL on degraded copy) complete; power-fail/unflushed pages still open",
+				"J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (CopyXattr+CopyACL on degraded copy) complete; power-fail/unflushed pages still open",
 				"independent assurance review of evidence not recorded",
 			},
 		},
@@ -180,6 +180,7 @@ func run(root string) error {
 				"CapTimes empirical (Chtimes + Stat Atim/Mtim)",
 				"CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; other ports UNKNOWN)",
 				"CopyACL on CloneFile degraded copy (Darwin cgo; clonefile preserves ACL natively)",
+				"CopyXattr on CloneFile degraded copy (listxattr/getxattr/setxattr; skips Darwin ACL xattr)",
 				"CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
 				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",

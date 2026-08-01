@@ -1,39 +1,39 @@
 {
   "evidence_id": "EVD-ARCH-001",
-  "source_revision": "185042ac4a508fbd03901e69f94a6b2bd815610d",
-  "produced_at": "2026-08-01T18:40:42Z",
+  "source_revision": "ab09ca12051d66a137c3edc870c168f21d07c1a4",
+  "produced_at": "2026-08-01T18:45:53Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/authority/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.349s\n",
-      "stdout_sha256": "84c199b727c7a1c43f1e8e3027a194320c3411b574fd3306c3cf4f0fafd42cf6"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.353s\n",
+      "stdout_sha256": "0164e170c92686bd255857836bda29faea319f791896d4b86fc8b7a2d965d800"
     },
     {
       "command": "go test ./internal/supervisor/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t14.824s\n",
-      "stdout_sha256": "e893f0ee512924764f3bdaf6c6a6c1534c86ab5fec6d5d2b17ceeb8fc8e2f8eb"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t14.944s\n",
+      "stdout_sha256": "a598b70f30f1dcb533a85ca1c8532bf130dd26b7886156490b6e6c84ca2bcda8"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.341s\n",
-      "stdout_sha256": "d86707e3e5c1948545a438e0867fee5f94980bd559e2124bf829ee2d3cdd3816"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.350s\n",
+      "stdout_sha256": "e5ffbd8916a48e4808820797b060c37f63b82f14b42e2ab041137fd0786357bf"
     },
     {
       "command": "go test ./internal/confine/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.259s\n",
-      "stdout_sha256": "2c7a58ab5a3a66adaf28d79f9df6450c138b9813f868dfc29ad548f1a6c497ac"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.275s\n",
+      "stdout_sha256": "2ea9bd0de47fee764b91e17b672809994837e7a0f2f28acd96781c85b370bea2"
     },
     {
       "command": "go test ./internal/launcher/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t2.677s\n",
-      "stdout_sha256": "0adba635053ba0c664de1e83973bc6c5f2edd69e0fd55cff875a0034fbad0305"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t2.773s\n",
+      "stdout_sha256": "27074db715a52ac0e59fe3dad18a15b01337908d4d655507d36496ad4bbc20ed"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

@@ -13,8 +13,9 @@ const (
 )
 
 // copyFileExclusive creates dst exclusively and copies src bytes (degraded
-// clone path). Applies SyncFile before close. When ACLSupported, also copies
-// the extended ACL (clonefile preserves ACLs; byte-copy would otherwise drop them).
+// clone path). Applies SyncFile before close. Copies extended attributes and,
+// when ACLSupported, the extended ACL (clonefile preserves both; byte-copy
+// would otherwise drop them).
 func copyFileExclusive(dst, src string) error {
 	if dst == "" || src == "" {
 		return fmt.Errorf("platform: empty clone path")
@@ -47,19 +48,23 @@ func copyFileExclusive(dst, src string) error {
 		return err
 	}
 	out = nil
+	// Xattr before ACL so Darwin ACL APIs own com.apple.system.Security.
+	if err := copyXattr(dst, src); err != nil {
+		return err
+	}
 	if ACLSupported() {
 		if err := copyACL(dst, src); err != nil {
 			return err
 		}
-		meta, err := os.Open(dst)
-		if err != nil {
-			return err
-		}
-		syncErr := SyncFile(meta)
-		_ = meta.Close()
-		if syncErr != nil {
-			return syncErr
-		}
+	}
+	meta, err := os.Open(dst)
+	if err != nil {
+		return err
+	}
+	syncErr := SyncFile(meta)
+	_ = meta.Close()
+	if syncErr != nil {
+		return syncErr
 	}
 	cleanup = false
 	return nil

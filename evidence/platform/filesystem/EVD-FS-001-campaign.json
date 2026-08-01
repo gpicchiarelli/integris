@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "64b01dd55aae74b3250b2ca9d23a06666e9e155c",
-  "produced_at": "2026-08-01T18:42:00Z",
+  "source_revision": "ab09ca12051d66a137c3edc870c168f21d07c1a4",
+  "produced_at": "2026-08-01T18:45:52Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.278s\n",
-      "stdout_sha256": "b43cb39f1df11296d2de8ed5f81acce561c8ef9c49dd6e7a138187ea655ba175"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.283s\n",
+      "stdout_sha256": "75182501be348a96e8a1f7f2a3e2651f5b2edf915a3c9a175dac2e020d1b5d1e"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -20,6 +20,7 @@
     "CapTimes empirical (Chtimes + Stat Atim/Mtim)",
     "CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; other ports UNKNOWN)",
     "CopyACL on CloneFile degraded copy (Darwin cgo; clonefile preserves ACL natively)",
+    "CopyXattr on CloneFile degraded copy (listxattr/getxattr/setxattr; skips Darwin ACL xattr)",
     "CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
     "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",
