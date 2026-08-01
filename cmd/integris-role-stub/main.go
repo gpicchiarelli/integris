@@ -29,9 +29,20 @@ func run() error {
 		return fmt.Errorf("missing ipc fd")
 	}
 	defer sock.Close()
-	keyF := os.NewFile(uintptr(launcher.KeyFileFD), "key")
-	if keyF == nil {
-		return fmt.Errorf("missing key fd")
+
+	kt := os.Getenv(launcher.EnvKeyTransport)
+	var keyF *os.File
+	if kt == string(launcher.KeyTransportSCMRights) {
+		f, err := ipc.RecvFDFile(sock)
+		if err != nil {
+			return fmt.Errorf("recv key fd: %w", err)
+		}
+		keyF = f
+	} else {
+		keyF = os.NewFile(uintptr(launcher.KeyFileFD), "key")
+		if keyF == nil {
+			return fmt.Errorf("missing key fd")
+		}
 	}
 	defer keyF.Close()
 
@@ -76,7 +87,7 @@ func run() error {
 	}
 	payload := append([]byte("ack:"), frame.Payload...)
 	payload = append(payload, []byte(negAck)...)
-	if kt := os.Getenv(launcher.EnvKeyTransport); kt != "" {
+	if kt != "" {
 		payload = append(payload, []byte("|KEY:"+kt)...)
 	}
 	reply, err := ch.Encode(ipc.TypeResponse, payload)

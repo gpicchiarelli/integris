@@ -44,10 +44,12 @@ profile defect.
 - argv/env limited to role, peer, session nonce, and key-transport label
   (non-secret);
 - MAC key conferred on **fd 4** via `CreateKeyFD` (`ExtraFiles[1]`), never via
-  environment:
+  environment (default ABI):
   - **Linux:** sealed `memfd` (`F_SEAL_WRITE|SHRINK|GROW|SEAL`);
   - **other Unix:** unlinked temp file reopened `O_RDONLY` (engineering residual
-    until memfd/SCM_RIGHTS parity);
+    until memfd seals land);
+- optional `KeyViaSCM`: ExtraFiles is socket-only; parent sends the key FD with
+  `SCM_RIGHTS` (`ipc.SendFD`) before the first authenticated frame;
 - IPC socket on **fd 3** (`ExtraFiles[0]`);
 - a finite `context` deadline for wait;
 - `EngineeringMode=true` required; when false, Start refuses (release path not
@@ -66,7 +68,8 @@ directory owned for the test/run.
   OpenBSD: `pledge("stdio unix")` + `unveil` lock; FreeBSD: `cap_enter`).
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-EXEC`, `NEG-PTRACE`)
   over IPC.
-- SCM_RIGHTS key passing over the IPC socket (fd-4 conferral remains the ABI).
+- SCM_RIGHTS key passing over the IPC socket (optional `KeyViaSCM`; fd-4 ExtraFiles
+  remains the default ABI). Underlying FD may still be memfd/anon-unlinked.
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
 - Role-semantic negative probes (`NEG-NET-ARCHIVE`, …) beyond OS denylists.
 - Multi-child restart policy and supervisor crash recovery beyond

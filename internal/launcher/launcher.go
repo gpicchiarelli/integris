@@ -48,6 +48,9 @@ type Request struct {
 	MACKey          []byte
 	Socket          *os.File
 	EngineeringMode bool
-	WaitTimeout     time.Duration
-	WorkDir         string
+	// KeyViaSCM, when true, confers the MAC key FD via SCM_RIGHTS after start
+	// (ExtraFiles is socket-only). Caller must SendFD Handle.KeyFD then Close it.
+	KeyViaSCM   bool
+	WaitTimeout time.Duration
+	WorkDir     string
 }

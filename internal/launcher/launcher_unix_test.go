@@ -136,6 +136,115 @@ func TestLaunchStubIPC(t *testing.T) {
 	}
 }
 
+func TestLaunchStubIPCViaSCM(t *testing.T) {
+	root, err := moduleRoot(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, root, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleNet,
+			Confer:   []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
+			IPCPeers: []authority.ProcessRole{authority.RoleParser},
+		},
+		{
+			Role:     authority.RoleParser,
+			Confer:   []authority.Capability{authority.CapBoundedMessageIPC},
+			IPCPeers: []authority.ProcessRole{authority.RoleNet},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	keyRoot := bytes.Repeat([]byte{0x57}, 32)
+	var nonce [16]byte
+	nonce[1] = 9
+	fab, err := supervisor.OpenSocketFabric(p, keyRoot, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer fab.Close()
+
+	childEp, err := fab.Endpoint(authority.RoleParser, authority.RoleNet)
+	if err != nil {
+		t.Fatal(err)
+	}
+	sockFile, err := childEp.Conn.File()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer sockFile.Close()
+	// Keep childEp.Conn closed; parent side sends SCM_RIGHTS.
+	_ = childEp.Conn.Close()
+	childEp.Conn = nil
+
+	macKey, err := crypto.ChannelMACKey(keyRoot, string(authority.RoleParser), string(authority.RoleNet))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	h, err := launcher.Start(ctx, launcher.Request{
+		Executable:      bin,
+		Role:            authority.RoleParser,
+		Peer:            authority.RoleNet,
+		Nonce:           nonce,
+		MACKey:          macKey,
+		Socket:          sockFile,
+		EngineeringMode: true,
+		KeyViaSCM:       true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if h.KeyFD == nil {
+		t.Fatal("expected KeyFD for SCM path")
+	}
+
+	parent, err := fab.Endpoint(authority.RoleNet, authority.RoleParser)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.SendFD(parent.Conn, h.KeyFD); err != nil {
+		t.Fatal(err)
+	}
+	_ = h.KeyFD.Close()
+	h.KeyFD = nil
+
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("scm"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:scm|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {
+		t.Fatalf("missing scm key transport in %q", resp.Payload)
+	}
+	if err := h.Wait(); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func moduleRoot(t *testing.T) (string, error) {
 	t.Helper()
 	wd, err := os.Getwd()

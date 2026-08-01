@@ -8,6 +8,7 @@ import (
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 	"github.com/gpicchiarelli/integris/internal/crypto"
+	"github.com/gpicchiarelli/integris/internal/ipc"
 	"github.com/gpicchiarelli/integris/internal/launcher"
 )
 
@@ -19,6 +20,8 @@ type Runtime struct {
 	Fabric   *SocketFabric
 	RootKey  []byte
 	Children map[authority.ProcessRole]*launcher.Handle
+	// KeyViaSCM confers MAC keys with SCM_RIGHTS after spawn (socket-only ExtraFiles).
+	KeyViaSCM bool
 }
 
 // OpenRuntime builds launch tokens and a socket fabric. It does not spawn.
@@ -57,14 +60,52 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 	if err != nil {
 		return fail("socket", err.Error())
 	}
-	_ = ep.Conn.Close()
-	ep.Conn = nil
 
 	macKey, err := crypto.ChannelMACKey(r.RootKey, string(role), string(peer))
 	if err != nil {
 		_ = sock.Close()
 		return fail("key", err.Error())
 	}
+
+	if r.KeyViaSCM {
+		parentEp, err := r.Fabric.Endpoint(peer, role)
+		if err != nil {
+			_ = sock.Close()
+			return err
+		}
+		_ = ep.Conn.Close()
+		ep.Conn = nil
+		h, err := launcher.Start(ctx, launcher.Request{
+			Executable:      executable,
+			Role:            role,
+			Peer:            peer,
+			Nonce:           r.Fabric.Nonce,
+			MACKey:          macKey,
+			Socket:          sock,
+			EngineeringMode: true,
+			KeyViaSCM:       true,
+		})
+		_ = sock.Close()
+		if err != nil {
+			return err
+		}
+		if h.KeyFD == nil {
+			_ = h.Cmd.Process.Kill()
+			return fail("key", "missing SCM key FD")
+		}
+		if err := ipc.SendFD(parentEp.Conn, h.KeyFD); err != nil {
+			_ = h.KeyFD.Close()
+			_ = h.Cmd.Process.Kill()
+			return fail("rights", err.Error())
+		}
+		_ = h.KeyFD.Close()
+		h.KeyFD = nil
+		r.Children[role] = h
+		return nil
+	}
+
+	_ = ep.Conn.Close()
+	ep.Conn = nil
 	h, err := launcher.Start(ctx, launcher.Request{
 		Executable:      executable,
 		Role:            role,
