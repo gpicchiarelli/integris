@@ -2,6 +2,8 @@
   "evidence_id": "EVD-RESOURCE-001",
   "source_revision": "3eefd3f06a26ec4c6a4ba171c466c374c697f26c",
   "produced_at": "2026-08-01T20:08:13Z",
+  "source_revision": "f32786b0ad0e054f232b99a6d55bdd1216e631ef",
+  "produced_at": "2026-08-01T20:28:17Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
@@ -10,6 +12,8 @@
       "exit_code": 0,
       "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t2.610s\n",
       "stdout_sha256": "dcd297a02a817d417d0cb36419357c6b52dfc9c17e0909f3e8b5451adca066ec"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t3.461s\n",
+      "stdout_sha256": "52a9de54e038c4f31bc7c675dd5996513aff058c138c4a19aad5d42831f5b519"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -18,6 +22,7 @@
     "RLIMIT_FSIZE disk-write saturation harness complete (WithSoftFSIZE → EFBIG; not ENOSPC)",
     "RLIMIT_CPU process CPU-time harness complete (WithSoftCPU → SIGXCPU; not system-wide load)",
     "RLIMIT_NPROC process-count harness complete (WithSoftNPROC → EAGAIN when unprivileged; FreeBSD clamps hard max; euid0 may retain PRIV_PROC_LIMIT)",
+    "RLIMIT_AS address/data-space harness complete (WithSoftAS → ENOMEM mmap; Darwin unenforceable; OpenBSD RLIMIT_DATA)",
     "true ENOSPC full-volume harness complete (Darwin hdiutil 2MiB HFS+ image → unix.ENOSPC)",
     "independent security review of evidence not recorded"
   ],

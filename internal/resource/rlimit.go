@@ -36,4 +36,13 @@ func WithSoftCPU(soft uint64, fn func() error) error {
 // platforms without RLIMIT_NPROC, returns an error.
 func WithSoftNPROC(soft uint64, fn func() error) error {
 	return withSoftNPROC(soft, fn)
+// WithSoftAS temporarily lowers the process address/data-space soft ceiling
+// for the duration of fn, then restores the previous limit. Soft is capped to
+// the hard max. Linux/FreeBSD/NetBSD use RLIMIT_AS; OpenBSD uses RLIMIT_DATA
+// (covers anonymous mmap). Oversized anonymous mmap under a binding ceiling
+// typically surfaces as ENOMEM. Darwin reports RLIMIT_AS via getrlimit but
+// setrlimit returns EINVAL (not enforceable); WithSoftAS errors there. On
+// platforms without a suitable limit, returns an error.
+func WithSoftAS(soft uint64, fn func() error) error {
+	return withSoftAS(soft, fn)
 }
