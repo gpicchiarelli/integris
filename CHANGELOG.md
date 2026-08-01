@@ -74,6 +74,7 @@ is accepted.
 - Multi-version negotiate happy-path suite (`multi_version_test.go`);
 - Empirical CapXattr + CapBSDFlags probes in `fsmodel.ProbeScratch`;
 - Empirical CapSparse + CapResourceFork probes in `fsmodel.ProbeScratch`;
+- Empirical CapTimes probe in `fsmodel.ProbeScratch` (Chtimes round-trip);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;

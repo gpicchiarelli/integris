@@ -53,6 +53,11 @@ func TestProbeScratchEmpirical(t *testing.T) {
 	default:
 		t.Fatalf("rfork=%v", byID[plan.CapResourceFork])
 	}
+	switch byID[plan.CapTimes] {
+	case plan.ResultLossless, plan.ResultUnrepresentable, plan.ResultUnknown:
+	default:
+		t.Fatalf("times=%v", byID[plan.CapTimes])
+	}
 	if runtime.GOOS == "darwin" {
 		if byID[plan.CapCOW] != plan.ResultLossless {
 			t.Fatalf("darwin CapCOW=%v want LOSSLESS (clonefile)", byID[plan.CapCOW])
@@ -68,6 +73,9 @@ func TestProbeScratchEmpirical(t *testing.T) {
 		}
 		if byID[plan.CapResourceFork] != plan.ResultLossless {
 			t.Fatalf("darwin CapResourceFork=%v want LOSSLESS (namedfork)", byID[plan.CapResourceFork])
+		}
+		if byID[plan.CapTimes] != plan.ResultLossless {
+			t.Fatalf("darwin CapTimes=%v want LOSSLESS (chtimes)", byID[plan.CapTimes])
 		}
 	}
 	// Digest must be stable across re-probe on same FS type in same dir parent.
@@ -95,6 +103,9 @@ func TestProbeScratchEmpirical(t *testing.T) {
 		}
 		if fact(res, plan.CapResourceFork) != fact(res2, plan.CapResourceFork) {
 			t.Fatal("rfork probe unstable")
+		}
+		if fact(res, plan.CapTimes) != fact(res2, plan.CapTimes) {
+			t.Fatal("times probe unstable")
 		}
 	}
 }

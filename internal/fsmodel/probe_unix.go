@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"time"
 
 	"github.com/gpicchiarelli/integris/internal/codec"
 	"github.com/gpicchiarelli/integris/internal/plan"
@@ -58,7 +59,7 @@ func ProbeScratch(scratchDir string) (ProbeResult, error) {
 		probeBSDFlags(dir),
 		probeSparse(dir),
 		probeResourceFork(dir),
-		{ID: plan.CapTimes, Result: plan.ResultUnknown},
+		probeTimes(dir),
 		{ID: plan.CapIdentityMap, Result: plan.ResultUnknown},
 		{ID: plan.CapMount, Result: plan.ResultUnknown},
 		{ID: plan.CapRenameAtomicity, Result: probeRename(dir)},
@@ -198,6 +199,32 @@ func xattrName() string {
 		return "user.integris.probe"
 	}
 	return "integris.probe"
+}
+
+// probeTimes sets and reads back atime/mtime on a scratch file.
+func probeTimes(dir string) Fact {
+	path := filepath.Join(dir, "times-probe")
+	if err := os.WriteFile(path, []byte("t"), 0o600); err != nil {
+		return Fact{ID: plan.CapTimes, Result: plan.ResultUnknown}
+	}
+	defer os.Remove(path)
+	at := time.Unix(1_700_000_000, 123_456_789)
+	mt := time.Unix(1_700_000_100, 987_654_321)
+	if err := os.Chtimes(path, at, mt); err != nil {
+		return Fact{ID: plan.CapTimes, Result: plan.ResultUnrepresentable, DetailDigest: codec.SHA256([]byte("chtimes"))}
+	}
+	var st unix.Stat_t
+	if err := unix.Stat(path, &st); err != nil {
+		return Fact{ID: plan.CapTimes, Result: plan.ResultUnknown}
+	}
+	if st.Atim.Sec != at.Unix() || st.Mtim.Sec != mt.Unix() {
+		return Fact{ID: plan.CapTimes, Result: plan.ResultUnrepresentable, DetailDigest: codec.SHA256([]byte("times-sec-mismatch"))}
+	}
+	detail := "times-sec"
+	if st.Atim.Nsec == int64(at.Nanosecond()) && st.Mtim.Nsec == int64(mt.Nanosecond()) {
+		detail = "times-ns"
+	}
+	return Fact{ID: plan.CapTimes, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte(detail))}
 }
 
 // probeSparse detects holey files via SEEK_HOLE / SEEK_DATA on a gapped write.
