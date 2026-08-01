@@ -160,9 +160,22 @@ func run(root string) error {
 				{"go", "test", "./internal/deletion/", "-count=1"},
 			},
 			residual: []string{
-				"descriptor-relative quarantine move not yet wired to path OS adapter",
+				"openat-relative quarantine (renameat) not yet replacing filepath rename",
 				"independent security review required for IC-1",
 				"VER-DELETE-001 remains planned until review closes",
+			},
+		},
+		{
+			id:   "EVD-FS-001",
+			dir:  "evidence/platform/filesystem",
+			file: "EVD-FS-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/fsmodel/", "-count=1"},
+			},
+			residual: []string{
+				"empirical per-OS capability probes not yet implemented",
+				"independent technical review of evidence not recorded",
+				"VER-FS-001 remains planned until platform probes land",
 			},
 		},
 	}

@@ -1,20 +1,20 @@
 {
   "evidence_id": "EVD-DELETE-001",
-  "source_revision": "97a9e2a19fd71f9aae7b668924c25bf1171cc2d7",
-  "produced_at": "2026-08-01T12:32:09Z",
+  "source_revision": "332041f454f4bc93fe66d1607da0705a8c7c396b",
+  "produced_at": "2026-08-01T12:34:00Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/deletion/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/deletion\t0.248s\n",
-      "stdout_sha256": "8f484b4653a2d232968c6723bb7e1dd8b936cd82548363bcfeb859588aa4a05b"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/deletion\t0.254s\n",
+      "stdout_sha256": "efb494d0eb79529a725f8af990f8f516fd285bdd2a3a247761255193deaec647"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "descriptor-relative quarantine move not yet wired to path OS adapter",
+    "openat-relative quarantine (renameat) not yet replacing filepath rename",
     "independent security review required for IC-1",
     "VER-DELETE-001 remains planned until review closes"
   ],

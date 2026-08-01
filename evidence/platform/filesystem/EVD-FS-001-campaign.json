@@ -1,0 +1,24 @@
+{
+  "evidence_id": "EVD-FS-001",
+  "source_revision": "332041f454f4bc93fe66d1607da0705a8c7c396b",
+  "produced_at": "2026-08-01T12:34:01Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go test ./internal/fsmodel/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.241s\n",
+      "stdout_sha256": "4975df5a06e3f7b20ebdee7ef8ba80cdb5b74b74ca491f9cebae353a87f51fc5"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "empirical per-OS capability probes not yet implemented",
+    "independent technical review of evidence not recorded",
+    "VER-FS-001 remains planned until platform probes land"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}
