@@ -124,5 +124,23 @@ func (s *FileSegment) Append(p []byte) error {
 // Sync implements Segment.
 func (s *FileSegment) Sync() error { return s.f.Sync() }
 
+// Truncate shrinks the durable prefix for fault-injection / quarantine repair.
+func (s *FileSegment) Truncate(n int64) error {
+	if s == nil || s.f == nil {
+		return fmt.Errorf("journal: nil file segment")
+	}
+	if n < 0 {
+		n = 0
+	}
+	if err := s.f.Truncate(n); err != nil {
+		return err
+	}
+	if _, err := s.f.Seek(n, 0); err != nil {
+		return err
+	}
+	s.size = n
+	return nil
+}
+
 // Close closes the underlying file.
 func (s *FileSegment) Close() error { return s.f.Close() }

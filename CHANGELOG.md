@@ -8,6 +8,13 @@ is accepted.
 
 ### Added
 
+- expanded GitHub Actions surface: staticcheck/gosec, OSV, Trivy, Semgrep,
+  Scorecard, gitleaks, SBOM (CycloneDX/Syft), reproducible dual-build digests
+  with attestations, FreeBSD VM tests, macOS cgo Seatbelt, cross-compile matrix
+  for Linux/Darwin/FreeBSD/OpenBSD, coverage artifacts, evidence regeneration,
+  license inventory, workflow lint (actionlint/zizmor), typos, Markdown link
+  check, EditorConfig hygiene, dependency-graph submission, stale bot, and PR
+  path labeler; Dependabot grouping for Go/`github-actions`;
 - M1 draft IPs: path grammar/resolution, journal codec envelope, deterministic
   planner, idempotent crash recovery;
 - M1 reference kernels under `internal/{path,codec,journal,plan,recovery}`;
@@ -48,6 +55,7 @@ is accepted.
 - Net MustNot triad complete (`NEG-NET-KEYS`, `NEG-NET-JOURNAL`);
 - Plan MustNot triad complete (`NEG-PLAN-KEYS`, `NEG-PLAN-NET`);
 - Supervisor MustNot triad complete (`NEG-SUP-PARSER`, `NEG-SUP-TRAVERSE`, `NEG-SUP-KEYS`);
+- Journal `CrashSegment` FailAt for `J-APPEND-PRE/MID/POST` + `J-META-POST` on FileSegment with Recover round-trip;
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
 - `Runtime.StartPair`/`RestartPair` with stub initiate mode (KeyViaExtraFiles dual-live edges);
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;

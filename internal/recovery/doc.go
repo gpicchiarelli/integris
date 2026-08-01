@@ -31,6 +31,9 @@
 //  4. TLC checking of formal/transaction does not prove this implementation;
 //     model-conformance tests document the mapping above without asserting
 //     formal equivalence.
+//  5. J-APPEND-PRE/MID/POST and J-META-POST are exercised via journal.CrashSegment
+//     FailAt on FileSegment with Recover round-trip; OS SIGKILL/power-fail and
+//     full publication-profile P-* sequences remain open.
 //
 // EVD-RECOVERY-001 / EVD-TXN-001 remain planned until evidence artifacts exist.
 package recovery

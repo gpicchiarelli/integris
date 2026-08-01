@@ -54,6 +54,8 @@ NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET and role-semantic conferral
 (including complete inventory MustNot conferral probes for all nine roles; CapNetwork via NEG-ROLE-NET + conferral); Runtime
 orchestrates spawn (AllowRoots→stub), RestartChild, and RestartPair (KeyViaExtraFiles + stub initiate);
 Apply/Index path allow-roots (Index readonly write denial probed);
+journal `CrashSegment` exercises J-APPEND-PRE/MID/POST + J-META-POST on FileSegment
+with Recover round-trip (OS kill/power-fail and full P-* profile still open);
 sealed MAC key FD (Linux memfd; anon-unlinked
 elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys

@@ -114,6 +114,11 @@ Exact platform fsync/rename sequences live in publication profiles; this IP
 requires each profile to cite these labels so VER-RECOVERY-001 can enumerate
 them.
 
+M1 engineering harness: `journal.CrashSegment` FailAt on `FileSegment` covers
+`J-APPEND-PRE` / `J-APPEND-MID` / `J-APPEND-POST` / `J-META-POST` with
+`recovery.Recover` round-trip. This is injected I/O failure, not OS SIGKILL or
+power-fail simulation.
+
 ### Failure behavior
 
 | Situation | Behavior |
