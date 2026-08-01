@@ -1,0 +1,43 @@
+name: Labeler
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  label:
+    name: Auto-label PR paths
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    continue-on-error: true
+    steps:
+      - name: Ensure labels exist
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const names = [
+              'assurance', 'kernels', 'tooling', 'formal', 'docs',
+              'evidence', 'ci', 'security', 'stale', 'dependencies',
+              'go', 'github-actions',
+            ];
+            for (const name of names) {
+              try {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name,
+                  color: '0e8a16',
+                });
+              } catch (e) {
+                if (e.status !== 422) throw e;
+              }
+            }
+      - name: Apply labels
+        uses: actions/labeler@634933edcd8ababfe52f92936142cc22ac488b1b # v6.0.1
+        with:
+          configuration-path: .github/labeler.yml
+          sync-labels: true

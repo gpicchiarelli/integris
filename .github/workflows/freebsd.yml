@@ -1,0 +1,48 @@
+name: FreeBSD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: freebsd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: FreeBSD test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test on FreeBSD with pinned Go
+        uses: vmactions/freebsd-vm@77ed28d336d03fe19a3f4f7266c1d2c4714dd79d # v1.5.2
+        with:
+          release: "14.3"
+          usesh: true
+          copyback: false
+          prepare: |
+            pkg install -y curl git ca_root_nss
+            # go1.26.5.freebsd-amd64.tar.gz — sha256 from https://go.dev/dl/?mode=json
+            curl --fail --location --proto '=https' --tlsv1.2 --retry 3 \
+              -o /tmp/go.tgz \
+              https://go.dev/dl/go1.26.5.freebsd-amd64.tar.gz
+            echo "0e5ddc51a62018211d461d6bf409939b04eaa4d6dd6d7097910090ef755ed947  /tmp/go.tgz" | sha256 -c -
+            rm -rf /usr/local/go
+            tar -C /usr/local -xzf /tmp/go.tgz
+          run: |
+            set -e
+            export PATH=/usr/local/go/bin:$PATH
+            export CGO_ENABLED=0
+            go version
+            go test ./...
+            go vet ./...

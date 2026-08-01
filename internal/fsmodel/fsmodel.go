@@ -121,7 +121,7 @@ func Compare(source []Fact, target Vector) (PreflightReport, error) {
 	blocked := false
 	for _, s := range src {
 		t, ok := idx[s.ID]
-		outcome := s.Result
+		var outcome plan.ResultCode
 		reason := "source classification"
 		if !ok {
 			outcome = plan.ResultUnknown

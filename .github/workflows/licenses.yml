@@ -1,0 +1,54 @@
+name: License compliance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: licenses-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  go-licenses:
+    name: go-licenses check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Check dependency licenses
+        env:
+          GOTOOLCHAIN: go1.26.5
+          GOWORK: "off"
+        run: |
+          go run github.com/google/go-licenses@v1.6.0 \
+            check ./... \
+            --disallowed_types=forbidden,restricted
+      - name: Emit license CSV inventory
+        env:
+          GOTOOLCHAIN: go1.26.5
+          GOWORK: "off"
+        run: |
+          mkdir -p dist
+          go run github.com/google/go-licenses@v1.6.0 \
+            csv ./... | tee dist/licenses.csv
+      - name: Upload license inventory
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: licenses-csv
+          path: dist/licenses.csv
+          if-no-files-found: error
+          retention-days: 30

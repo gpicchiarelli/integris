@@ -7,7 +7,7 @@ an administrator records screenshots/API evidence that `main` has:
 - pull requests required with at least two approvals for IC-1 changes;
 - stale approvals dismissed and code-owner review required after owners exist;
 - all conversations resolved;
-- CI, formal models, CodeQL, and dependency review required as applicable;
+- the automated checks listed under “Required status checks” below;
 - administrators subject to the same rules, with emergency bypass logged;
 - secret scanning, push protection, private vulnerability reporting, Dependabot
   alerts, and dependency graph enabled;
@@ -20,13 +20,51 @@ control. Add the file only after real technical, security, and assurance owners
 are assigned, then make it a required review source.
 
 For private repositories without GitHub Advanced Security, the CodeQL workflow
-MUST run analysis with SARIF and database uploads set to `never`/`false`, and
-preserve its SARIF as a short-lived workflow artifact. Enabling dashboard upload
-and secret-scanning controls remains an external prerequisite when the required
-GitHub plan becomes available.
+uploads to the dashboard only when the repository is public (or GHAS is
+enabled); otherwise it preserves SARIF as a short-lived workflow artifact.
 GitHub Dependency Review is also unavailable in that configuration; the private
 fallback verifies the Go module graph and reachable vulnerabilities but does not
-claim equivalent dependency-diff or license-policy coverage.
+claim equivalent dependency-diff or license-policy coverage. Complementary
+workflow scanners (OSV, Trivy, gosec, gitleaks, Scorecard) still run and retain
+artifacts.
+
+## Required status checks (when branch protection is available)
+
+Make these required on `main` as they become stable greens:
+
+| Workflow / job | Role |
+|---|---|
+| `CI` / Verify assurance baseline | fmt, verify, race, govulncheck, profile guards |
+| `CI` / Bootstrap test (ubuntu + macOS) | cross-host unit tests |
+| `CI` / macOS Seatbelt (cgo) | Darwin confinement adapter |
+| `CI` / Cross-compile (declared GOOS/GOARCH) | build smoke for Linux/Darwin/FreeBSD/OpenBSD |
+| `CI` / Short fuzz | hostile-input kernels |
+| `CI` / Coverage profile | structural coverage artifact |
+| `Formal models` | TLA+ TLC |
+| `CodeQL` | semantic code scanning |
+| `Dependency review` | PR dependency/license gate (public) or private fallback |
+| `Static analyzers` | staticcheck + gosec |
+| `OSV Scanner` | OSV database |
+| `SBOM` | CycloneDX / Syft inventories |
+| `Secret scanning` | gitleaks (hosting secret scanning may be plan-gated) |
+| `Workflow lint` | actionlint + zizmor |
+| `Filesystem vulnerability scan` | Trivy fs/config/secret/license |
+| `Semgrep` | OSS rule packs |
+| `Typos` | identifier/docs spelling |
+| `Link check` | Markdown link integrity |
+| `FreeBSD` | native FreeBSD tests |
+| `Reproducible builds` | dual-runner digest equality + attestations on non-PR |
+| `Evidence` | campaign/digest regeneration + JSON syntax |
+| `License compliance` | go-licenses allow-list |
+| `EditorConfig` | encoding/newline hygiene |
+| `OpenSSF Scorecard` | supply-chain posture |
+| `Dependency graph` | Go module submission for the dependency graph |
+
+Scheduled-only workflows (`Scheduled fuzzing`, `Stale`) are not required checks.
+`Labeler` is advisory.
+
+Optional secret: `SCORECARD_TOKEN` (fine-grained PAT) deepens private-repo
+Scorecard checks (branch protection visibility, etc.).
 
 ## Evidence snapshot (2026-08-01)
 
@@ -51,3 +89,5 @@ Values below are observations, not claims that controls are satisfied.
 Dependabot alerts, Action pinning, and release environments are not in place (or
 not inspectable) on the current private/free plan. Enabling them is an external
 admin action and an M0 process blocker alongside independent reviewer assignment.
+Workflow files in `.github/workflows/` implement the automated half of the
+control set; they cannot substitute for hosting enforcement.

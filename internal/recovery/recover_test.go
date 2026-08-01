@@ -153,7 +153,6 @@ func TestRecoverIdentityMismatch(t *testing.T) {
 }
 
 func TestRecoverNoInventPublication(t *testing.T) {
-	p := prefixWithAuthChain(t, false)
 	obs := obsOK()
 	obs.PublicationLinearized = true
 	obs.PublishedContentMatches = true
@@ -166,7 +165,7 @@ func TestRecoverNoInventPublication(t *testing.T) {
 	id := txid(2)
 	b := binding()
 	appendRec(t, w, id, codec.TypeAuthorization, recovery.EncodeAuthorizationPayload(b))
-	p, err = journal.ReadPrefix(seg)
+	p, err := journal.ReadPrefix(seg)
 	if err != nil {
 		t.Fatal(err)
 	}

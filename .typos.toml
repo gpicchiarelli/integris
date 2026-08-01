@@ -1,0 +1,13 @@
+# Domain identifiers and hyphenated technical compounds used in assurance text.
+[default.extend-words]
+THR = "THR"
+HAZ = "HAZ"
+EVD = "EVD"
+VER = "VER"
+mis = "mis"
+
+[files]
+extend-exclude = [
+  "go.sum",
+  "evidence/**/*.sha256",
+]

@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
   workflow_dispatch:
 
 permissions:
@@ -17,7 +18,7 @@ jobs:
   verify:
     name: Verify assurance baseline
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -28,6 +29,11 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
+      - name: Verify module graph
+        run: |
+          go mod verify
+          go mod tidy
+          git diff --exit-code -- go.mod go.sum
       - name: Verify repository
         run: make verify
       - name: Race-test assurance tooling
@@ -37,11 +43,37 @@ jobs:
           GOTOOLCHAIN: go1.26.5
           GOWORK: "off"
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
+      - name: Engineering release digest smoke
+        run: make release-digest
+      - name: Guard Go profile (unsafe / plugin)
+        run: |
+          set -euo pipefail
+          # unsafe is prohibited by default (docs/go-profile.md).
+          if git grep -n -E '\bunsafe\.' -- ':(glob)cmd/**/*.go' ':(glob)internal/**/*.go' ':(exclude)*_test.go'; then
+            echo "unsafe. usage found outside reviewed adapters" >&2
+            exit 1
+          fi
+          if git grep -n '"plugin"' -- ':(glob)cmd/**/*.go' ':(glob)internal/**/*.go'; then
+            echo "plugin import is prohibited" >&2
+            exit 1
+          fi
+          # os/exec only in launcher + evidence/release tooling (IP-A-0003 / go-profile).
+          hits=$(git grep -n '"os/exec"' -- ':(glob)cmd/**/*.go' ':(glob)internal/**/*.go' ':(exclude)*_test.go' || true)
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            case "$line" in
+              internal/launcher/*|cmd/integris-evidence/*|cmd/integris-release-digest/*|cmd/integris-assure/*) ;;
+              *)
+                echo "os/exec outside allowed packages: $line" >&2
+                exit 1
+                ;;
+            esac
+          done <<< "$hits"
 
   cross-platform:
     name: Bootstrap test (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 10
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
@@ -58,6 +90,83 @@ jobs:
           cache: false
       - name: Test
         run: go test ./...
+
+  macos-cgo:
+    name: macOS Seatbelt (cgo)
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Test with CGO (Seatbelt adapter)
+        env:
+          CGO_ENABLED: "1"
+        run: go test ./internal/confine ./internal/launcher ./internal/e2e ./internal/supervisor ./...
+
+  cross-compile:
+    name: Cross-compile ${{ matrix.goos }}/${{ matrix.goarch }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - goos: linux
+            goarch: amd64
+          - goos: linux
+            goarch: arm64
+          - goos: darwin
+            goarch: amd64
+          - goos: darwin
+            goarch: arm64
+          - goos: freebsd
+            goarch: amd64
+          - goos: freebsd
+            goarch: arm64
+          - goos: openbsd
+            goarch: amd64
+          - goos: openbsd
+            goarch: arm64
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Build all packages (CGO disabled)
+        env:
+          CGO_ENABLED: "0"
+          GOOS: ${{ matrix.goos }}
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          mkdir -p dist
+          go build -trimpath -ldflags="-s -w" -o "dist/integris-assure-${GOOS}-${GOARCH}" ./cmd/integris-assure
+          go build -trimpath -ldflags="-s -w" -o "dist/integris-evidence-${GOOS}-${GOARCH}" ./cmd/integris-evidence
+          go build -trimpath -ldflags="-s -w" -o "dist/integris-release-digest-${GOOS}-${GOARCH}" ./cmd/integris-release-digest
+          go build -trimpath -ldflags="-s -w" -o "dist/integris-verify-config-${GOOS}-${GOARCH}" ./cmd/integris-verify-config
+          go build -trimpath -ldflags="-s -w" -o "dist/integris-role-stub-${GOOS}-${GOARCH}" ./cmd/integris-role-stub
+      - name: Record digests
+        run: |
+          cd dist
+          sha256sum * | tee SHA256SUMS
+      - name: Upload binaries
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: cross-compile-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
 
   fuzz-kernels:
     name: Short fuzz (${{ matrix.fuzz }})
@@ -89,3 +198,33 @@ jobs:
           cache: false
       - name: Short-fuzz M1 kernel target
         run: go test -fuzz=${{ matrix.fuzz }} -fuzztime=30s ${{ matrix.package }}
+
+  coverage:
+    name: Coverage profile
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Generate coverage
+        run: |
+          go test -covermode=atomic -coverprofile=coverage.out ./...
+          go tool cover -func=coverage.out | tee coverage.txt
+          go tool cover -html=coverage.out -o coverage.html
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: coverage
+          path: |
+            coverage.out
+            coverage.txt
+            coverage.html
+          if-no-files-found: error
+          retention-days: 14

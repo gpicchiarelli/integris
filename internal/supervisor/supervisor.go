@@ -12,9 +12,9 @@ import (
 
 // ChildSpec describes one intended child process grant.
 type ChildSpec struct {
-	Role        authority.ProcessRole
-	Confer      []authority.Capability
-	IPCPeers    []authority.ProcessRole // allowed remote IPC peers
+	Role     authority.ProcessRole
+	Confer   []authority.Capability
+	IPCPeers []authority.ProcessRole // allowed remote IPC peers
 }
 
 // Plan is a validated supervisor launch plan.

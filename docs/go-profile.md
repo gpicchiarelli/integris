@@ -43,7 +43,8 @@ unless an isolated, reviewed platform adapter explicitly requires otherwise.
 
 ## Enforcement
 
-CI runs formatting, tests, `go vet`, assurance validation, and generated-file
-checks. Later milestones add pinned static analyzers, fuzzing corpora, coverage
-rationales, race testing, vulnerability scanning, and platform builds. A tool
+CI runs formatting, tests, `go vet`, assurance validation, generated-file
+checks, race tests, `staticcheck`, high-severity `gosec`, `govulncheck`,
+OSV/Trivy/Semgrep/CodeQL scans, cross-compilation for declared platforms,
+reproducible digest comparison, SBOM generation, and secret scanning. A tool
 finding may be suppressed only by a reviewed, expiring record linked to risk.

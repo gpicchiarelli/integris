@@ -6,6 +6,7 @@ on:
     paths: ["formal/**", ".github/workflows/formal.yml"]
   pull_request:
     paths: ["formal/**", ".github/workflows/formal.yml"]
+  merge_group:
   workflow_dispatch:
 
 permissions:

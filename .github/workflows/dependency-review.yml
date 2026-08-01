@@ -2,9 +2,11 @@ name: Dependency review
 
 on:
   pull_request:
+  merge_group:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   review:
@@ -19,8 +21,12 @@ jobs:
       - name: Review dependency changes
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
-          fail-on-severity: moderate
-          deny-licenses: GPL-2.0, GPL-3.0, AGPL-1.0, AGPL-3.0
+          fail-on-severity: low
+          deny-licenses: GPL-2.0, GPL-3.0, AGPL-1.0, AGPL-3.0, SSPL-1.0, BUSL-1.1
+          warn-only-licenses: LGPL-2.0, LGPL-2.1, LGPL-3.0
+          comment-summary-in-pr: always
+          show-openssf-scorecard: true
+          warn-on-openssf-scorecard-level: 5
 
   private-review:
     if: github.event.repository.private
@@ -39,9 +45,19 @@ jobs:
       - name: Verify module graph
         run: |
           go mod verify
-          go list -m all
+          go list -m -json all > module-graph.json
+          go list -m all | tee module-list.txt
       - name: Scan reachable vulnerabilities
         env:
           GOTOOLCHAIN: go1.26.5
           GOWORK: "off"
         run: go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
+      - name: Upload module inventory
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: private-dependency-inventory
+          path: |
+            module-graph.json
+            module-list.txt
+          if-no-files-found: error
+          retention-days: 14

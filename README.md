@@ -1,6 +1,24 @@
-# Integris
+<h1 align="center">Integris</h1>
 
-[![License: BSD-3-Clause](https://img.shields.io/badge/License-BSD--3--Clause-blue.svg)](LICENSE)
+<p align="center">
+  <strong>Engineering baseline for a high-integrity replication system.</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/gpicchiarelli/integris/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/gpicchiarelli/integris/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/gpicchiarelli/integris/actions/workflows/formal.yml"><img alt="Formal" src="https://github.com/gpicchiarelli/integris/actions/workflows/formal.yml/badge.svg"></a>
+  <a href="https://github.com/gpicchiarelli/integris/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/gpicchiarelli/integris/actions/workflows/codeql.yml/badge.svg"></a>
+  <a href="https://github.com/gpicchiarelli/integris/actions/workflows/fuzz.yml"><img alt="Fuzz" src="https://github.com/gpicchiarelli/integris/actions/workflows/fuzz.yml/badge.svg"></a>
+  <a href="https://github.com/gpicchiarelli/integris/actions/workflows/scorecard.yml"><img alt="OpenSSF Scorecard" src="https://img.shields.io/badge/OpenSSF-Scorecard-blue"></a>
+  <a href="SECURITY.md"><img alt="Security policy" src="https://img.shields.io/badge/security-policy-green"></a>
+  <a href="go.mod"><img alt="Go 1.26.5" src="https://img.shields.io/badge/Go-1.26.5-00ADD8?logo=go&amp;logoColor=white"></a>
+  <a href="docs/platform-matrix.md"><img alt="Target platforms" src="https://img.shields.io/badge/platforms-macOS%20%7C%20FreeBSD%20%7C%20Linux%20%7C%20OpenBSD-0A7A3E"></a>
+  <a href="formal/README.md"><img alt="TLA+" src="https://img.shields.io/badge/formal-TLA%2B-6B4FBB"></a>
+  <a href="ROADMAP.md"><img alt="Milestone status" src="https://img.shields.io/badge/status-M0%20%E2%86%92%20M1-orange"></a>
+  <a href="LICENSE"><img alt="BSD-3-Clause" src="https://img.shields.io/badge/license-BSD--3--Clause-blue"></a>
+</p>
+
+![Integris high-integrity replication and assurance laboratory](docs/assets/integris-hero.png)
 
 Integris is the engineering baseline for a high-integrity replication system
 targeting macOS, FreeBSD, Linux, and OpenBSD. It is designed around prior

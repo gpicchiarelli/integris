@@ -15,12 +15,12 @@ import (
 type Status string
 
 const (
-	StatusAvailable         Status = "available"
-	StatusUnavailable       Status = "unavailable"
-	StatusUnknown           Status = "unknown"
-	StatusDeniedExpected    Status = "denied_as_expected"
-	StatusUnexpectedAllow   Status = "unexpected_allow"
-	StatusSkipped           Status = "skipped"
+	StatusAvailable       Status = "available"
+	StatusUnavailable     Status = "unavailable"
+	StatusUnknown         Status = "unknown"
+	StatusDeniedExpected  Status = "denied_as_expected"
+	StatusUnexpectedAllow Status = "unexpected_allow"
+	StatusSkipped         Status = "skipped"
 )
 
 // Finding is one discovery or negative-probe row.
