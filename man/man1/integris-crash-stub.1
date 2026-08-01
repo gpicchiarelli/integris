@@ -1,0 +1,85 @@
+.\" Copyright (c) 2026 Integris contributors
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd August 1, 2026
+.Dt INTEGRIS-CRASH-STUB 1
+.Os
+.Sh NAME
+.Nm integris-crash-stub
+.Nd Integris engineering crash harness for publish and journal labels
+.Sh SYNOPSIS
+.Nm
+.Sh DESCRIPTION
+.Nm
+is a Unix-only engineering helper that exercises crash points in publication
+or journal append paths by requesting an OS
+.Dv SIGKILL
+at a labeled persistence step (IP-S-0003 catalog).
+It supports recovery and fault-injection campaigns.
+.Pp
+It is not a product daemon and must not be confused with
+.Xr integrisd 8 .
+.Pp
+The process refuses to start unless
+.Ev INTEGRIS_LAUNCH_MODE
+is
+.Li engineering .
+.Sh ENVIRONMENT
+.Bl -tag -width "INTEGRIS_CRASH_FAIL_AT"
+.It Ev INTEGRIS_LAUNCH_MODE
+Must be
+.Li engineering .
+.It Ev INTEGRIS_CRASH_ROOT
+Required working directory for the harness.
+.It Ev INTEGRIS_CRASH_FAIL_AT
+Required KillAt / FailAt label from the IP-S-0003 catalog
+(for example publication stage/rename/dirsync labels or journal append labels).
+.It Ev INTEGRIS_CRASH_MODE
+.Li publish
+(default) or
+.Li journal .
+.It Ev INTEGRIS_CRASH_NAME
+Required object name when mode is
+.Li publish .
+.It Ev INTEGRIS_CRASH_DATA
+Optional payload for publish mode.
+Default:
+.Li crash-stub-payload .
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds -compact
+.It 0
+Harness completed without error (uncommon when a kill label fires).
+.It 1
+Invalid environment, I/O failure, or non-engineering launch mode.
+.El
+.Pp
+When a kill label is hit, the process is terminated by
+.Dv SIGKILL
+and may not return an exit status to the parent.
+.Sh EXAMPLES
+.Bd -literal -offset indent
+# Invoked by recovery tests / launcher; not a user-facing CLI.
+# INTEGRIS_LAUNCH_MODE=engineering \\
+#   INTEGRIS_CRASH_ROOT=/tmp/crash \\
+#   INTEGRIS_CRASH_FAIL_AT=P-PUBLISH-RENAME \\
+#   INTEGRIS_CRASH_NAME=obj integris-crash-stub
+.Ed
+.Sh SEE ALSO
+.Xr integris-evidence 1 ,
+.Xr integris-role-stub 1 ,
+.Xr kill 1 ,
+.Xr integris 7 ,
+.Xr integrisd 8
+.Pp
+.Pa docs/ip/IP-S-0003-idempotent-crash-recovery.md
+.Sh HISTORY
+Introduced to provide an OS-level SIGKILL harness for recovery evidence.
+.Sh AUTHORS
+.An Integris contributors
+.Sh CAVEATS
+Available only on Unix builds (//go:build unix).
+Not included in all CI distribution artifact lists; built on demand by the
+launcher and tests.
+Do not install as a system service.
+See
+.Pa TRADEMARKS.md .

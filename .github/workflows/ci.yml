@@ -29,6 +29,8 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
+      - name: Install mandoc for manual-page lint
+        run: sudo apt-get update && sudo apt-get install -y mandoc
       - name: Verify module graph
         run: |
           go mod verify

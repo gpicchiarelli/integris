@@ -1,0 +1,96 @@
+.\" Copyright (c) 2026 Integris contributors
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd August 1, 2026
+.Dt INTEGRIS-ROLE-STUB 1
+.Os
+.Sh NAME
+.Nm integris-role-stub
+.Nd Integris engineering IPC child for role confinement probes
+.Sh SYNOPSIS
+.Nm
+.Sh DESCRIPTION
+.Nm
+is a Unix-only engineering helper launched by the Integris supervised launcher.
+It claims conferred descriptors, applies best-effort platform confinement,
+runs negative probes, and performs one authenticated IPC exchange.
+.Pp
+It is not a product daemon and must not be used as
+.Xr integrisd 8 .
+See IP-A-0003.
+.Pp
+The process refuses to start unless
+.Ev INTEGRIS_LAUNCH_MODE
+is
+.Li engineering .
+.Ss Descriptors
+.Bl -tag -width "fd 4" -compact
+.It fd 3
+Inherited IPC socket (always).
+.It fd 4
+Legacy MAC-key file descriptor when key transport is not SCM_RIGHTS.
+.El
+.Pp
+When
+.Ev INTEGRIS_KEY_TRANSPORT
+is
+.Li scm-rights ,
+the MAC-key descriptor is received over the IPC socket instead of fd 4.
+.Sh ENVIRONMENT
+.Bl -tag -width "INTEGRIS_KEY_TRANSPORT"
+.It Ev INTEGRIS_LAUNCH_MODE
+Must be
+.Li engineering .
+.It Ev INTEGRIS_ROLE
+Local process role name.
+.It Ev INTEGRIS_PEER
+Peer role name for the authenticated channel.
+.It Ev INTEGRIS_NONCE_HEX
+Sixteen-byte nonce encoded as thirty-two hexadecimal characters.
+.It Ev INTEGRIS_KEY_TRANSPORT
+One of
+.Li scm-rights ,
+.Li memfd-sealed ,
+or
+.Li anon-unlinked .
+.It Ev INTEGRIS_CONFER
+Comma-separated conferred capability tokens for semantic probes.
+.It Ev INTEGRIS_SLOTS
+Comma-separated slot kinds for semantic probes.
+.It Ev INTEGRIS_ALLOW_ROOTS
+Colon-separated filesystem allow-roots for confinement adapters.
+.It Ev INTEGRIS_STUB_MODE
+.Li respond
+(default) or
+.Li initiate .
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds -compact
+.It 0
+Probe and IPC exchange completed.
+.It 1
+Missing descriptors, invalid environment, confinement/IPC failure, or
+non-engineering launch mode.
+.El
+.Sh EXAMPLES
+.Bd -literal -offset indent
+# Invoked by the supervised launcher / tests; not a user-facing CLI.
+# INTEGRIS_LAUNCH_MODE=engineering INTEGRIS_ROLE=... INTEGRIS_PEER=... \\
+#   INTEGRIS_NONCE_HEX=... integris-role-stub
+.Ed
+.Sh SEE ALSO
+.Xr integris-crash-stub 1 ,
+.Xr integris 7 ,
+.Xr integrisd 8
+.Pp
+.Pa docs/ip/IP-A-0003-supervised-launcher.md ,
+.Pa docs/platform-matrix.md ,
+.Pa docs/security-architecture.md
+.Sh HISTORY
+Introduced for M2 prelude confinement and authority inventory probes.
+.Sh AUTHORS
+.An Integris contributors
+.Sh CAVEATS
+Available only on Unix builds (//go:build unix).
+Do not install as a system service.
+See
+.Pa TRADEMARKS.md .

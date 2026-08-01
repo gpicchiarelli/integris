@@ -1,0 +1,61 @@
+.\" Copyright (c) 2026 Integris contributors
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd August 1, 2026
+.Dt INTEGRIS-VERIFY-CONFIG 1
+.Os
+.Sh NAME
+.Nm integris-verify-config
+.Nd validate an Integris configuration document without side effects
+.Sh SYNOPSIS
+.Nm
+.Fl config Ar path.json
+.Sh DESCRIPTION
+.Nm
+parses and validates an Integris configuration JSON document according to
+.Pa docs/specifications/configuration.md
+and prints:
+.Bl -enum -compact
+.It
+the configuration digest as
+.Li digest_sha256= Ns Ar hex
+.It
+the canonical JSON as
+.Li canonical_json= Ns Ar json
+.El
+.Pp
+The tool performs no network I/O, archive mutation, key use, journal write, or
+authority acquisition.
+Invalid documents produce no product side effect.
+.Ss Options
+.Bl -tag -width "-config path"
+.It Fl config Ar path.json
+Path to the configuration document (required).
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds -compact
+.It 0
+Document is valid; digest and canonical JSON were printed.
+.It 1
+Read or parse failure.
+.It 2
+Missing
+.Fl config
+or usage error.
+.El
+.Sh EXAMPLES
+.Bd -literal -offset indent
+integris-verify-config -config path/to/config.json
+.Ed
+.Sh SEE ALSO
+.Xr integris 7 ,
+.Xr integrisd 8
+.Pp
+.Pa docs/specifications/configuration.md
+.Sh HISTORY
+Added so operators and CI can validate configuration immutability properties
+before any product authority exists.
+.Sh AUTHORS
+.An Integris contributors
+.Sh CAVEATS
+A valid document is necessary but not sufficient for a safe deployment.
+Session binding and confinement checks occur only in the future daemon path.

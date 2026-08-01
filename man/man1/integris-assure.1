@@ -1,0 +1,102 @@
+.\" Copyright (c) 2026 Integris contributors
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd August 1, 2026
+.Dt INTEGRIS-ASSURE 1
+.Os
+.Sh NAME
+.Nm integris-assure
+.Nd validate Integris assurance records and traceability matrix
+.Sh SYNOPSIS
+.Nm
+.Cm validate
+.Op Fl -root Ar dir
+.Nm
+.Cm trace
+.Op Fl -root Ar dir
+.Cm --check | --write
+.Sh DESCRIPTION
+.Nm
+is assurance tooling for the Integris repository.
+It validates machine-readable assurance records and renders or checks the
+human-readable traceability matrix.
+It is not product replication code and performs no archive mutation or
+network I/O.
+.Ss Commands
+.Bl -tag -width "validate"
+.It Cm validate
+Load and validate
+.Pa assurance/requirements.json ,
+.Pa assurance/hazards.json ,
+.Pa assurance/threats.json ,
+.Pa assurance/verifications.json ,
+and
+.Pa assurance/evidence.json .
+Checks include identifier shape, required fields, bidirectional references,
+criticality classes IC-1 through IC-4, and existence of cited specification
+paths.
+Produced evidence locations are verified when applicable.
+.It Cm trace
+Generate the Markdown traceability matrix for
+.Pa docs/traceability.md .
+Exactly one of
+.Cm --check
+or
+.Cm --write
+is required:
+.Bl -tag -width "--write" -compact
+.It Cm --check
+Compare generated output to the checked-in file; fail if they differ.
+.It Cm --write
+Overwrite
+.Pa docs/traceability.md
+with generated content.
+.El
+.El
+.Ss Options
+.Bl -tag -width "--root dir"
+.It Fl -root Ar dir
+Repository root containing
+.Pa assurance/
+and
+.Pa docs/
+(default: current directory).
+.El
+.Sh FILES
+.Bl -tag -width "docs/traceability.md" -compact
+.It Pa assurance/*.json
+Normative assurance inputs.
+.It Pa docs/traceability.md
+Generated matrix checked by
+.Cm trace --check .
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds -compact
+.It 0
+Validation or check succeeded.
+.It 1
+Validation, I/O, or freshness failure.
+.It 2
+Usage error or unknown command.
+.El
+.Sh EXAMPLES
+.Bd -literal -offset indent
+integris-assure validate --root .
+integris-assure trace --root . --check
+integris-assure trace --root . --write
+.Ed
+.Sh SEE ALSO
+.Xr integris-evidence 1 ,
+.Xr make 1 ,
+.Xr integris 7
+.Pp
+.Pa assurance/README.md ,
+.Pa docs/assurance-case.md
+.Sh HISTORY
+Part of the Integris M0 assurance baseline tooling.
+.Sh AUTHORS
+.An Integris contributors
+.Sh CAVEATS
+A successful validation does not mean evidence is complete or that a release
+is authorized.
+.Dq planned
+evidence remains a declared gap.

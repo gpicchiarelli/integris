@@ -1,0 +1,99 @@
+.\" Copyright (c) 2026 Integris contributors
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd August 1, 2026
+.Dt INTEGRIS-EVIDENCE 1
+.Os
+.Sh NAME
+.Nm integris-evidence
+.Nd run Integris kernel evidence campaigns
+.Sh SYNOPSIS
+.Nm
+.Op Fl root Ar dir
+.Sh DESCRIPTION
+.Nm
+runs kernel test campaigns for Integris reference packages and writes evidence
+manifests under the
+.Pa evidence/
+tree (one subdirectory per campaign area) together with sibling
+.Pa .sha256
+digest files.
+.Pp
+A written campaign file is an artifact only.
+Promoting
+.Pa assurance/evidence.json
+entries to status
+.Dq produced
+remains a separate review step.
+.Nm
+is assurance tooling, not a replication daemon.
+.Ss Options
+.Bl -tag -width "-root dir"
+.It Fl root Ar dir
+Repository root (default:
+.Pa . ) .
+Must be a git checkout so
+.Xr git 1
+can resolve
+.Li HEAD .
+.El
+.Ss Operation
+For each configured campaign,
+.Nm :
+.Bl -enum -compact
+.It
+Invokes
+.Xr go 1
+tests (and selected short fuzz runs) with
+.Ev GOTOOLCHAIN
+forced to
+.Li local .
+.It
+Captures command lines, exit codes, stdout tails, and SHA-256 digests.
+.It
+Records Go version, platform, source revision, residual gaps, and writes JSON
+plus a matching
+.Pa .sha256
+sidecar.
+.El
+.Pp
+Host tools required:
+.Xr git 1
+and
+.Xr go 1
+matching the pinned toolchain in
+.Pa go.mod .
+.Sh FILES
+.Bl -tag -width "evidence/*/*-campaign.json.sha256" -compact
+.It Pa evidence/*/*-campaign.json
+Campaign manifests.
+.It Pa evidence/*/*-campaign.json.sha256
+Digests of the JSON bodies.
+.It Pa assurance/evidence.json
+Registry of planned or produced evidence (not rewritten by this tool).
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds -compact
+.It 0
+All campaigns completed and manifests were written.
+.It 1
+Repository, tool, test, or I/O failure.
+.El
+.Sh EXAMPLES
+.Bd -literal -offset indent
+integris-evidence -root .
+make evidence
+.Ed
+.Sh SEE ALSO
+.Xr git 1 ,
+.Xr go 1 ,
+.Xr integris-assure 1 ,
+.Xr integris-release-digest 1 ,
+.Xr integris 7
+.Sh HISTORY
+Introduced to produce machine-checkable kernel campaign artifacts during M1.
+.Sh AUTHORS
+.An Integris contributors
+.Sh CAVEATS
+Non-zero subprocess exits fail the tool.
+Residual gaps listed in manifests remain open until independent review closes
+the corresponding verification records.

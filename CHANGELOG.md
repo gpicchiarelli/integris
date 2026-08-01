@@ -8,6 +8,9 @@ is accepted.
 
 ### Added
 
+- mdoc manual pages for all shipped tools plus overview/daemon pages
+  (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
+  `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
 - **INT-IC4-0001**: exhaustive native platform optimization invariant — every
   declared OS must use qualifying stable native I/O, cloning, notification,
   durability, and confinement facilities; portable LCD paths are degraded mode
@@ -77,6 +80,7 @@ is accepted.
 - Empirical CapTimes probe in `fsmodel.ProbeScratch` (Chtimes round-trip);
 - Empirical CapACL probe via Darwin cgo `platform.ACLRoundTrip` (`acl_*`);
 - Empirical CapUnicode probe in `fsmodel.ProbeScratch` (NFC/NFD é twin fold vs preserve);
+- Darwin `platform.CopyACL` (`acl_get_file`→`acl_set_file`) on CloneFile degraded copy path;
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;

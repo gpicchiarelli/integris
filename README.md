@@ -110,6 +110,19 @@ make release-digest
 Go 1.26.5 is the pinned bootstrap toolchain. Milestone entrance/exit criteria
 are in [ROADMAP.md](ROADMAP.md).
 
+Install binaries and manual pages (portable default
+`${PREFIX}/share/man`; traditional BSD layout with
+`MANDIR=${PREFIX}/man`):
+
+```sh
+make PREFIX=/usr/local install
+make man-lint
+man integris
+man 8 integrisd
+```
+
+See [man/README.md](man/README.md).
+
 ## Repository map
 
 ```text
@@ -119,6 +132,7 @@ docs/            normative specifications and engineering policy
 evidence/        produced or interim verification artifacts
 formal/          executable formal models and model-checker configurations
 internal/        M1 reference kernels (not a daemon)
+man/             mdoc manual pages (sections 1, 7, 8)
 .github/         review policy, templates, and automated controls
 ```
 

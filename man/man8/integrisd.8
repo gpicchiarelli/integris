@@ -1,0 +1,133 @@
+.\" Copyright (c) 2026 Integris contributors
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd August 1, 2026
+.Dt INTEGRISD 8
+.Os
+.Sh NAME
+.Nm integrisd
+.Nd privilege-separated filesystem sync and backup daemon
+.Sh SYNOPSIS
+.Nm
+.Op Ar options
+.Op Ar config
+.Sh DESCRIPTION
+.Nm
+is the intended product daemon for Integris: a privilege-separated service that
+synchronizes and backs up explicitly authorized filesystem archives between
+mutually authenticated nodes on macOS,
+.Fx ,
+Linux, and
+.Ox .
+.Pp
+.Sy Status :
+a release
+.Nm
+binary is not shipped in the current engineering baseline.
+This page reserves the operator-facing name and documents the target process
+model so packages and service managers can install the manual page ahead of the
+daemon.
+Until a release artifact exists, invocations of
+.Nm
+must fail closed.
+.Ss Process model
+The architecture separates authority across supervised roles
+(see
+.Pa docs/security-architecture.md ) :
+.Bl -tag -width "integrisd-supervisor" -compact
+.It integrisd-supervisor
+Child lifecycle, pre-opened IPC, policy identity.
+.It integrisd-net
+Bounded encrypted network frames.
+.It integrisd-auth
+Identity, session keys, authorization policy.
+.It integrisd-parser
+Bounded message parse/serialize over IPC.
+.It integrisd-index
+Read-only archive indexing.
+.It integrisd-plan
+Deterministic planning.
+.It integrisd-apply
+Descriptor-relative archive mutation.
+.It integrisd-journal
+Append-only authenticated journal.
+.It integrisd-audit
+Redacted event sink.
+.El
+.Pp
+Operators configure archives, peers, and policy; the daemon plans, transfers,
+journals, and recovers under least authority.
+Native platform facilities required by INT-IC4-0001 must be preferred on each
+declared OS.
+.Ss Configuration
+A future release will load an immutable, versioned configuration document.
+Today, configuration documents may be validated without side effects using
+.Xr integris-verify-config 1 .
+.Ss Service integration
+When packaged, installations should register
+.Nm
+with the host service manager (for example launchd on macOS, rc or service
+scripts on
+.Fx
+and
+.Ox ,
+or service units on Linux) using a dedicated account and the confinement
+composition in
+.Pa docs/platform-matrix.md .
+Missing required confinement must refuse startup for release modes.
+.Sh FILES
+.Bl -tag -width "/usr/local/etc/integris/config.json" -compact
+.It Pa /usr/local/etc/integris/
+Typical configuration directory for a
+.Pa /usr/local
+prefix install (layout may vary by package).
+.El
+.Sh EXIT STATUS
+.Bl -tag -width Ds -compact
+.It 0
+Reserved for clean shutdown after a successful run (when shipped).
+.It 1
+Operational failure or refused startup.
+.It 2
+Usage or configuration error.
+.El
+.Pp
+In this baseline, any accidental
+.Nm
+binary that is not a signed release artifact should exit non-zero.
+.Sh EXAMPLES
+.Bd -literal -offset indent
+# Validate configuration before any daemon exists:
+integris-verify-config -config /usr/local/etc/integris/config.json
+
+# After a future release package is installed (examples):
+# service integrisd start           # FreeBSD
+# rcctl enable integrisd            # OpenBSD
+# systemctl enable --now integrisd  # Linux
+# launchctl bootstrap system ...    # macOS
+.Ed
+.Sh SEE ALSO
+.Xr integris-assure 1 ,
+.Xr integris-role-stub 1 ,
+.Xr integris-verify-config 1 ,
+.Xr integris 7
+.Pp
+.Pa docs/security-architecture.md ,
+.Pa docs/platform-matrix.md ,
+.Pa docs/scope-and-claims.md ,
+.Pa TRADEMARKS.md
+.Sh HISTORY
+Manual page introduced before the first product
+.Nm
+release so target systems can install complete documentation.
+.Sh AUTHORS
+.An Integris contributors
+.Sh CAVEATS
+Not certified.
+Not a usable production daemon in this repository revision.
+Do not treat reference kernels under
+.Pa internal/
+as
+.Nm .
+See
+.Pa TRADEMARKS.md
+for third-party mark acknowledgments.
