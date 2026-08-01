@@ -8,6 +8,9 @@ is accepted.
 
 ### Added
 
+- `.github/CODEOWNERS` (maintainer path ownership) and `CITATION.cff`; hosting
+  posture documented in `docs/github-settings.md` (branch protection, secret
+  scanning, Actions SHA pinning, private vulnerability reporting);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
