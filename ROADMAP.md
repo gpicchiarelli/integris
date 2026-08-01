@@ -50,7 +50,7 @@ pending independent review, crypto suite, and platform probes.
 **Status (prelude):** engineering children apply Landlock+seccomp (Linux),
 pledge (OpenBSD), Capsicum+cap_rights_limit (FreeBSD), or Seatbelt sandbox_init
 (Darwin, cgo) with role-parameterized ambient network denial; stub reports
-NEG-FS/EXEC/PTRACE/ROLE-NET and full role-semantic conferral NEG-*; Runtime
+NEG-FS/FS-READ/EXEC/PTRACE/ROLE-NET and full role-semantic conferral NEG-*; Runtime
 orchestrates spawn; sealed MAC key FD (Linux memfd; anon-unlinked
 elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys

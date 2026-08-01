@@ -10,7 +10,7 @@ import (
 )
 
 // NegativeFSOpen attempts to create a new file after ApplyEngineering.
-// On Linux/OpenBSD/FreeBSD with apply succeeding, this should be denied.
+// On Linux/OpenBSD/FreeBSD/Darwin with apply succeeding, this should be denied.
 // Safe to call from engineering children only (not the test process on Linux).
 func NegativeFSOpen() Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
@@ -31,10 +31,43 @@ func NegativeFSOpen() Finding {
 	}
 }
 
+// NegativeFSRead attempts a path-based open of a well-known file after apply.
+// Landlock empty ruleset, locked unveil, Capsicum, and Darwin Seatbelt (no
+// ambient file-read-data) should deny it; conferred FDs remain readable.
+func NegativeFSRead() Finding {
+	plat := runtime.GOOS + "/" + runtime.GOARCH
+	switch runtime.GOOS {
+	case "linux", "openbsd", "freebsd", "darwin":
+	default:
+		return Finding{
+			ID: "NEG-FS-READ", Platform: plat, Control: "filesystem_reads",
+			Status: StatusSkipped, Detail: "no engineering path-read denylist on this OS",
+		}
+	}
+	f, err := os.Open("/etc/hosts")
+	if err == nil {
+		_ = f.Close()
+		return Finding{
+			ID: "NEG-FS-READ", Platform: plat, Control: "filesystem_reads",
+			Status: StatusUnexpectedAllow, Detail: "path open /etc/hosts succeeded after apply",
+		}
+	}
+	return Finding{
+		ID: "NEG-FS-READ", Platform: plat, Control: "filesystem_reads",
+		Status: StatusDeniedExpected, Detail: err.Error(),
+	}
+}
+
 // NegativeEngineering runs in-child OS denial probes after ApplyEngineering.
 // Role-semantic conferral probes live in NegativeRoleSemantic.
 func NegativeEngineering(role authority.ProcessRole) []Finding {
-	return []Finding{NegativeFSOpen(), NegativeExec(), NegativePtrace(), NegativeRoleNet(role)}
+	return []Finding{
+		NegativeFSOpen(),
+		NegativeFSRead(),
+		NegativeExec(),
+		NegativePtrace(),
+		NegativeRoleNet(role),
+	}
 }
 
 // FormatNegativeAck appends |NEG-*:status tokens for stub IPC.
@@ -44,6 +77,8 @@ func FormatNegativeAck(findings []Finding) string {
 		switch f.ID {
 		case "NEG-FS-OPEN":
 			b.WriteString("|NEG-FS:")
+		case "NEG-FS-READ":
+			b.WriteString("|NEG-FS-READ:")
 		case "NEG-EXEC":
 			b.WriteString("|NEG-EXEC:")
 		case "NEG-PTRACE":

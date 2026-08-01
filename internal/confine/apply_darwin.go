@@ -18,10 +18,10 @@ import (
 	"github.com/gpicchiarelli/integris/internal/authority"
 )
 
-// Seatbelt profiles deny path-based file mutation and process-exec while
-// allowing inherited-descriptor I/O, unix IPC, and Mach/sysctl for the Go
-// runtime. Network is role-parameterized. Not App Sandbox / Hardened Runtime
-// equivalence.
+// Seatbelt profiles deny path-based file open/mutation and process-exec while
+// allowing I/O on already-conferred descriptors, unix IPC, and Mach/sysctl for
+// the Go runtime. Network is role-parameterized. Not App Sandbox / Hardened
+// Runtime equivalence.
 const engineeringSeatbeltBase = `(version 1)
 (deny default)
 (allow signal)
@@ -29,7 +29,7 @@ const engineeringSeatbeltBase = `(version 1)
 (allow mach*)
 (allow process-info*)
 (allow file-read-metadata)
-(allow file-read-data)
+(deny file-read-data)
 (deny file-write*)
 (deny file-write-create)
 (deny file-write-unlink)
@@ -56,10 +56,10 @@ func probeEngineering() []Finding {
 func applyEngineering(role authority.ProcessRole) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	profile := engineeringSeatbeltDenyNet
-	detail := "deny file-write* + process-exec/fork + system-socket/network*; inherited fds allowed"
+	detail := "deny ambient path read/write + process-exec/fork + system-socket/network*; inherited fds allowed"
 	if RoleMayHoldNetwork(role) {
 		profile = engineeringSeatbeltAllowNet
-		detail = "deny file-write* + process-exec/fork; system-socket/network + inherited fds allowed"
+		detail = "deny ambient path read/write + process-exec/fork; system-socket/network + inherited fds allowed"
 	}
 	if err := sandboxInit(profile); err != nil {
 		return []Finding{{

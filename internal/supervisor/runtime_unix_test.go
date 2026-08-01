@@ -96,6 +96,9 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
 			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-EXEC:denied_as_expected")) {
 			t.Fatalf("expected NEG-EXEC denial on %s: %q", runtime.GOOS, resp.Payload)
 		}

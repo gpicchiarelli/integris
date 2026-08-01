@@ -28,6 +28,10 @@ func TestSeatbeltDeniesCreateAndExec(t *testing.T) {
 	if neg.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-FS: %+v", neg)
 	}
+	rd := confine.NegativeFSRead()
+	if rd.Status != confine.StatusDeniedExpected {
+		t.Fatalf("NEG-FS-READ: %+v", rd)
+	}
 	ex := confine.NegativeExec()
 	if ex.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-EXEC: %+v", ex)
