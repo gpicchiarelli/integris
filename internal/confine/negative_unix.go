@@ -9,19 +9,23 @@ import (
 )
 
 // NegativeExec attempts execve of a well-known path via unix.Exec (not os/exec).
-// Under Linux seccomp / OpenBSD pledge / FreeBSD capability mode this should
-// fail and return. Darwin skips (ApplyEngineering is a no-op).
+// Under Linux seccomp / OpenBSD pledge / FreeBSD capability mode / Darwin
+// Seatbelt this should fail and return.
 func NegativeExec() Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	switch runtime.GOOS {
-	case "linux", "openbsd", "freebsd":
+	case "linux", "openbsd", "freebsd", "darwin":
 	default:
 		return Finding{
 			ID: "NEG-EXEC", Platform: plat, Control: "process_exec",
 			Status: StatusSkipped, Detail: "no engineering exec denylist on this OS",
 		}
 	}
-	err := unix.Exec("/bin/true", []string{"/bin/true"}, nil)
+	path := "/bin/true"
+	if runtime.GOOS == "darwin" {
+		path = "/usr/bin/true"
+	}
+	err := unix.Exec(path, []string{path}, nil)
 	// Success replaces the process image and does not return.
 	if err == nil {
 		return Finding{

@@ -25,22 +25,15 @@ func TestFormatNegativeAck(t *testing.T) {
 	}
 }
 
-func TestNegativeEngineeringDarwinSkipsExecPtrace(t *testing.T) {
-	if runtime.GOOS != "darwin" {
-		t.Skip("live NegativeEngineering exec probe would replace an unconfined process")
+func TestNegativePtraceSkippedOffLinux(t *testing.T) {
+	f := confine.NegativePtrace()
+	if runtime.GOOS == "linux" {
+		t.Skip("linux ptrace probe mutates; covered in confined stub")
 	}
-	fs := confine.NegativeEngineering()
-	ack := confine.FormatNegativeAck(fs)
-	for _, tok := range []string{"|NEG-FS:", "|NEG-EXEC:", "|NEG-PTRACE:"} {
-		if !strings.Contains(ack, tok) {
-			t.Fatalf("missing %s in %q", tok, ack)
-		}
+	if f.Status != confine.StatusSkipped {
+		t.Fatalf("%+v", f)
 	}
-	for _, f := range fs {
-		if f.ID == "NEG-EXEC" || f.ID == "NEG-PTRACE" {
-			if f.Status != confine.StatusSkipped {
-				t.Fatalf("%s status %s", f.ID, f.Status)
-			}
-		}
+	if !strings.Contains(f.Detail, "Linux") {
+		t.Fatalf("%q", f.Detail)
 	}
 }

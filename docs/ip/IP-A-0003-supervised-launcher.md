@@ -65,12 +65,15 @@ directory owned for the test/run.
   entitlements, fine-grained Landlock path allow-lists, FreeBSD
   `cap_rights_limit`). Engineering children call `confine.ApplyEngineering`
   (Linux: `no_new_privs` + empty Landlock ruleset + seccomp exec/ptrace denylist;
-  OpenBSD: `pledge("stdio unix")` + `unveil` lock; FreeBSD: `cap_enter`).
+  OpenBSD: `pledge("stdio unix")` + `unveil` lock; FreeBSD: `cap_enter`;
+  Darwin: Seatbelt `sandbox_init` via cgo when `CGO_ENABLED=1`).
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-EXEC`, `NEG-PTRACE`)
   and role-semantic conferral probes (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`,
   `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`, `NEG-JOURNAL-NET`) over IPC.
 - SCM_RIGHTS key passing over the IPC socket (optional `KeyViaSCM`; fd-4 ExtraFiles
   remains the default ABI). Underlying FD may still be memfd/anon-unlinked.
+- Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
+  apply is not claimed equivalent).
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
 - OS-level role denials beyond conferral inventory (syscall probes per role).
 - Multi-child restart policy and supervisor crash recovery beyond

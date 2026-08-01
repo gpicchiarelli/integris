@@ -1,4 +1,4 @@
-//go:build !linux && !openbsd && !freebsd
+//go:build !linux && !openbsd && !freebsd && !darwin
 
 package confine
 

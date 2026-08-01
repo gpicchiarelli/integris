@@ -21,11 +21,21 @@ func TestProbeEngineering(t *testing.T) {
 			t.Fatalf("%+v", r.Findings)
 		}
 	}
+	if runtime.GOOS == "darwin" {
+		ids := map[string]bool{}
+		for _, f := range r.Findings {
+			ids[f.ID] = true
+		}
+		if !ids["PROBE-SEATBELT"] {
+			t.Fatalf("%+v", r.Findings)
+		}
+	}
 }
 
-func TestApplyEngineeringSkippedOnDarwin(t *testing.T) {
-	if runtime.GOOS == "linux" || runtime.GOOS == "openbsd" {
-		t.Skip("ApplyEngineering mutates process; covered by role-stub on this OS")
+func TestApplyEngineeringNotInUnitProcess(t *testing.T) {
+	switch runtime.GOOS {
+	case "linux", "openbsd", "freebsd", "darwin":
+		t.Skip("ApplyEngineering mutates process; covered by role-stub integration")
 	}
 	r := confine.ApplyEngineering()
 	if len(r.Findings) == 0 || r.Findings[0].Status != confine.StatusSkipped {

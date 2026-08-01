@@ -192,7 +192,7 @@ func run(root string) error {
 			},
 			residual: []string{
 				"session AEAD + mutual HMAC peer/archive-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
-				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge",
+				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge; Darwin Seatbelt (cgo)",
 				"NEG-FS/EXEC/PTRACE + full role-semantic conferral NEG-* (net/parser/plan/audit/journal) via role stub",
 				"MAC key via sealed memfd/anon-unlinked FD (default fd4) or optional SCM_RIGHTS",
 				"independent cryptography/security review required for IC-1",

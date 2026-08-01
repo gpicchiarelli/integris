@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -86,6 +87,15 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-PARSER-NET:denied_as_expected")) {
 		t.Fatalf("parser role semantic probe missing/failed in %q", resp.Payload)
+	}
+	switch runtime.GOOS {
+	case "darwin", "linux", "openbsd", "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-EXEC:denied_as_expected")) {
+			t.Fatalf("expected NEG-EXEC denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {
 		t.Fatal(err)

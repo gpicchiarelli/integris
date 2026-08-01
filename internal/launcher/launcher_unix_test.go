@@ -8,6 +8,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 	"time"
 
@@ -125,6 +126,15 @@ func TestLaunchStubIPC(t *testing.T) {
 	for _, tok := range []string{"|NEG-EXEC:", "|NEG-PTRACE:"} {
 		if !bytes.Contains(resp.Payload, []byte(tok)) {
 			t.Fatalf("missing %s in %q", tok, resp.Payload)
+		}
+	}
+	switch runtime.GOOS {
+	case "darwin", "linux", "openbsd", "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-EXEC:denied_as_expected")) {
+			t.Fatalf("expected NEG-EXEC denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	}
 	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
