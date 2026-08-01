@@ -1,20 +1,21 @@
 {
   "evidence_id": "EVD-RESOURCE-001",
-  "source_revision": "64b01dd55aae74b3250b2ca9d23a06666e9e155c",
-  "produced_at": "2026-08-01T18:41:58Z",
+  "source_revision": "e5be5e27515c00dc1a83afeb93bfbc615c68dcd5",
+  "produced_at": "2026-08-01T19:06:33Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/resource/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t0.240s\n",
-      "stdout_sha256": "ee5dc074a4420287d314b0925c6f98f2d660869a1619b787ba28b845a67ce317"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t0.234s\n",
+      "stdout_sha256": "191d327ca961ce9eac3add0403cc6e06659a5775af796d05ef2031b7f3de7cfb"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "system-level saturation (fd/disk/CPU) pending platform harness",
+    "RLIMIT_NOFILE descriptor saturation harness complete (WithSoftNOFILE)",
+    "disk/CPU system-level saturation still open",
     "independent security review of evidence not recorded"
   ],
   "extra": {

@@ -150,7 +150,8 @@ func run(root string) error {
 				{"go", "test", "./internal/resource/", "-count=1"},
 			},
 			residual: []string{
-				"system-level saturation (fd/disk/CPU) pending platform harness",
+				"RLIMIT_NOFILE descriptor saturation harness complete (WithSoftNOFILE)",
+				"disk/CPU system-level saturation still open",
 				"independent security review of evidence not recorded",
 			},
 		},

@@ -33,7 +33,7 @@ recoverability of quarantined destructive operations.
 
 ## Resource and adversarial campaign
 
-Vary memory, disk, file descriptors, CPU, queue depth, latency, loss, reordering,
+Vary memory, disk, file descriptors (`resource.WithSoftNOFILE` harness), CPU, queue depth, latency, loss, reordering,
 disconnect, large counts, long names, sparse files, attributes, contention,
 corrupt/truncated journals, altered manifests, replay, downgrade, and peer
 Byzantine behavior within the documented distributed boundary.
