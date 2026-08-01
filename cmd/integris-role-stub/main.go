@@ -9,12 +9,12 @@ import (
 	"os"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
+	"github.com/gpicchiarelli/integris/internal/confine"
 	"github.com/gpicchiarelli/integris/internal/ipc"
 	"github.com/gpicchiarelli/integris/internal/launcher"
 )
 
-// Engineering role stub: one authenticated IPC request/response on fd 3, then exit.
-// MAC key is read from fd 4 (pipe). Not a product daemon (IP-A-0003).
+// Engineering role stub: claim conferred fds, apply confinement, one IPC exchange.
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "integris-role-stub: %v\n", err)
@@ -23,7 +23,19 @@ func main() {
 }
 
 func run() error {
-	applyBestEffortConfinement()
+	// Wrap inherited fds before Landlock/pledge (no new path opens).
+	sock := os.NewFile(uintptr(launcher.IPCFileFD), "ipc")
+	if sock == nil {
+		return fmt.Errorf("missing ipc fd")
+	}
+	defer sock.Close()
+	keyF := os.NewFile(uintptr(launcher.KeyFileFD), "key")
+	if keyF == nil {
+		return fmt.Errorf("missing key fd")
+	}
+	defer keyF.Close()
+
+	_ = confine.ApplyEngineering()
 
 	if os.Getenv(launcher.EnvMode) != launcher.ModeEngineering {
 		return fmt.Errorf("refusing non-engineering launch mode")
@@ -40,15 +52,13 @@ func run() error {
 	var nonce [16]byte
 	copy(nonce[:], nonceRaw)
 
-	macKey, err := readKeyFD(launcher.KeyFileFD)
+	macKey, err := io.ReadAll(io.LimitReader(keyF, 257))
 	if err != nil {
-		return err
+		return fmt.Errorf("read key: %w", err)
 	}
-	sock, err := os.OpenFile(fmt.Sprintf("/dev/fd/%d", launcher.IPCFileFD), os.O_RDWR, 0)
-	if err != nil {
-		return fmt.Errorf("open ipc fd: %w", err)
+	if len(macKey) < 16 || len(macKey) > 256 {
+		return fmt.Errorf("bad mac key length %d", len(macKey))
 	}
-	defer sock.Close()
 
 	ch, err := ipc.NewAuthenticatedChannel(role, peer, nonce, macKey)
 	if err != nil {
@@ -67,21 +77,4 @@ func run() error {
 		return err
 	}
 	return ipc.WriteFrame(sock, reply)
-}
-
-func readKeyFD(fd int) ([]byte, error) {
-	f, err := os.OpenFile(fmt.Sprintf("/dev/fd/%d", fd), os.O_RDONLY, 0)
-	if err != nil {
-		return nil, fmt.Errorf("open key fd: %w", err)
-	}
-	defer f.Close()
-	// Bound: MAC keys are small; refuse > 256 bytes.
-	buf, err := io.ReadAll(io.LimitReader(f, 257))
-	if err != nil {
-		return nil, fmt.Errorf("read key: %w", err)
-	}
-	if len(buf) < 16 || len(buf) > 256 {
-		return nil, fmt.Errorf("bad mac key length %d", len(buf))
-	}
-	return buf, nil
 }

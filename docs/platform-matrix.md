@@ -20,11 +20,12 @@ policy, allowed operation set, denied probes, and discovered gaps. Documentation
 must distinguish kernel-enforced, service-manager-enforced, discretionary, and
 operational controls.
 
-Engineering scaffold: `internal/confine` records discovery/negative-probe rows
-without claiming enforcement. Unix socketpair IPC lives in
-`supervisor.OpenSocketFabric`. Engineering child spawn is gated by draft
-[IP-A-0003](ip/IP-A-0003-supervised-launcher.md) (`internal/launcher` only).
-Release-mode launch and in-child confinement remain open.
+Engineering scaffold: `internal/confine` probes and applies best-effort child
+confinement (`ApplyEngineering`: Linux Landlock deny-new-FS + `no_new_privs`;
+OpenBSD `pledge`/`unveil`). Unix socketpair IPC lives in
+`supervisor.OpenSocketFabric` / `OpenRuntime`. Engineering child spawn is gated
+by draft [IP-A-0003](ip/IP-A-0003-supervised-launcher.md). Seccomp, Capsicum,
+and release-mode launch remain open.
 
 ## Primary references
 

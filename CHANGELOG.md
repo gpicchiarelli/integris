@@ -28,7 +28,8 @@ is accepted.
 - Unix socketpair IPC fabric and platform confinement discovery scaffold;
 - draft IP-A-0003 isolated launcher; `internal/launcher` + role stub (engineering);
 - wire protocol session Driver; MAC key conferred via pipe fd (not env);
-- Linux role-stub best-effort `no_new_privs`;
+- Linux Landlock + no_new_privs / OpenBSD pledge+unveil in role children;
+- `supervisor.Runtime` multi-child engineering spawn helper;
 - session negotiation transcript binding (provisional);
 - engineering module inventory in `integris-release-digest`;
 - recovery/session optional observability event emission;

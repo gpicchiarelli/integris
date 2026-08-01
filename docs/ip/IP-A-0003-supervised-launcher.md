@@ -55,10 +55,13 @@ directory owned for the test/run.
 
 ### Explicit non-decisions (deferred)
 
-- Platform confinement application (`pledge`, Capsicum, Landlock, Hardened
-  Runtime) inside the child — `internal/confine` + future platform IPs.
-- Sealed MAC key transport (memfd/SCM_RIGHTS only; no env keys in release).
-- Multi-child supervision tree, restart policy, and supervisor crash recovery.
+- Full platform confinement matrix (Capsicum, Landlock path allow-lists, Hardened
+  Runtime entitlements, seccomp-BPF). Engineering children call
+  `confine.ApplyEngineering` (Linux: `no_new_privs` + empty Landlock ruleset;
+  OpenBSD: `pledge("stdio unix")` + `unveil` lock).
+- Sealed MAC key transport (memfd/SCM_RIGHTS only; pipe fd is engineering-only).
+- Multi-child restart policy and supervisor crash recovery beyond
+  `supervisor.Runtime` kill-on-Close.
 - Windows process model.
 
 ### Role stub

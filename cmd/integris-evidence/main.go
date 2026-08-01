@@ -191,8 +191,8 @@ func run(root string) error {
 				{"go", "test", "./internal/launcher/", "-count=1"},
 			},
 			residual: []string{
-				"engineering launch only; MAC key via pipe fd (not sealed memfd/SCM yet)",
-				"Linux stub sets no_new_privs only; Landlock/seccomp/pledge not applied",
+				"engineering launch: Landlock/pledge in child; seccomp and Capsicum still open",
+				"MAC key via pipe fd (not sealed memfd/SCM yet)",
 				"independent security review required for IC-1",
 				"VER-ARCH-001 remains planned until confined negative probes pass",
 			},
