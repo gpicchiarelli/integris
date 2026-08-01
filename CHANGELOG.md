@@ -105,6 +105,7 @@ is accepted.
 - FreeBSD Capsicum conferred allow-root directory FDs (`INTEGRIS_ALLOW_ROOT_FDS` + `LimitAllowRootFDs` + `NEG-FS-PATH`/`WRITE` via openat);
 - `platform.VNodeWatch` kqueue `EVFILT_VNODE` harness (`NOTE_WRITE`/`NOTE_DELETE`; Linux unavailable);
 - `resource.WithSoftAS` address/data-space saturation harness for EVD-RESOURCE (`RLIMIT_AS`/`DATA` → ENOMEM; Darwin unenforceable);
+- Linux `platform.ACLRoundTrip`/`CopyACL` via `system.posix_acl_access` xattr (CapACL; CGO-free);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;

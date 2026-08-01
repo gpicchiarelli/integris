@@ -93,6 +93,14 @@ func TestProbeScratchEmpirical(t *testing.T) {
 			t.Fatalf("darwin CapUnicode=%v want WRAPPED (APFS NFC/NFD fold)", byID[plan.CapUnicode])
 		}
 	}
+	if runtime.GOOS == "linux" && platform.ACLSupported() {
+		switch byID[plan.CapACL] {
+		case plan.ResultLossless, plan.ResultUnrepresentable:
+			// LOSSLESS on ACL-capable FS; UNREPRESENTABLE when tmpfs lacks ACL.
+		default:
+			t.Fatalf("linux CapACL=%v want LOSSLESS or UNREPRESENTABLE", byID[plan.CapACL])
+		}
+	}
 	// Digest must be stable across re-probe on same FS type in same dir parent.
 	res2, err := fsmodel.ProbeScratch(t.TempDir())
 	if err != nil {

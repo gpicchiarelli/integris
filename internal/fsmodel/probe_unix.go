@@ -229,8 +229,9 @@ func probeCOW(dir string) Fact {
 	}
 }
 
-// probeACL exercises platform.ACLRoundTrip when the Darwin cgo adapter is
-// available; otherwise leaves CapACL UNKNOWN (not yet probed on other ports).
+// probeACL exercises platform.ACLRoundTrip when a native ACL adapter is
+// available (Darwin cgo or Linux POSIX ACL xattrs); otherwise CapACL stays
+// UNKNOWN.
 func probeACL(dir string) Fact {
 	if !platform.ACLSupported() {
 		return Fact{ID: plan.CapACL, Result: plan.ResultUnknown, DetailDigest: codec.SHA256([]byte("acl-unsupported"))}
@@ -243,7 +244,11 @@ func probeACL(dir string) Fact {
 	if err := platform.ACLRoundTrip(path); err != nil {
 		return Fact{ID: plan.CapACL, Result: plan.ResultUnrepresentable, DetailDigest: codec.SHA256([]byte("acl-fail"))}
 	}
-	return Fact{ID: plan.CapACL, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte("acl-extended"))}
+	detail := "acl-extended"
+	if runtime.GOOS == "linux" {
+		detail = "acl-posix-xattr"
+	}
+	return Fact{ID: plan.CapACL, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte(detail))}
 }
 
 // probeTimes sets and reads back atime/mtime on a scratch file.

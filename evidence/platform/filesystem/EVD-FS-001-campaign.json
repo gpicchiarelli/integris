@@ -7,6 +7,7 @@
   "source_revision": "f32786b0ad0e054f232b99a6d55bdd1216e631ef",
   "produced_at": "2026-08-01T20:13:06Z",
   "produced_at": "2026-08-01T20:23:24Z",
+  "produced_at": "2026-08-01T20:33:04Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
@@ -30,6 +31,8 @@
       "command": "go test ./internal/platform/ -count=1 -run VNode",
       "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/platform\t0.291s\n",
       "stdout_sha256": "858cf4d42f1a54fbbbcaaeca3fd5a5dd6ec84ef6d6749ce018b59515dfc447c5"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.291s\n",
+      "stdout_sha256": "33b83847e3eaa67b00899ae3c0f1ba59288ed4d730a3f569e04c8c3ac2ea0d7e"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -38,8 +41,8 @@
     "CapXattr/CapBSDFlags empirical (Setxattr/Getxattr; Darwin/FreeBSD/OpenBSD chflags)",
     "CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
     "CapTimes empirical (Chtimes + Stat Atim/Mtim)",
-    "CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; other ports UNKNOWN)",
-    "CopyACL on CloneFile degraded copy (Darwin cgo; clonefile preserves ACL natively)",
+    "CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; Linux system.posix_acl_access xattr; other ports UNKNOWN)",
+    "CopyACL on CloneFile degraded copy (Darwin cgo; Linux posix ACL xattr; clonefile preserves ACL natively)",
     "CopyXattr on CloneFile degraded copy (listxattr/getxattr/setxattr; skips Darwin ACL xattr)",
     "CopyBSDFlags on CloneFile degraded copy (chflags from Stat_t.Flags; Darwin/FreeBSD/OpenBSD)",
     "CopyTimes on CloneFile degraded copy (pre-capture Stat; SyncFile then UtimesNano; Darwin Setattrlist CRTIME)",
