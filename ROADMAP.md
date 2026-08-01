@@ -64,7 +64,8 @@ Observation→Recover; OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels via crash-
 `CopyResourceFork`+`CopyTimes` incl. Darwin birthtime on degraded byte-copy);
 CapCOW/CapXattr/CapBSDFlags/CapSparse/CapResourceFork/CapTimes/CapACL/CapUnicode
 probed in `fsmodel.ProbeScratch`;
-power-fail/unflushed pages still open);
+Darwin abrupt-detach SyncFile-survive harness landed; unflushed-loss
+differential host-dependent);
 sealed MAC key FD (Linux memfd; anon-unlinked
 elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys

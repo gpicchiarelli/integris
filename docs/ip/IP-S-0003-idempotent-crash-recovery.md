@@ -127,7 +127,10 @@ OS SIGKILL at J-* and apply P-STAGE/P-PUBLISH labels is exercised by
 `launcher.RunEngineering`; modes `journal` and `publish`). Injected FailAt and
 SIGKILL are not power-fail / unflushed-page simulation. Persistence Sync paths
 use `platform.SyncFile` / `SyncDir` (Darwin `F_FULLFSYNC`; other Unix `fsync`)
-so post-Sync durability claims match INT-IC4-0001 on each port. Apply-side
+so post-Sync durability claims match INT-IC4-0001 on each port. Darwin abrupt
+volume teardown (`hdiutil` force-detach + remount) proves `SyncFile` markers
+survive; an unflushed-loss differential is recorded when the host does not
+flush the image backing store before detach. Apply-side
 `FilePublisher.PublishFrom` stages via `platform.CloneFile` (Darwin `clonefile`;
 exclusive copy degraded elsewhere) before the same sync→rename→dirsync labels.
 

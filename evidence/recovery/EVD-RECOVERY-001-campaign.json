@@ -1,20 +1,20 @@
 {
   "evidence_id": "EVD-RECOVERY-001",
-  "source_revision": "9ba3d1668f274ec07e0ccdbbf50e977eadad8b3a",
-  "produced_at": "2026-08-01T19:03:24Z",
+  "source_revision": "6aa5c7da0e46a7265b3563e95992db53caf690b1",
+  "produced_at": "2026-08-01T19:22:23Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t3.036s\n",
-      "stdout_sha256": "18d9efc86e8caebb5302ae17def276f75a1056b67251970a6b15acda4f4d18e3"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t5.180s\n",
+      "stdout_sha256": "3eb5680720977eadb801b4e1443c492ca1ba43dcc28053f1fb768fc81a23a56e"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (sparse SEEK + CopyXattr+CopyBSDFlags+CopyACL+CopyResourceFork+CopyTimes/birthtime on degraded copy) complete; power-fail/unflushed pages still open",
+    "J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (sparse SEEK + CopyXattr+CopyBSDFlags+CopyACL+CopyResourceFork+CopyTimes/birthtime on degraded copy) complete; Darwin abrupt-detach SyncFile-survive harness complete (unflushed-loss skipped when host flushes .dmg)",
     "independent assurance review of evidence not recorded"
   ],
   "extra": {

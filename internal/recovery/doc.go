@@ -38,8 +38,9 @@
 //     Observation→Recover; OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels is
 //     exercised via cmd/integris-crash-stub (KillAt; mode=journal|publish).
 //     Sync paths use platform.SyncFile (Darwin F_FULLFSYNC). PublishFrom stages
-//     via platform.CloneFile (Darwin clonefile). Power-fail / unflushed-page
-//     simulation remains open.
+//     via platform.CloneFile (Darwin clonefile). Darwin abrupt-detach harness
+//     (hdiutil force-detach) proves SyncFile survive across remount; unflushed
+//     loss is asserted when the host does not flush the image backing store.
 //
 // EVD-RECOVERY-001 / EVD-TXN-001 remain planned until evidence artifacts exist.
 package recovery
