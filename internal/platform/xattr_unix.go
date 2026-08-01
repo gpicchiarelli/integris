@@ -32,8 +32,13 @@ func copyXattr(dst, src string) error {
 }
 
 func skipXattrName(name string) bool {
-	// Extended ACLs are transferred by CopyACL; do not race via xattr APIs.
-	return name == "com.apple.system.Security"
+	// Owned by dedicated Copy* helpers; do not race via xattr APIs.
+	switch name {
+	case "com.apple.system.Security", "com.apple.ResourceFork":
+		return true
+	default:
+		return false
+	}
 }
 
 func listXattrNames(path string) ([]string, error) {

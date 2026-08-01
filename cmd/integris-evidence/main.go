@@ -112,7 +112,7 @@ func run(root string) error {
 				{"go", "test", "./internal/recovery/", "-count=1"},
 			},
 			residual: []string{
-				"J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (CopyXattr+CopyBSDFlags+CopyACL+CopyTimes on degraded copy) complete; power-fail/unflushed pages still open",
+				"J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (CopyXattr+CopyBSDFlags+CopyACL+CopyResourceFork+CopyTimes on degraded copy) complete; power-fail/unflushed pages still open",
 				"independent assurance review of evidence not recorded",
 			},
 		},
@@ -183,6 +183,7 @@ func run(root string) error {
 				"CopyXattr on CloneFile degraded copy (listxattr/getxattr/setxattr; skips Darwin ACL xattr)",
 				"CopyBSDFlags on CloneFile degraded copy (chflags from Stat_t.Flags; Darwin/FreeBSD/OpenBSD)",
 				"CopyTimes on CloneFile degraded copy (pre-capture Stat; SyncFile then UtimesNano)",
+				"CopyResourceFork on CloneFile degraded copy (Darwin ..namedfork/rsrc; skips xattr twin)",
 				"CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
 				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",

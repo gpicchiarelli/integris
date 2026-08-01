@@ -84,6 +84,7 @@ is accepted.
 - `platform.CopyXattr` (`listxattr`/`getxattr`/`setxattr`) on CloneFile degraded copy path;
 - `platform.CopyBSDFlags` (`chflags` from `Stat_t.Flags`) on CloneFile degraded copy path;
 - `platform.CopyTimes` (`Chtimes`) + degraded-copy `SyncFile` then `UtimesNano` (atime-safe) on CloneFile path;
+- `platform.CopyResourceFork` (`..namedfork/rsrc`) on CloneFile degraded copy path;
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;

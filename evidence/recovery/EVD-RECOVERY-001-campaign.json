@@ -1,20 +1,20 @@
 {
   "evidence_id": "EVD-RECOVERY-001",
-  "source_revision": "0b6c0287c10298ce9826c930c7a1971c41f61cf1",
-  "produced_at": "2026-08-01T18:51:47Z",
+  "source_revision": "2225bf08372422d26ee0ec9e0e3fdfc621738bf3",
+  "produced_at": "2026-08-01T18:54:46Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t3.439s\n",
-      "stdout_sha256": "edb72037fe791a46500076cef17773b6613c03c149c191451fe3459d6b60804d"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t3.189s\n",
+      "stdout_sha256": "68c3098e3b23c4edba93a1eb15b4da991a896c07c05011229f5061dc5215e3b1"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (CopyXattr+CopyBSDFlags+CopyACL+CopyTimes on degraded copy) complete; power-fail/unflushed pages still open",
+    "J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (CopyXattr+CopyBSDFlags+CopyACL+CopyResourceFork+CopyTimes on degraded copy) complete; power-fail/unflushed pages still open",
     "independent assurance review of evidence not recorded"
   ],
   "extra": {
