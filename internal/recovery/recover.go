@@ -316,6 +316,10 @@ func maybeCleanup(policy Policy, io PersistIO, out *Outcome, obs FSObservation) 
 		return ioErr(LabelPStageCreate, err)
 	}
 	out.Actions = append(out.Actions, Action{Kind: ActionCleanupStaging, Label: LabelPStageCreate})
+	if err := io.Checkpoint(LabelPStageSync); err != nil {
+		return err
+	}
+	out.Actions = append(out.Actions, Action{Kind: ActionCleanupStaging, Label: LabelPStageSync})
 	return nil
 }
 
@@ -333,6 +337,10 @@ func maybeQuarantine(policy Policy, io PersistIO, out *Outcome, obs FSObservatio
 		return ioErr(LabelPPublishRename, err)
 	}
 	out.Actions = append(out.Actions, Action{Kind: ActionQuarantineStaging, Label: LabelPPublishRename})
+	if err := io.Checkpoint(LabelPPublishDirSync); err != nil {
+		return err
+	}
+	out.Actions = append(out.Actions, Action{Kind: ActionQuarantineStaging, Label: LabelPPublishDirSync})
 	return nil
 }
 

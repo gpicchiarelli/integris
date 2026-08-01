@@ -55,7 +55,8 @@ NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET and role-semantic conferral
 orchestrates spawn (AllowRoots→stub), RestartChild, and RestartPair (KeyViaExtraFiles + stub initiate);
 Apply/Index path allow-roots (Index readonly write denial probed);
 journal `CrashSegment` exercises J-APPEND-PRE/MID/POST + J-META-POST on FileSegment
-with Recover round-trip (OS kill/power-fail and full P-* profile still open);
+with Recover round-trip; recovery-side P-* PersistIO FailAt covers STAGE/PUBLISH/CONFIRM
+labels on FilePersist (OS kill/power-fail and apply-side publisher still open);
 sealed MAC key FD (Linux memfd; anon-unlinked
 elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys

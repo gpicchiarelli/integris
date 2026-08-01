@@ -56,6 +56,7 @@ is accepted.
 - Plan MustNot triad complete (`NEG-PLAN-KEYS`, `NEG-PLAN-NET`);
 - Supervisor MustNot triad complete (`NEG-SUP-PARSER`, `NEG-SUP-TRAVERSE`, `NEG-SUP-KEYS`);
 - Journal `CrashSegment` FailAt for `J-APPEND-PRE/MID/POST` + `J-META-POST` on FileSegment with Recover round-trip;
+- Recovery-side P-* FilePersist FailAt×Recover (`P-STAGE-CREATE/SYNC`, `P-PUBLISH-RENAME/DIRSYNC`, `P-CONFIRM-PRE/POST`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
 - `Runtime.StartPair`/`RestartPair` with stub initiate mode (KeyViaExtraFiles dual-live edges);
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;

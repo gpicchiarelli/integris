@@ -17,8 +17,11 @@ proofs.
 
 Journal append persistence labels `J-APPEND-PRE` / `J-APPEND-MID` /
 `J-APPEND-POST` / `J-META-POST` are exercised on real `FileSegment` via
-`journal.CrashSegment` FailAt with `Recover` round-trip. OS process-kill /
-power-fail simulation and full publication-profile `P-*` sequences remain open.
+`journal.CrashSegment` FailAt with `Recover` round-trip. Recovery-side
+publication labels `P-STAGE-*` / `P-PUBLISH-*` / `P-CONFIRM-*` are exercised via
+`FilePersist` FailAt during `Recover` (cleanup / quarantine / confirm). OS
+process-kill / power-fail simulation and apply-side publication writers remain
+open.
 
 Evidence IDs `EVD-RECOVERY-001` and `EVD-TXN-001` stay `planned` until
 independent review closes residual gaps. Campaign artifacts under

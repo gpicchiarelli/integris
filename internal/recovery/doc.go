@@ -32,8 +32,9 @@
 //     model-conformance tests document the mapping above without asserting
 //     formal equivalence.
 //  5. J-APPEND-PRE/MID/POST and J-META-POST are exercised via journal.CrashSegment
-//     FailAt on FileSegment with Recover round-trip; OS SIGKILL/power-fail and
-//     full publication-profile P-* sequences remain open.
+//     FailAt on FileSegment with Recover round-trip; recovery-side P-* labels are
+//     exercised via FilePersist FailAt during Recover (cleanup/quarantine/confirm).
+//     OS SIGKILL/power-fail and apply-side publication writers remain open.
 //
 // EVD-RECOVERY-001 / EVD-TXN-001 remain planned until evidence artifacts exist.
 package recovery

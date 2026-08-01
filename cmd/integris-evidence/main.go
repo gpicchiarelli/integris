@@ -112,7 +112,7 @@ func run(root string) error {
 				{"go", "test", "./internal/recovery/", "-count=1"},
 			},
 			residual: []string{
-				"J-APPEND-PRE/MID/POST + J-META-POST FileSegment FailAt + Recover round-trip on real FS; OS kill/power-fail and full P-* publication profile still open",
+				"J-APPEND FileSegment FailAt + recovery-side P-* FilePersist FailAt×Recover complete; OS kill/power-fail and apply-side publication writer still open",
 				"independent assurance review of evidence not recorded",
 			},
 		},

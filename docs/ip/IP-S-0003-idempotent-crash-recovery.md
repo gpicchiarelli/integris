@@ -116,8 +116,11 @@ them.
 
 M1 engineering harness: `journal.CrashSegment` FailAt on `FileSegment` covers
 `J-APPEND-PRE` / `J-APPEND-MID` / `J-APPEND-POST` / `J-META-POST` with
-`recovery.Recover` round-trip. This is injected I/O failure, not OS SIGKILL or
-power-fail simulation.
+`recovery.Recover` round-trip. Recovery-side `PersistIO` FailAt on `FilePersist`
+covers `P-STAGE-CREATE` / `P-STAGE-SYNC` / `P-PUBLISH-RENAME` /
+`P-PUBLISH-DIRSYNC` / `P-CONFIRM-PRE` / `P-CONFIRM-POST` (cleanup / quarantine /
+confirm side effects during Recover — not an apply-path publisher). This is
+injected I/O failure, not OS SIGKILL or power-fail simulation.
 
 ### Failure behavior
 
