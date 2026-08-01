@@ -101,23 +101,10 @@ func TestHostileIPCRefuseMatrix(t *testing.T) {
 			name: "version_mismatch",
 			setup: func(t *testing.T) (ipc.ChannelState, []byte, bool) {
 				t.Helper()
-				send, err := ipc.NewAuthenticatedChannel(authority.RolePlan, authority.RoleApply, nonce, key)
-				if err != nil {
-					t.Fatal(err)
-				}
-				recv, err := ipc.NewAuthenticatedChannel(authority.RoleApply, authority.RolePlan, nonce, key)
-				if err != nil {
-					t.Fatal(err)
-				}
+				// Cleartext channels so a version bump is observed before MAC checks.
+				send := ipc.NewChannel(authority.RolePlan, authority.RoleApply, nonce)
+				recv := ipc.NewChannel(authority.RoleApply, authority.RolePlan, nonce)
 				raw, err := send.Encode(ipc.TypeRequest, []byte("x"))
-				if err != nil {
-					t.Fatal(err)
-				}
-				// ProtocolVersion is u16 LE at offset 8; bump without re-MAC → mac first.
-				// Strip MAC requirement by using cleartext channels for version probe.
-				send = ipc.NewChannel(authority.RolePlan, authority.RoleApply, nonce)
-				recv = ipc.NewChannel(authority.RoleApply, authority.RolePlan, nonce)
-				raw, err = send.Encode(ipc.TypeRequest, []byte("x"))
 				if err != nil {
 					t.Fatal(err)
 				}
