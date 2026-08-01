@@ -1,6 +1,3 @@
-// Command integris-release-digest writes an engineering SHA-256 manifest of
-// pinned source/toolchain inputs. This is NOT an independent rebuild and must
-// not be treated as EVD-RELEASE-001 acceptance evidence by itself.
 package main
 
 import (
@@ -15,6 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -25,6 +23,8 @@ type manifest struct {
 	GoVersion  string            `json:"go_version"`
 	Platform   string            `json:"platform"`
 	Files      []fileDigest      `json:"files"`
+	Modules    []moduleEntry     `json:"modules"`
+	ModuleDig  string            `json:"modules_digest_sha256"`
 	Residual   []string          `json:"residual_gaps"`
 	Extra      map[string]string `json:"extra,omitempty"`
 }
@@ -33,6 +33,11 @@ type fileDigest struct {
 	Path   string `json:"path"`
 	SHA256 string `json:"sha256"`
 	Bytes  int64  `json:"bytes"`
+}
+
+type moduleEntry struct {
+	Path    string `json:"path"`
+	Version string `json:"version"`
 }
 
 func main() {
@@ -67,6 +72,16 @@ func run(root, out string) error {
 		files = append(files, fd)
 	}
 	sort.Slice(files, func(i, j int) bool { return files[i].Path < files[j].Path })
+
+	mods, err := listModules(abs)
+	if err != nil {
+		return err
+	}
+	modDig, err := modulesDigest(mods)
+	if err != nil {
+		return err
+	}
+
 	m := manifest{
 		Kind:       "engineering-input-digest-manifest",
 		ProducedAt: time.Now().UTC().Format(time.RFC3339),
@@ -74,9 +89,12 @@ func run(root, out string) error {
 		GoVersion:  runtime.Version(),
 		Platform:   runtime.GOOS + "/" + runtime.GOARCH,
 		Files:      files,
+		Modules:    mods,
+		ModuleDig:  modDig,
 		Residual: []string{
 			"not an independent two-party rebuild",
-			"no SBOM/SLSA/signatures in this artifact",
+			"modules inventory is engineering-only (not SPDX/CycloneDX/SLSA)",
+			"no release signatures in this artifact",
 			"VER-RELEASE-001 remains planned",
 		},
 		Extra: map[string]string{"producer": "integris-release-digest"},
@@ -95,8 +113,52 @@ func run(root, out string) error {
 	}
 	sum := sha256.Sum256(raw)
 	_ = os.WriteFile(outPath+".sha256", []byte(hex.EncodeToString(sum[:])+"  "+filepath.Base(out)+"\n"), 0o644)
-	fmt.Printf("wrote %s\n", out)
+	fmt.Printf("wrote %s (%d modules)\n", out, len(mods))
 	return nil
+}
+
+func listModules(dir string) ([]moduleEntry, error) {
+	cmd := exec.Command("go", "list", "-m", "-json", "all")
+	cmd.Dir = dir
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("go list -m: %w", err)
+	}
+	dec := json.NewDecoder(strings.NewReader(string(out)))
+	var mods []moduleEntry
+	for {
+		var m struct {
+			Path    string
+			Version string
+			Main    bool
+		}
+		if err := dec.Decode(&m); err != nil {
+			if err == io.EOF {
+				break
+			}
+			return nil, err
+		}
+		ver := m.Version
+		if m.Main || ver == "" {
+			ver = "main"
+		}
+		mods = append(mods, moduleEntry{Path: m.Path, Version: ver})
+	}
+	sort.Slice(mods, func(i, j int) bool {
+		if mods[i].Path != mods[j].Path {
+			return mods[i].Path < mods[j].Path
+		}
+		return mods[i].Version < mods[j].Version
+	})
+	return mods, nil
+}
+
+func modulesDigest(mods []moduleEntry) (string, error) {
+	h := sha256.New()
+	for _, m := range mods {
+		_, _ = fmt.Fprintf(h, "%s@%s\n", m.Path, m.Version)
+	}
+	return hex.EncodeToString(h.Sum(nil)), nil
 }
 
 func hashFile(abs, rel string) (fileDigest, error) {

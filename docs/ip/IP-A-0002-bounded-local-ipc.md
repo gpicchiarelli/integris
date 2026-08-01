@@ -90,8 +90,8 @@ Bump `version` and magic for incompatible changes; dual-run during M2 bring-up.
 
 - Exact AEAD construction and key ratchet (IP-C).
 - Whether supervisor-mediated pairing tokens are required before first frame
-  (M2 prelude now derives pair MAC keys via provisional HKDF in
-  `supervisor.OpenFabric`).
+  (M2 prelude: `MaterializeLaunch` seals per-child tokens with peer KeyIDs;
+  `OpenFabric` derives matching MAC keys via provisional HKDF).
 - Queue credit / windowing beyond simple depth counters.
 
 ## Decision and approvals

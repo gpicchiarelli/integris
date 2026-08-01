@@ -8,6 +8,7 @@ package session
 import (
 	"fmt"
 
+	"github.com/gpicchiarelli/integris/internal/crypto"
 	"github.com/gpicchiarelli/integris/internal/observability"
 )
 
@@ -51,6 +52,9 @@ type Session struct {
 	// Events is an optional sink for redacted session lifecycle events.
 	// Emission failures never fail session transitions.
 	Events observability.Sink
+	// Transcript, when non-nil, records negotiation/auth steps for binding
+	// (provisional SHA-256 per IP-C-0001). Not a session AEAD.
+	Transcript *crypto.Transcript
 }
 
 func (s *Session) emit(id, cause, message string, sev observability.Severity) {
@@ -66,6 +70,24 @@ func (s *Session) emit(id, cause, message string, sev observability.Severity) {
 		Redaction:     observability.RedactionInternal,
 		Message:       message,
 	})
+}
+
+func (s *Session) bind(label string, data []byte) {
+	if s == nil || s.Transcript == nil {
+		return
+	}
+	_ = s.Transcript.Append(label, data)
+}
+
+func (s *Session) bindVersions(label string, vers []Version) {
+	if s == nil || s.Transcript == nil {
+		return
+	}
+	buf := make([]byte, len(vers))
+	for i, v := range vers {
+		buf[i] = byte(v)
+	}
+	_ = s.Transcript.Append(label, buf)
 }
 
 // Error is a typed session failure.
@@ -130,6 +152,9 @@ func (s *Session) Negotiate() error {
 	}
 	s.Selected = h
 	s.State = StateNegotiated
+	s.bind("negotiate", []byte{byte(h)})
+	s.bindVersions("offered", s.Offered)
+	s.bindVersions("local_allowed", LocalAllowed)
 	return nil
 }
 
@@ -147,6 +172,7 @@ func (s *Session) Authenticate() error {
 	}
 	s.PeerAuthenticated = true
 	s.State = StatePeerAuthenticated
+	s.bind("peer_auth", []byte{1})
 	return nil
 }
 
@@ -157,6 +183,7 @@ func (s *Session) AuthorizeArchive() error {
 	}
 	s.ArchiveAuthorized = true
 	s.State = StateArchiveAuthorized
+	s.bind("archive_auth", []byte{1})
 	return nil
 }
 
@@ -178,6 +205,7 @@ func (s *Session) Activate() error {
 		return fail("downgrade", "active session would be downgraded")
 	}
 	s.State = StateActive
+	s.bind("activate", []byte{byte(s.Selected)})
 	return nil
 }
 

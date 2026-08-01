@@ -1,7 +1,7 @@
 {
   "kind": "engineering-input-digest-manifest",
-  "produced_at": "2026-08-01T12:52:20Z",
-  "source_revision": "0f35cc4171ac550632ceee6c091ed45784328759",
+  "produced_at": "2026-08-01T12:54:50Z",
+  "source_revision": "2f4126d78f419fd45942a9dee73e62ff155aed1d",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "files": [
@@ -17,8 +17,8 @@
     },
     {
       "path": "ROADMAP.md",
-      "sha256": "3cec2e198a775a52c8407d67ca4e8ad7d768c50a9608a01a4ab02ddece952dee",
-      "bytes": 3060
+      "sha256": "11ebbfc6d454e06745c2f5e1e584601f878549321719b1e7fc2de733287cc7f8",
+      "bytes": 3078
     },
     {
       "path": "assurance/evidence.json",
@@ -41,9 +41,21 @@
       "bytes": 153
     }
   ],
+  "modules": [
+    {
+      "path": "github.com/gpicchiarelli/integris",
+      "version": "main"
+    },
+    {
+      "path": "golang.org/x/sys",
+      "version": "v0.47.0"
+    }
+  ],
+  "modules_digest_sha256": "8f72455af19c73854dd066e84aa0193d625888cea6ac93154cc18731ce238929",
   "residual_gaps": [
     "not an independent two-party rebuild",
-    "no SBOM/SLSA/signatures in this artifact",
+    "modules inventory is engineering-only (not SPDX/CycloneDX/SLSA)",
+    "no release signatures in this artifact",
     "VER-RELEASE-001 remains planned"
   ],
   "extra": {
