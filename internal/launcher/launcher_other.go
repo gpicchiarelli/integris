@@ -21,3 +21,11 @@ func (h *Handle) Wait() error {
 func BuildGoPackage(ctx context.Context, moduleRoot, pkg, out string) error {
 	return fail("platform", "launcher requires unix (IP-A-0003)")
 }
+
+// RunEngineering refuses on non-Unix platforms.
+func RunEngineering(ctx context.Context, req ExecRequest) error {
+	return fail("platform", "launcher requires unix (IP-A-0003)")
+}
+
+// ExitSignaled is always false off Unix.
+func ExitSignaled(err error) bool { return false }

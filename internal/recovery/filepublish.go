@@ -20,6 +20,9 @@ import (
 type FilePublisher struct {
 	Root   string
 	FailAt CrashLabel
+	// KillAt, when set, SIGKILLs the current process at that catalog label
+	// (OS crash harness). Takes precedence over FailAt for the matching label.
+	KillAt CrashLabel
 
 	// ExpectedContent, when non-nil, is compared to published bytes for
 	// Observation().PublishedContentMatches.
@@ -161,6 +164,9 @@ func (p *FilePublisher) PublishedHas(name string) (bool, error) {
 
 func (p *FilePublisher) checkpoint(label CrashLabel) error {
 	p.Checkpoints = append(p.Checkpoints, label)
+	if p.KillAt != "" && label == p.KillAt {
+		return killSelfAt(label)
+	}
 	if p.FailAt != "" && label == p.FailAt {
 		return ioErr(label, errInjectedFault)
 	}

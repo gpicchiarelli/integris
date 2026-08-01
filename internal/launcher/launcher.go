@@ -45,6 +45,16 @@ func (e *Error) Error() string {
 
 func fail(code, msg string) error { return &Error{Code: code, Message: msg} }
 
+// ExecRequest starts an absolute engineering helper binary without IPC
+// (crash stubs, probes). No shell; no PATH search.
+type ExecRequest struct {
+	Executable      string
+	Args            []string
+	Env             []string // additional env; ModeEngineering is always set
+	Dir             string
+	EngineeringMode bool
+}
+
 // Request describes one child start. Destructive defaults: EngineeringMode must
 // be explicit; release mode is refused by this IP revision.
 type Request struct {

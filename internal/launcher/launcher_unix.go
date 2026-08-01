@@ -5,11 +5,13 @@ package launcher
 import (
 	"context"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 )
@@ -116,6 +118,47 @@ func (h *Handle) Wait() error {
 		return fail("wait", err.Error())
 	}
 	return nil
+}
+
+// RunEngineering starts an absolute executable with no shell and waits for exit.
+// The process environment is only ModeEngineering plus req.Env (no parent inherit).
+func RunEngineering(ctx context.Context, req ExecRequest) error {
+	if ctx == nil {
+		return fail("context", "nil context")
+	}
+	if !req.EngineeringMode {
+		return fail("mode", "release launch refused; EngineeringMode required (IP-A-0003)")
+	}
+	if req.Executable == "" || !filepath.IsAbs(req.Executable) {
+		return fail("path", "executable must be an absolute path")
+	}
+	if _, hasDeadline := ctx.Deadline(); !hasDeadline {
+		return fail("context", "context deadline required")
+	}
+	env := make([]string, 0, 1+len(req.Env))
+	env = append(env, EnvMode+"="+ModeEngineering)
+	env = append(env, req.Env...)
+	cmd := exec.CommandContext(ctx, req.Executable, req.Args...)
+	cmd.Dir = req.Dir
+	cmd.Env = env
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ExitSignaled reports whether err is an exec.ExitError caused by a signal
+// (e.g. SIGKILL from an OS crash harness).
+func ExitSignaled(err error) bool {
+	var ee *exec.ExitError
+	if !errors.As(err, &ee) {
+		return false
+	}
+	status, ok := ee.Sys().(syscall.WaitStatus)
+	if !ok {
+		return false
+	}
+	return status.Signaled()
 }
 
 // BuildGoPackage runs `go build -o out pkg` for engineering test helpers.

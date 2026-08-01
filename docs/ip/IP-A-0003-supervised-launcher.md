@@ -106,6 +106,13 @@ directory owned for the test/run.
 IPC request/response on fd 3 and exits. It is not a product daemon and must not
 appear in release acceptance evidence as a runtime component.
 
+### Crash stub
+
+`cmd/integris-crash-stub` is an engineering helper that runs
+`recovery.FilePublisher.Publish` with `KillAt` at an IP-S-0003 P-STAGE/P-PUBLISH
+label (SIGKILL). It is started via `launcher.RunEngineering` (absolute path, no
+shell, `EngineeringMode` required, no parent env inherit). Not a product daemon.
+
 ## Alternatives considered
 
 - **Keep in-process socketpair only:** rejected for M2 evidence; no OS fault domain.
