@@ -175,6 +175,7 @@ func run(root string) error {
 			file: "EVD-FS-001-campaign.json",
 			commands: [][]string{
 				{"go", "test", "./internal/fsmodel/", "-count=1"},
+				{"go", "test", "./internal/platform/", "-count=1", "-run", "VNode"},
 			},
 			residual: []string{
 				"CapCOW empirical via platform.CloneFile (Darwin clonefile→LOSSLESS; copy→UNREPRESENTABLE)",
@@ -188,6 +189,7 @@ func run(root string) error {
 				"CopyTimes on CloneFile degraded copy (pre-capture Stat; SyncFile then UtimesNano; Darwin Setattrlist CRTIME)",
 				"CopyResourceFork on CloneFile degraded copy (Darwin ..namedfork/rsrc; skips xattr twin)",
 				"Sparse-aware CloneFile degraded copy (SEEK_DATA/SEEK_HOLE; io.Copy fallback)",
+				"platform.VNodeWatch kqueue EVFILT_VNODE harness (NOTE_WRITE/DELETE; Linux unavailable)",
 				"CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
 				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",

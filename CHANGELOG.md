@@ -94,6 +94,7 @@ is accepted.
 - `resource.WithSoftCPU` process CPU-time saturation harness for EVD-RESOURCE (`RLIMIT_CPU` → SIGXCPU);
 - Darwin true-ENOSPC harness for EVD-RESOURCE (`hdiutil` 2MiB HFS+ image → `unix.ENOSPC`);
 - Darwin abrupt-detach power-fail harness for EVD-RECOVERY (`SyncFile` survive across `hdiutil` force-detach);
+- `platform.VNodeWatch` kqueue `EVFILT_VNODE` harness (`NOTE_WRITE`/`NOTE_DELETE`; Linux unavailable);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;

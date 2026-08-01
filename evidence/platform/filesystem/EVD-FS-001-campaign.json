@@ -1,15 +1,21 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "9ba3d1668f274ec07e0ccdbbf50e977eadad8b3a",
-  "produced_at": "2026-08-01T19:03:31Z",
+  "source_revision": "f32786b0ad0e054f232b99a6d55bdd1216e631ef",
+  "produced_at": "2026-08-01T20:23:24Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.268s\n",
-      "stdout_sha256": "982ca21c5239b8bb9803bd1c136a1b9e846b7b67ae4185823e9af926d9fb18e5"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.711s\n",
+      "stdout_sha256": "6b3d65dea46baa202b1a4ad4c8a07f56ff70c33423cd2b8a766bff2c8967d34b"
+    },
+    {
+      "command": "go test ./internal/platform/ -count=1 -run VNode",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/platform\t0.291s\n",
+      "stdout_sha256": "858cf4d42f1a54fbbbcaaeca3fd5a5dd6ec84ef6d6749ce018b59515dfc447c5"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -25,6 +31,7 @@
     "CopyTimes on CloneFile degraded copy (pre-capture Stat; SyncFile then UtimesNano; Darwin Setattrlist CRTIME)",
     "CopyResourceFork on CloneFile degraded copy (Darwin ..namedfork/rsrc; skips xattr twin)",
     "Sparse-aware CloneFile degraded copy (SEEK_DATA/SEEK_HOLE; io.Copy fallback)",
+    "platform.VNodeWatch kqueue EVFILT_VNODE harness (NOTE_WRITE/DELETE; Linux unavailable)",
     "CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
     "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",

@@ -13,5 +13,6 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-CAP-EMPTY", Platform: plat, Control: "empty_capability_set", Status: StatusUnknown, Detail: "ambient caps not cleared until dedicated account spawn"},
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available in-process via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusAvailable, Detail: "launcher.CreateKeyFD uses sealed memfd (F_SEAL_WRITE|SHRINK|GROW|SEAL)"},
+		{ID: "DISC-KQUEUE", Platform: plat, Control: "kqueue_vnode", Status: StatusUnavailable, Detail: "kqueue absent on Linux; epoll/inotify adapter not yet wired"},
 	}
 }
