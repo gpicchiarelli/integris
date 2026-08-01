@@ -34,6 +34,8 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 		negApplyPath(plat, in),
 		negPlanWrite(plat, in),
 		negAuditDecide(plat, in),
+		negAuditArchives(plat, in),
+		negAuditSecrets(plat, in),
 		negJournalNet(plat, in),
 		negJournalPolicy(plat, in),
 		negJournalMutate(plat, in),
@@ -396,6 +398,67 @@ func negAuditDecide(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "audit lacks operation_decisions in inventory and conferral"
+	return base
+}
+
+func negAuditArchives(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-AUDIT-ARCHIVES", Platform: plat, Control: "archives",
+	}
+	if in.Role != authority.RoleAudit {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-audit only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapArchives) ||
+		hasCap(in.Confer, authority.CapArchiveDescriptors) ||
+		hasCap(in.Confer, authority.CapArchiveRoots) ||
+		hasCap(in.Confer, authority.CapReadonlyArchiveRoot) ||
+		hasCap(in.Confer, authority.CapArchiveContents) ||
+		hasCap(in.Confer, authority.CapArchiveMutation) ||
+		hasArchiveSlot(in.SlotKinds) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "audit role conferred archive capability or slot"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleAudit, authority.CapArchives)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows archives for audit"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "audit lacks archives in inventory and conferral"
+	return base
+}
+
+func negAuditSecrets(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-AUDIT-SECRETS", Platform: plat, Control: "secrets",
+	}
+	if in.Role != authority.RoleAudit {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-audit only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapSecrets) ||
+		hasCap(in.Confer, authority.CapKeys) ||
+		hasCap(in.Confer, authority.CapPermanentKeys) ||
+		hasCap(in.Confer, authority.CapLongTermKeys) ||
+		hasCap(in.Confer, authority.CapIdentityKeys) ||
+		hasCap(in.Confer, authority.CapIdentityHandle) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "audit role conferred secrets or key capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleAudit, authority.CapSecrets)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows secrets for audit"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "audit lacks secrets in inventory and conferral"
 	return base
 }
 

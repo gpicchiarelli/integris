@@ -309,6 +309,47 @@ func TestNegativeRoleSemanticPlanAuditJournal(t *testing.T) {
 			want: confine.StatusUnexpectedAllow,
 		},
 		{
+			id: "NEG-AUDIT-ARCHIVES",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleAudit,
+				Confer: []authority.Capability{authority.CapReadonlyJournal, authority.CapRedactedEventSink},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-AUDIT-ARCHIVES",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleAudit,
+				Confer: []authority.Capability{authority.CapReadonlyJournal, authority.CapArchives},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
+			id: "NEG-AUDIT-ARCHIVES",
+			in: confine.RoleProbeInput{
+				Role:      authority.RoleAudit,
+				Confer:    []authority.Capability{authority.CapReadonlyJournal},
+				SlotKinds: []string{"archive_root"},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
+			id: "NEG-AUDIT-SECRETS",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleAudit,
+				Confer: []authority.Capability{authority.CapReadonlyJournal, authority.CapRedactedEventSink},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-AUDIT-SECRETS",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleAudit,
+				Confer: []authority.Capability{authority.CapReadonlyJournal, authority.CapSecrets},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
 			id: "NEG-JOURNAL-NET",
 			in: confine.RoleProbeInput{
 				Role:   authority.RoleJournal,
