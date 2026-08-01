@@ -121,6 +121,7 @@ func run(root string) error {
 			file: "EVD-TXN-001-campaign.json",
 			commands: [][]string{
 				{"go", "test", "./internal/recovery/", "-count=1", "-run", "Conformance"},
+				{"go", "test", "./internal/e2e/", "-count=1", "-run", "PlanJournalRecover"},
 			},
 			residual: []string{
 				"TLC does not prove Go; see internal/recovery/README.md",

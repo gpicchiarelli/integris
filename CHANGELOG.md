@@ -19,7 +19,8 @@ is accepted.
 - machine-checkable process authority inventory and verify-config CLI;
 - redacted observability events and bounded local IPC frame codec (M2 prelude);
 - session state machine refined from formal/session (proto preflight);
-- draft IP-A-0002 for local IPC;
+- draft IP-A-0002 for local IPC and IP-C-0001 provisional SHA-256 commitments;
+- M1 e2e pipeline tests (plan→journal→recovery, session+path, quarantine AT);
 - transaction conformance tests mapped to TLA+ abstract flags;
 - `integris-evidence` campaign producer and initial `evidence/` artifacts;
 - CI short fuzz and weekly fuzz for path/codec/journal kernels;
