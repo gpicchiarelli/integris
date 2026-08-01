@@ -25,6 +25,7 @@ is accepted.
 - M2 prelude `internal/supervisor` grant planner against authority inventory;
 - provisional `internal/crypto` HKDF/transcript helpers and supervisor IPC fabric;
 - sealed child launch tokens with descriptor slots (no OS spawn yet);
+- Unix socketpair IPC fabric and platform confinement discovery scaffold;
 - session negotiation transcript binding (provisional);
 - engineering module inventory in `integris-release-digest`;
 - recovery/session optional observability event emission;

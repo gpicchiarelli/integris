@@ -20,6 +20,11 @@ policy, allowed operation set, denied probes, and discovered gaps. Documentation
 must distinguish kernel-enforced, service-manager-enforced, discretionary, and
 operational controls.
 
+Engineering scaffold: `internal/confine` records discovery/negative-probe rows
+without claiming enforcement. Unix socketpair IPC lives in
+`supervisor.OpenSocketFabric`. Child process spawn is deferred until a reviewed
+launcher IP relaxes the Go-profile `os/exec` prohibition for an isolated adapter.
+
 ## Primary references
 
 - OpenBSD `pledge(2)` and `unveil(2)`: https://man.openbsd.org/pledge.2 and https://man.openbsd.org/unveil.2

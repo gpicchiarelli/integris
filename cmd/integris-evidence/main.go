@@ -187,10 +187,11 @@ func run(root string) error {
 				{"go", "test", "./internal/authority/", "-count=1"},
 				{"go", "test", "./internal/supervisor/", "-count=1"},
 				{"go", "test", "./internal/crypto/", "-count=1"},
+				{"go", "test", "./internal/confine/", "-count=1"},
 			},
 			residual: []string{
-				"OS negative capability probes and descriptor inheritance tests pending M2",
-				"supervisor fabric is in-process only (no OS spawn/confinement)",
+				"OS negative capability probes skipped until confined child spawn exists",
+				"supervisor socket fabric is same-process (no os/exec per Go profile)",
 				"independent security review required for IC-1",
 				"VER-ARCH-001 remains planned until platform probes land",
 			},

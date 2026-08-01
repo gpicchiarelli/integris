@@ -1,0 +1,34 @@
+package confine_test
+
+import (
+	"testing"
+
+	"github.com/gpicchiarelli/integris/internal/confine"
+)
+
+func TestDiscoverSorted(t *testing.T) {
+	r := confine.Discover()
+	if r.GOOS == "" || len(r.Findings) == 0 {
+		t.Fatalf("%+v", r)
+	}
+	for i := 1; i < len(r.Findings); i++ {
+		if r.Findings[i-1].ID >= r.Findings[i].ID {
+			t.Fatalf("unsorted: %s >= %s", r.Findings[i-1].ID, r.Findings[i].ID)
+		}
+	}
+}
+
+func TestNegativeBaselineSkipped(t *testing.T) {
+	r := confine.NegativeBaseline()
+	if len(r.Findings) == 0 {
+		t.Fatal("empty")
+	}
+	for _, f := range r.Findings {
+		if f.Status != confine.StatusSkipped {
+			t.Fatalf("%+v", f)
+		}
+	}
+	if r.HasUnexpectedAllow() {
+		t.Fatal("unexpected")
+	}
+}
