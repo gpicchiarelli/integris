@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"unsafe"
 
+	"github.com/gpicchiarelli/integris/internal/authority"
 	"golang.org/x/sys/unix"
 )
 
@@ -39,9 +40,10 @@ func probeEngineering() []Finding {
 	return out
 }
 
-func applyEngineering() []Finding {
+func applyEngineering(role authority.ProcessRole) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	var out []Finding
+	denyNet := !RoleMayHoldNetwork(role)
 
 	if err := unix.Prctl(unix.PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0); err != nil {
 		out = append(out, Finding{
@@ -73,15 +75,19 @@ func applyEngineering() []Finding {
 		})
 	}
 
-	if err := seccompDenyExecPtrace(); err != nil {
+	if err := seccompDenyEngineering(denyNet); err != nil {
 		out = append(out, Finding{
 			ID: "APPLY-SECCOMP", Platform: plat, Control: "seccomp_bpf",
 			Status: StatusUnavailable, Detail: err.Error(),
 		})
 	} else {
+		detail := "deny execve/execveat/ptrace (ERRNO EPERM)"
+		if denyNet {
+			detail += "; deny socket/connect/bind/listen/accept*"
+		}
 		out = append(out, Finding{
 			ID: "APPLY-SECCOMP", Platform: plat, Control: "seccomp_bpf",
-			Status: StatusAvailable, Detail: "deny execve/execveat/ptrace (ERRNO EPERM)",
+			Status: StatusAvailable, Detail: detail,
 		})
 	}
 	return out
@@ -165,13 +171,28 @@ func seccompAuditArch() (uint32, bool) {
 	}
 }
 
-// seccompDenyExecPtrace installs a filter that returns EPERM for
-// execve/execveat/ptrace so in-child negative probes can observe the denial
-// without being killed (engineering evidence path).
-func seccompDenyExecPtrace() error {
+// seccompDenyEngineering installs a filter that returns EPERM for
+// execve/execveat/ptrace (and optionally network syscalls) so in-child
+// negative probes can observe the denial without being killed.
+func seccompDenyEngineering(denyNet bool) error {
 	arch, ok := seccompAuditArch()
 	if !ok {
 		return fmt.Errorf("unsupported GOARCH %s", runtime.GOARCH)
+	}
+	denyNRs := []uint32{
+		uint32(unix.SYS_EXECVE),
+		uint32(unix.SYS_EXECVEAT),
+		uint32(unix.SYS_PTRACE),
+	}
+	if denyNet {
+		denyNRs = append(denyNRs,
+			uint32(unix.SYS_SOCKET),
+			uint32(unix.SYS_CONNECT),
+			uint32(unix.SYS_BIND),
+			uint32(unix.SYS_LISTEN),
+			uint32(unix.SYS_ACCEPT),
+			uint32(unix.SYS_ACCEPT4),
+		)
 	}
 	const (
 		offNR   = 0
@@ -188,14 +209,14 @@ func seccompDenyExecPtrace() error {
 		{Code: jmpJEQ, Jt: 1, Jf: 0, K: arch},
 		{Code: retK, K: deny},
 		{Code: ldAbs, K: offNR},
-		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_EXECVE)},
-		{Code: retK, K: deny},
-		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_EXECVEAT)},
-		{Code: retK, K: deny},
-		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_PTRACE)},
-		{Code: retK, K: deny},
-		{Code: retK, K: allow},
 	}
+	for _, nr := range denyNRs {
+		filter = append(filter,
+			unix.SockFilter{Code: jmpJEQ, Jt: 0, Jf: 1, K: nr},
+			unix.SockFilter{Code: retK, K: deny},
+		)
+	}
+	filter = append(filter, unix.SockFilter{Code: retK, K: allow})
 	prog := unix.SockFprog{
 		Len:    uint16(len(filter)),
 		Filter: &filter[0],

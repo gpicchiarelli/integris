@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/gpicchiarelli/integris/internal/authority"
 	"golang.org/x/sys/unix"
 )
 
@@ -50,7 +51,8 @@ func LimitConferredFDs(files ...*os.File) Finding {
 	}
 }
 
-func applyEngineering() []Finding {
+func applyEngineering(role authority.ProcessRole) []Finding {
+	_ = role // Capsicum capability mode is fd-only for all roles; network is ambient-denied.
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	if err := unix.CapEnter(); err != nil {
 		return []Finding{{

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/gpicchiarelli/integris/internal/authority"
 )
 
 // NegativeFSOpen attempts to create a new file after ApplyEngineering.
@@ -31,8 +33,8 @@ func NegativeFSOpen() Finding {
 
 // NegativeEngineering runs in-child OS denial probes after ApplyEngineering.
 // Role-semantic conferral probes live in NegativeRoleSemantic.
-func NegativeEngineering() []Finding {
-	return []Finding{NegativeFSOpen(), NegativeExec(), NegativePtrace()}
+func NegativeEngineering(role authority.ProcessRole) []Finding {
+	return []Finding{NegativeFSOpen(), NegativeExec(), NegativePtrace(), NegativeRoleNet(role)}
 }
 
 // FormatNegativeAck appends |NEG-*:status tokens for stub IPC.
@@ -46,6 +48,8 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-EXEC:")
 		case "NEG-PTRACE":
 			b.WriteString("|NEG-PTRACE:")
+		case "NEG-ROLE-NET":
+			b.WriteString("|NEG-ROLE-NET:")
 		case "NEG-NET-ARCHIVE":
 			b.WriteString("|NEG-NET-ARCHIVE:")
 		case "NEG-PARSER-NET":

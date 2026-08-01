@@ -1,27 +1,27 @@
 {
   "evidence_id": "EVD-PATH-001",
-  "source_revision": "00135e9ebb955fd507cf0993640c505acb307e90",
-  "produced_at": "2026-08-01T13:50:18Z",
+  "source_revision": "508f4f0e95da5930daed7ccc047641dd733645eb",
+  "produced_at": "2026-08-01T13:56:42Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/path/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/path\t0.267s\n",
-      "stdout_sha256": "8b2a650344b6039bb36f0810ed6374c2c0d6c283311d61e2972da6b0ccbe31fb"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/path\t0.253s\n",
+      "stdout_sha256": "562793579f531d06014bd419b39bacc082f71cb1ef4ab2af4c4c649368fd52f9"
     },
     {
       "command": "go test ./internal/path/ -fuzz=FuzzPathComponent -fuzztime=10s",
       "exit_code": 0,
-      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/135 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 135/135 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 1144736 (381512/sec), new interesting: 0 (total: 135)\nfuzz: elapsed: 6s, execs: 2318389 (391099/sec), new interesting: 0 (total: 135)\nfuzz: elapsed: 9s, execs: 3445696 (375780/sec), new interesting: 0 (total: 135)\nfuzz: elapsed: 10s, execs: 3839993 (361187/sec), new interesting: 0 (total: 135)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/path\t10.403s\n",
-      "stdout_sha256": "ea3c0191f4acbc1293d64d0c9ed6e262d2b27574d24db16311cf243405199ba5"
+      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/135 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 135/135 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 897185 (299021/sec), new interesting: 0 (total: 135)\nfuzz: elapsed: 6s, execs: 1871386 (324673/sec), new interesting: 0 (total: 135)\nfuzz: elapsed: 9s, execs: 2901558 (343275/sec), new interesting: 0 (total: 135)\nfuzz: elapsed: 10s, execs: 3284546 (328384/sec), new interesting: 0 (total: 135)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/path\t10.561s\n",
+      "stdout_sha256": "2d01b1dbbe918ef1022c3aaae6a7eaa0432ad928a2b0c8933ccf3e8fc19aaa1f"
     },
     {
       "command": "go test ./internal/path/ -fuzz=FuzzPathSequence -fuzztime=5s",
       "exit_code": 0,
-      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/151 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 151/151 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 1165795 (388583/sec), new interesting: 0 (total: 151)\nfuzz: elapsed: 5s, execs: 1901613 (352457/sec), new interesting: 0 (total: 151)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/path\t5.397s\n",
-      "stdout_sha256": "51f64b131c44557df85731e62fd91917b4f0de2929cf783f2334ffd888bd68b0"
+      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/151 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 151/151 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 1016251 (338527/sec), new interesting: 0 (total: 151)\nfuzz: elapsed: 5s, execs: 1664272 (311284/sec), new interesting: 0 (total: 151)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/path\t5.378s\n",
+      "stdout_sha256": "2e21da8e25b4323481b60e0ea9c96e43ddb121ffde2360fc2e48fece874a42a0"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

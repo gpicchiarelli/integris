@@ -2,7 +2,11 @@
 
 package confine
 
-import "runtime"
+import (
+	"runtime"
+
+	"github.com/gpicchiarelli/integris/internal/authority"
+)
 
 func probeEngineering() []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
@@ -12,7 +16,8 @@ func probeEngineering() []Finding {
 	}}
 }
 
-func applyEngineering() []Finding {
+func applyEngineering(role authority.ProcessRole) []Finding {
+	_ = role
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	return []Finding{{
 		ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",

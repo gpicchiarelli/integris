@@ -145,6 +145,9 @@ func TestLaunchStubIPC(t *testing.T) {
 		if !bytes.Contains(resp.Payload, []byte("|NEG-EXEC:denied_as_expected")) {
 			t.Fatalf("expected NEG-EXEC denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
+			t.Fatalf("expected NEG-ROLE-NET denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
 	}
 	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {
 		t.Fatalf("missing default scm key transport in %q", resp.Payload)

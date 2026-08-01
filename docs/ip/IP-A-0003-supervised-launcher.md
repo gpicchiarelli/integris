@@ -63,19 +63,26 @@ directory owned for the test/run.
 
 - Full platform confinement matrix (dedicated accounts, Hardened Runtime
   entitlements, fine-grained Landlock path allow-lists, FreeBSD
-  `cap_rights_limit`). Engineering children call `confine.ApplyEngineering`
-  (Linux: `no_new_privs` + empty Landlock ruleset + seccomp exec/ptrace denylist;
-  OpenBSD: `pledge("stdio unix")` + `unveil` lock; FreeBSD: `cap_enter`;
-  Darwin: Seatbelt `sandbox_init` via cgo when `CGO_ENABLED=1`).
-  Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-EXEC`, `NEG-PTRACE`)
-  and role-semantic conferral probes (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`,
-  `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`, `NEG-JOURNAL-NET`) over IPC.
+  `cap_rights_limit` object rights beyond conferred fds). Engineering children
+  call `confine.ApplyEngineering(role)`:
+  - Linux: `no_new_privs` + empty Landlock + seccomp exec/ptrace denylist; roles
+    without `network_sockets` also deny socket/connect/bind/listen/accept*;
+  - OpenBSD: `pledge("stdio unix")` or `pledge("stdio unix inet")` for net role
+    + `unveil` lock;
+  - FreeBSD: `cap_enter` (ambient network denied for all roles in capability mode);
+  - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
+    `socket()` may still succeed; `connect` is denied — reflected in `NEG-ROLE-NET`).
+  Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-EXEC`, `NEG-PTRACE`,
+  `NEG-ROLE-NET`) and role-semantic conferral probes (`NEG-NET-ARCHIVE`,
+  `NEG-PARSER-NET`, `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`, `NEG-JOURNAL-NET`)
+  over IPC.
 - Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles` for
   engineering callers that cannot yet SendFD after spawn.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
   apply is not claimed equivalent).
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
-- OS-level role denials beyond conferral inventory (syscall probes per role).
+- OS-level role denials beyond network (filesystem path allow-lists, object
+  capabilities per descriptor kind, auth-role accept-loop denials).
 - Multi-child restart policy and supervisor crash recovery beyond
   `supervisor.Runtime` kill-on-Close.
 - Windows process model.
@@ -111,7 +118,8 @@ Unix-only for this revision (`//go:build unix`). Other platforms remain refused.
 - Unit: refuse non-absolute path, refuse `EngineeringMode=false`, refuse empty
   socket, wait deadline; `CreateKeyFD` round-trip.
 - Integration: parent↔stub authenticated IPC over conferred socketpair fd; stub
-  reports `|KEY:` transport and `|NEG-FS:`/`|NEG-EXEC:`/`|NEG-PTRACE:` statuses.
+  reports `|KEY:` transport and `|NEG-FS:`/`|NEG-EXEC:`/`|NEG-PTRACE:`/
+  `|NEG-ROLE-NET:` statuses.
 - Residual gaps recorded on EVD-ARCH-001 until confinement probes pass in-child
   and non-Linux sealed transport reaches parity.
 

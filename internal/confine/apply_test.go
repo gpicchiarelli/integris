@@ -37,7 +37,7 @@ func TestApplyEngineeringNotInUnitProcess(t *testing.T) {
 	case "linux", "openbsd", "freebsd", "darwin":
 		t.Skip("ApplyEngineering mutates process; covered by role-stub integration")
 	}
-	r := confine.ApplyEngineering()
+	r := confine.ApplyEngineering("")
 	if len(r.Findings) == 0 || r.Findings[0].Status != confine.StatusSkipped {
 		t.Fatalf("%+v", r.Findings)
 	}

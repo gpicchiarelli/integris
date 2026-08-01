@@ -7,11 +7,12 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gpicchiarelli/integris/internal/authority"
 	"github.com/gpicchiarelli/integris/internal/confine"
 )
 
 func TestSeatbeltDeniesCreateAndExec(t *testing.T) {
-	r := confine.ApplyEngineering()
+	r := confine.ApplyEngineering(authority.RoleParser)
 	if len(r.Findings) == 0 || r.Findings[0].Status != confine.StatusAvailable {
 		t.Fatalf("apply: %+v", r.Findings)
 	}
@@ -30,5 +31,9 @@ func TestSeatbeltDeniesCreateAndExec(t *testing.T) {
 	ex := confine.NegativeExec()
 	if ex.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-EXEC: %+v", ex)
+	}
+	net := confine.NegativeRoleNet(authority.RoleParser)
+	if net.Status != confine.StatusDeniedExpected {
+		t.Fatalf("NEG-ROLE-NET: %+v", net)
 	}
 }

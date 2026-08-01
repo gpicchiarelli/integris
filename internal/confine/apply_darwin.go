@@ -14,12 +14,15 @@ import "C"
 import (
 	"fmt"
 	"runtime"
+
+	"github.com/gpicchiarelli/integris/internal/authority"
 )
 
-// engineeringSeatbelt denies path-based file mutation and process-exec while
+// Seatbelt profiles deny path-based file mutation and process-exec while
 // allowing inherited-descriptor I/O, unix IPC, and Mach/sysctl for the Go
-// runtime. Not App Sandbox / Hardened Runtime equivalence.
-const engineeringSeatbelt = `(version 1)
+// runtime. Network is role-parameterized. Not App Sandbox / Hardened Runtime
+// equivalence.
+const engineeringSeatbeltBase = `(version 1)
 (deny default)
 (allow signal)
 (allow sysctl-read)
@@ -32,8 +35,14 @@ const engineeringSeatbelt = `(version 1)
 (deny file-write-unlink)
 (deny process-exec*)
 (deny process-fork)
-(allow system-socket)
+`
+
+const engineeringSeatbeltAllowNet = engineeringSeatbeltBase + `(allow system-socket)
 (allow network*)
+`
+
+const engineeringSeatbeltDenyNet = engineeringSeatbeltBase + `(deny system-socket)
+(deny network*)
 `
 
 func probeEngineering() []Finding {
@@ -44,9 +53,15 @@ func probeEngineering() []Finding {
 	}}
 }
 
-func applyEngineering() []Finding {
+func applyEngineering(role authority.ProcessRole) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
-	if err := sandboxInit(engineeringSeatbelt); err != nil {
+	profile := engineeringSeatbeltDenyNet
+	detail := "deny file-write* + process-exec/fork + system-socket/network*; inherited fds allowed"
+	if RoleMayHoldNetwork(role) {
+		profile = engineeringSeatbeltAllowNet
+		detail = "deny file-write* + process-exec/fork; system-socket/network + inherited fds allowed"
+	}
+	if err := sandboxInit(profile); err != nil {
 		return []Finding{{
 			ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
 			Status: StatusUnavailable, Detail: err.Error(),
@@ -54,7 +69,7 @@ func applyEngineering() []Finding {
 	}
 	return []Finding{{
 		ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
-		Status: StatusAvailable, Detail: "deny file-write* + process-exec/fork; network/unix IPC + inherited fds allowed",
+		Status: StatusAvailable, Detail: detail,
 	}}
 }
 

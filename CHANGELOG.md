@@ -33,6 +33,7 @@ is accepted.
 - role-semantic NEG-NET-ARCHIVE / NEG-PARSER-NET conferral probes + ValidateSlots;
 - role-semantic NEG-PLAN-WRITE / NEG-AUDIT-DECIDE / NEG-JOURNAL-NET conferral probes;
 - Darwin Seatbelt `sandbox_init` engineering apply (cgo; not App Sandbox equivalence);
+- role-parameterized OS network denials (`ApplyEngineering(role)` + `NEG-ROLE-NET`);
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;
 - session crypto-suite allow-list + transcript-bound traffic key install;
 - provisional HMAC peer-auth proof over negotiation transcript (`AuthenticateProof`);
