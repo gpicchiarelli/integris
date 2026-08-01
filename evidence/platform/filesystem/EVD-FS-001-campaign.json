@@ -1,21 +1,22 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "cf4c3913ab03ec4f071c4c5531159a00c34d4c97",
-  "produced_at": "2026-08-01T18:09:28Z",
+  "source_revision": "84b69bafbcafa0030b88f8610a7bc5b6b89d5e40",
+  "produced_at": "2026-08-01T18:18:35Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.253s\n",
-      "stdout_sha256": "5af8ed94c03f193fd7739768822708400753a8033772dd7487c489bda843ac5e"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.265s\n",
+      "stdout_sha256": "57c19c21cc865863dc12c7d948beaafd6606bc0a61eec3d386eb5477ab4b3e55"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
     "CapCOW empirical via platform.CloneFile (Darwin clonefile→LOSSLESS; copy→UNREPRESENTABLE)",
-    "ACL/xattr/sparse/resource-fork probes still UNKNOWN placeholders",
+    "CapXattr/CapBSDFlags empirical (Setxattr/Getxattr; Darwin/FreeBSD/OpenBSD chflags)",
+    "ACL/sparse/resource-fork probes still UNKNOWN placeholders",
     "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",
     "VER-FS-001 remains planned until review closes"

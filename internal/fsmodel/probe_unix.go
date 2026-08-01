@@ -54,8 +54,8 @@ func ProbeScratch(scratchDir string) (ProbeResult, error) {
 		{ID: plan.CapNameEncoding, Result: plan.ResultLossless}, // UTF-8 path ops succeeded to create dir
 		{ID: plan.CapUnicode, Result: plan.ResultUnknown, DetailDigest: codec.SHA256([]byte("nfc-probe-deferred"))},
 		{ID: plan.CapACL, Result: plan.ResultUnknown},
-		{ID: plan.CapXattr, Result: plan.ResultUnknown},
-		{ID: plan.CapBSDFlags, Result: plan.ResultUnknown},
+		probeXattr(dir),
+		probeBSDFlags(dir),
 		{ID: plan.CapSparse, Result: plan.ResultUnknown},
 		{ID: plan.CapResourceFork, Result: plan.ResultUnknown},
 		{ID: plan.CapTimes, Result: plan.ResultUnknown},
@@ -190,4 +190,33 @@ func probeCOW(dir string) Fact {
 	default:
 		return Fact{ID: plan.CapCOW, Result: plan.ResultUnknown, DetailDigest: detail}
 	}
+}
+
+func xattrName() string {
+	// Linux requires a user.* namespace for unprivileged setxattr.
+	if runtime.GOOS == "linux" {
+		return "user.integris.probe"
+	}
+	return "integris.probe"
+}
+
+// probeXattr round-trips an extended attribute on a scratch file.
+func probeXattr(dir string) Fact {
+	path := filepath.Join(dir, "xattr-probe")
+	if err := os.WriteFile(path, []byte("x"), 0o600); err != nil {
+		return Fact{ID: plan.CapXattr, Result: plan.ResultUnknown}
+	}
+	defer os.Remove(path)
+	key := xattrName()
+	want := []byte("1")
+	if err := unix.Setxattr(path, key, want, 0); err != nil {
+		return Fact{ID: plan.CapXattr, Result: plan.ResultUnrepresentable, DetailDigest: codec.SHA256([]byte(key))}
+	}
+	buf := make([]byte, 64)
+	n, err := unix.Getxattr(path, key, buf)
+	if err != nil || n != len(want) || string(buf[:n]) != string(want) {
+		return Fact{ID: plan.CapXattr, Result: plan.ResultUnrepresentable, DetailDigest: codec.SHA256([]byte(key))}
+	}
+	_ = unix.Removexattr(path, key)
+	return Fact{ID: plan.CapXattr, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte(key))}
 }

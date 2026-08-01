@@ -33,8 +33,26 @@ func TestProbeScratchEmpirical(t *testing.T) {
 	default:
 		t.Fatalf("cow=%v", byID[plan.CapCOW])
 	}
-	if runtime.GOOS == "darwin" && byID[plan.CapCOW] != plan.ResultLossless {
-		t.Fatalf("darwin APFS tempdir CapCOW=%v want LOSSLESS (clonefile)", byID[plan.CapCOW])
+	switch byID[plan.CapXattr] {
+	case plan.ResultLossless, plan.ResultUnrepresentable, plan.ResultUnknown:
+	default:
+		t.Fatalf("xattr=%v", byID[plan.CapXattr])
+	}
+	switch byID[plan.CapBSDFlags] {
+	case plan.ResultLossless, plan.ResultUnrepresentable, plan.ResultUnknown:
+	default:
+		t.Fatalf("bsdflags=%v", byID[plan.CapBSDFlags])
+	}
+	if runtime.GOOS == "darwin" {
+		if byID[plan.CapCOW] != plan.ResultLossless {
+			t.Fatalf("darwin CapCOW=%v want LOSSLESS (clonefile)", byID[plan.CapCOW])
+		}
+		if byID[plan.CapXattr] != plan.ResultLossless {
+			t.Fatalf("darwin CapXattr=%v want LOSSLESS", byID[plan.CapXattr])
+		}
+		if byID[plan.CapBSDFlags] != plan.ResultLossless {
+			t.Fatalf("darwin CapBSDFlags=%v want LOSSLESS (chflags)", byID[plan.CapBSDFlags])
+		}
 	}
 	// Digest must be stable across re-probe on same FS type in same dir parent.
 	res2, err := fsmodel.ProbeScratch(t.TempDir())
@@ -49,6 +67,12 @@ func TestProbeScratchEmpirical(t *testing.T) {
 		}
 		if fact(res, plan.CapCOW) != fact(res2, plan.CapCOW) {
 			t.Fatal("cow probe unstable")
+		}
+		if fact(res, plan.CapXattr) != fact(res2, plan.CapXattr) {
+			t.Fatal("xattr probe unstable")
+		}
+		if fact(res, plan.CapBSDFlags) != fact(res2, plan.CapBSDFlags) {
+			t.Fatal("bsdflags probe unstable")
 		}
 	}
 }
