@@ -152,7 +152,8 @@ func run(root string) error {
 			residual: []string{
 				"RLIMIT_NOFILE descriptor saturation harness complete (WithSoftNOFILE)",
 				"RLIMIT_FSIZE disk-write saturation harness complete (WithSoftFSIZE → EFBIG; not ENOSPC)",
-				"CPU system-level saturation still open; true ENOSPC (full volume) still open",
+				"RLIMIT_CPU process CPU-time harness complete (WithSoftCPU → SIGXCPU; not system-wide load)",
+				"true ENOSPC (full volume) still open",
 				"independent security review of evidence not recorded",
 			},
 		},

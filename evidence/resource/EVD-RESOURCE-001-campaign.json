@@ -1,22 +1,23 @@
 {
   "evidence_id": "EVD-RESOURCE-001",
-  "source_revision": "8abd325be3def1fd8991ef41feaf1b9bebc54d7f",
-  "produced_at": "2026-08-01T19:09:47Z",
+  "source_revision": "0b753fed9eae3d8dcb4cc74f0dbf3126c0645be5",
+  "produced_at": "2026-08-01T19:14:38Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/resource/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t0.249s\n",
-      "stdout_sha256": "ca1224bd17c0cb667f295575d550214a0f403177c2f8cc38b4104571dd10a360"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t1.255s\n",
+      "stdout_sha256": "f2ac94f55301d8d61977248472dcd0511d1e239f8a82d3a8ea76caf9ed9163a1"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
     "RLIMIT_NOFILE descriptor saturation harness complete (WithSoftNOFILE)",
     "RLIMIT_FSIZE disk-write saturation harness complete (WithSoftFSIZE → EFBIG; not ENOSPC)",
-    "CPU system-level saturation still open; true ENOSPC (full volume) still open",
+    "RLIMIT_CPU process CPU-time harness complete (WithSoftCPU → SIGXCPU; not system-wide load)",
+    "true ENOSPC (full volume) still open",
     "independent security review of evidence not recorded"
   ],
   "extra": {

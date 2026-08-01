@@ -5,7 +5,10 @@ package resource_test
 import (
 	"errors"
 	"os"
+	"os/signal"
+	"runtime"
 	"testing"
+	"time"
 
 	"github.com/gpicchiarelli/integris/internal/resource"
 	"golang.org/x/sys/unix"
@@ -103,6 +106,50 @@ func TestFSIZESaturationHarness(t *testing.T) {
 
 func TestWithSoftFSIZERejectsZero(t *testing.T) {
 	if err := resource.WithSoftFSIZE(0, func() error { return nil }); err == nil {
+		t.Fatal("expected error for soft=0")
+	}
+}
+
+func TestCPUSaturationHarness(t *testing.T) {
+	var before unix.Rlimit
+	if err := unix.Getrlimit(unix.RLIMIT_CPU, &before); err != nil {
+		t.Fatal(err)
+	}
+	ch := make(chan os.Signal, 1)
+	signal.Notify(ch, unix.SIGXCPU)
+	defer signal.Stop(ch)
+
+	err := resource.WithSoftCPU(1, func() error {
+		start := time.Now()
+		for {
+			select {
+			case <-ch:
+				return nil
+			default:
+			}
+			for i := 0; i < 1<<22; i++ {
+				_ = i * i
+			}
+			runtime.Gosched()
+			if time.Since(start) > 30*time.Second {
+				return errors.New("timeout waiting for SIGXCPU")
+			}
+		}
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var after unix.Rlimit
+	if err := unix.Getrlimit(unix.RLIMIT_CPU, &after); err != nil {
+		t.Fatal(err)
+	}
+	if after.Cur != before.Cur || after.Max != before.Max {
+		t.Fatalf("rlimit not restored: before=%+v after=%+v", before, after)
+	}
+}
+
+func TestWithSoftCPURejectsZero(t *testing.T) {
+	if err := resource.WithSoftCPU(0, func() error { return nil }); err == nil {
 		t.Fatal("expected error for soft=0")
 	}
 }
