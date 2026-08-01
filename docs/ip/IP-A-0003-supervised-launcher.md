@@ -64,17 +64,17 @@ directory owned for the test/run.
 - Full platform confinement matrix (dedicated accounts, Hardened Runtime
   entitlements, fine-grained Landlock path allow-lists, FreeBSD
   `cap_rights_limit` object rights beyond conferred fds). Engineering children
-  call `confine.ApplyEngineering(role)`:
-  - Linux: `no_new_privs` + empty Landlock + seccomp exec/ptrace denylist; roles
-    without `network_sockets` also deny socket/connect/bind/listen/accept*;
-  - OpenBSD: `pledge("stdio unix")` or `pledge("stdio unix inet")` for net role
-    + `unveil` lock;
-  - FreeBSD: `cap_enter` (ambient network denied for all roles in capability mode);
-  - Darwin: Seatbelt `sandbox_init` via cgo (`deny file-read-data` + write/exec;
-    `deny network*` unless net role — `socket()` may still succeed; `connect` is
-    denied). Inherited conferred FDs remain readable.
-  Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-EXEC`,
-  `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
+  call `confine.ApplyEngineeringOpts(role, opts)`:
+  - Linux: `no_new_privs` + Landlock (empty or path_beneath allow-roots for
+    Apply/Index) + seccomp exec/ptrace denylist; roles without `network_sockets`
+    also deny socket/connect/bind/listen/accept*;
+  - OpenBSD: role-parameterized `pledge` + `unveil` of allow-roots then lock;
+  - FreeBSD: `cap_enter` (fd-only; path allow-lists require conferred directory FDs);
+  - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
+    archive roles may receive `(allow file-read*/file-write* (subpath …))`
+    allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root).
+  Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
+  `NEG-EXEC`, `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
   (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`, `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`,
   `NEG-JOURNAL-NET`) over IPC.
 - Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles` for
@@ -82,9 +82,8 @@ directory owned for the test/run.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
   apply is not claimed equivalent).
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
-- Role-differentiated filesystem path allow-lists (engineering apply remains
-  empty allow-list / deny-all ambient paths); per-FD object capabilities beyond
-  FreeBSD conferred-fd rights; auth-role accept-loop denials.
+- Broader role path allow-lists beyond Apply/Index archive caps; pre-conferred
+  directory FDs on FreeBSD Capsicum; auth-role accept-loop denials.
 - Dual-child crash recovery when both IPC ends are live role processes
   (`RestartChild` + `SocketFabric.ReplacePair` cover supervisor-held peer end
   restart after a single spawned child exits or is killed).
@@ -121,8 +120,8 @@ Unix-only for this revision (`//go:build unix`). Other platforms remain refused.
 - Unit: refuse non-absolute path, refuse `EngineeringMode=false`, refuse empty
   socket, wait deadline; `CreateKeyFD` round-trip.
 - Integration: parent↔stub authenticated IPC over conferred socketpair fd; stub
-  reports `|KEY:` transport and `|NEG-FS:`/`|NEG-FS-READ:`/`|NEG-EXEC:`/
-  `|NEG-PTRACE:`/`|NEG-ROLE-NET:` statuses.
+  reports `|KEY:` transport and `|NEG-FS:`/`|NEG-FS-READ:`/`|NEG-FS-PATH:`/
+  `|NEG-EXEC:`/`|NEG-PTRACE:`/`|NEG-ROLE-NET:` statuses.
 - Residual gaps recorded on EVD-ARCH-001 until confinement probes pass in-child
   and non-Linux sealed transport reaches parity.
 

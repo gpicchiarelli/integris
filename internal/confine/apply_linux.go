@@ -40,10 +40,11 @@ func probeEngineering() []Finding {
 	return out
 }
 
-func applyEngineering(role authority.ProcessRole) []Finding {
+func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	var out []Finding
 	denyNet := !RoleMayHoldNetwork(role)
+	mode := RoleArchiveFSMode(role)
 
 	if err := unix.Prctl(unix.PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0); err != nil {
 		out = append(out, Finding{
@@ -63,15 +64,21 @@ func applyEngineering(role authority.ProcessRole) []Finding {
 			ID: "APPLY-LANDLOCK", Platform: plat, Control: "landlock",
 			Status: StatusUnavailable, Detail: err.Error(),
 		})
-	} else if err := landlockDenyNewFS(abi); err != nil {
+	} else if err := landlockApplyFS(abi, mode, opts.AllowRoots); err != nil {
 		out = append(out, Finding{
 			ID: "APPLY-LANDLOCK", Platform: plat, Control: "landlock",
 			Status: StatusUnavailable, Detail: fmt.Sprintf("abi=%d: %v", abi, err),
 		})
 	} else {
+		detail := fmt.Sprintf("abi=%d", abi)
+		if mode == ArchiveFSNone || len(opts.AllowRoots) == 0 {
+			detail += " empty ruleset (deny new FS opens)"
+		} else {
+			detail += fmt.Sprintf(" allow-roots=%d mode=%d", len(opts.AllowRoots), mode)
+		}
 		out = append(out, Finding{
 			ID: "APPLY-LANDLOCK", Platform: plat, Control: "landlock",
-			Status: StatusAvailable, Detail: fmt.Sprintf("abi=%d empty ruleset (deny new FS opens)", abi),
+			Status: StatusAvailable, Detail: detail,
 		})
 	}
 
@@ -104,7 +111,7 @@ func landlockABIVersion() (int, error) {
 	return int(r1), nil
 }
 
-func landlockDenyNewFS(abi int) error {
+func landlockApplyFS(abi int, mode ArchiveFSMode, roots []string) error {
 	access := landlockHandledFS(abi)
 	attr := unix.LandlockRulesetAttr{Access_fs: access}
 	fd, err := landlockCreateRuleset(&attr)
@@ -112,11 +119,50 @@ func landlockDenyNewFS(abi int) error {
 		return err
 	}
 	defer unix.Close(fd)
+	if mode != ArchiveFSNone && len(roots) > 0 {
+		allowed := landlockRootAccess(abi, mode)
+		for _, root := range roots {
+			dirfd, err := unix.Open(root, unix.O_PATH|unix.O_CLOEXEC, 0)
+			if err != nil {
+				return err
+			}
+			rule := unix.LandlockPathBeneathAttr{
+				Allowed_access: allowed,
+				Parent_fd:      int32(dirfd),
+			}
+			_, _, errno := unix.Syscall(
+				unix.SYS_LANDLOCK_ADD_RULE,
+				uintptr(fd),
+				uintptr(unix.LANDLOCK_RULE_PATH_BENEATH),
+				uintptr(unsafe.Pointer(&rule)),
+			)
+			_ = unix.Close(dirfd)
+			if errno != 0 {
+				return errno
+			}
+		}
+	}
 	_, _, errno := unix.Syscall(unix.SYS_LANDLOCK_RESTRICT_SELF, uintptr(fd), 0, 0)
 	if errno != 0 {
 		return errno
 	}
 	return nil
+}
+
+func landlockRootAccess(abi int, mode ArchiveFSMode) uint64 {
+	access := uint64(unix.LANDLOCK_ACCESS_FS_READ_FILE | unix.LANDLOCK_ACCESS_FS_READ_DIR)
+	if mode == ArchiveFSReadWrite {
+		access |= unix.LANDLOCK_ACCESS_FS_WRITE_FILE |
+			unix.LANDLOCK_ACCESS_FS_REMOVE_DIR |
+			unix.LANDLOCK_ACCESS_FS_REMOVE_FILE |
+			unix.LANDLOCK_ACCESS_FS_MAKE_DIR |
+			unix.LANDLOCK_ACCESS_FS_MAKE_REG |
+			unix.LANDLOCK_ACCESS_FS_MAKE_SYM
+		if abi >= 3 {
+			access |= unix.LANDLOCK_ACCESS_FS_TRUNCATE
+		}
+	}
+	return access
 }
 
 func landlockCreateRuleset(attr *unix.LandlockRulesetAttr) (int, error) {

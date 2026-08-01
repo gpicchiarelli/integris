@@ -16,8 +16,9 @@ func probeEngineering() []Finding {
 	}}
 }
 
-func applyEngineering(role authority.ProcessRole) []Finding {
+func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	_ = role
+	_ = opts
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	return []Finding{{
 		ID: "APPLY-CONFINEMENT", Platform: plat, Control: "platform",

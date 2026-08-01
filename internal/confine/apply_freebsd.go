@@ -51,8 +51,9 @@ func LimitConferredFDs(files ...*os.File) Finding {
 	}
 }
 
-func applyEngineering(role authority.ProcessRole) []Finding {
-	_ = role // Capsicum capability mode is fd-only for all roles; network is ambient-denied.
+func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
+	_ = opts // Capsicum is fd-only; path allow-lists require pre-conferred directory FDs.
+	_ = role
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	if err := unix.CapEnter(); err != nil {
 		return []Finding{{
@@ -62,6 +63,6 @@ func applyEngineering(role authority.ProcessRole) []Finding {
 	}
 	return []Finding{{
 		ID: "APPLY-CAPSICUM", Platform: plat, Control: "cap_enter",
-		Status: StatusAvailable, Detail: "capability mode entered (fd-only)",
+		Status: StatusAvailable, Detail: "capability mode entered (fd-only; path allow-lists N/A)",
 	}}
 }

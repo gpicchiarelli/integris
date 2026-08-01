@@ -21,12 +21,13 @@ must distinguish kernel-enforced, service-manager-enforced, discretionary, and
 operational controls.
 
 Engineering scaffold: `internal/confine` probes and applies best-effort child
-confinement (`ApplyEngineering(role)`: Linux Landlock deny-new-FS + `no_new_privs` +
-seccomp denylist for exec/ptrace and, for non-net roles, socket/connect/bind/listen/accept*;
-OpenBSD role-parameterized `pledge`/`unveil`; FreeBSD `cap_rights_limit` then
-`cap_enter`; Darwin Seatbelt with deny ambient path read/write and `deny network*`
-unless net role). Role stubs report `NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-EXEC`,
-`NEG-PTRACE`, and `NEG-ROLE-NET`. Provisional
+confinement (`ApplyEngineeringOpts(role, opts)`: Linux Landlock with optional
+path_beneath allow-roots for Apply/Index + `no_new_privs` + seccomp denylist;
+OpenBSD role-parameterized `pledge`/`unveil` allow-roots; FreeBSD
+`cap_rights_limit` then `cap_enter` (fd-only); Darwin Seatbelt with deny ambient
+path read/write except EvalSymlinks'd allow-roots, and `deny network*` unless
+net role). Role stubs report `NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
+`NEG-EXEC`, `NEG-PTRACE`, and `NEG-ROLE-NET`. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts and release-mode launch remain open.
 

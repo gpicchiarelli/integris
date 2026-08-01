@@ -56,8 +56,12 @@ func run() error {
 	}
 
 	_ = confine.LimitConferredFDs(sock, keyF)
-	_ = confine.ApplyEngineering(role)
-	negFindings := confine.NegativeEngineering(role)
+	opts := confine.ApplyOptions{}
+	if rawRoots := os.Getenv(launcher.EnvAllowRoots); rawRoots != "" {
+		opts.AllowRoots = splitAllowRoots(rawRoots)
+	}
+	_ = confine.ApplyEngineeringOpts(role, opts)
+	negFindings := confine.NegativeEngineeringOpts(role, opts)
 	negFindings = append(negFindings, confine.NegativeRoleSemantic(confine.RoleProbeInput{
 		Role:      role,
 		Confer:    confine.ParseCapList(os.Getenv(launcher.EnvConfer)),
@@ -101,4 +105,22 @@ func run() error {
 		return err
 	}
 	return ipc.WriteFrame(sock, reply)
+}
+
+func splitAllowRoots(s string) []string {
+	if s == "" {
+		return nil
+	}
+	var out []string
+	start := 0
+	for i := 0; i <= len(s); i++ {
+		if i == len(s) || s[i] == ':' {
+			part := s[start:i]
+			if part != "" {
+				out = append(out, part)
+			}
+			start = i + 1
+		}
+	}
+	return out
 }

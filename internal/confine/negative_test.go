@@ -12,6 +12,7 @@ func TestFormatNegativeAck(t *testing.T) {
 	ack := confine.FormatNegativeAck([]confine.Finding{
 		{ID: "NEG-FS-OPEN", Status: confine.StatusDeniedExpected},
 		{ID: "NEG-FS-READ", Status: confine.StatusDeniedExpected},
+		{ID: "NEG-FS-PATH", Status: confine.StatusSkipped},
 		{ID: "NEG-EXEC", Status: confine.StatusDeniedExpected},
 		{ID: "NEG-PTRACE", Status: confine.StatusSkipped},
 		{ID: "NEG-ROLE-NET", Status: confine.StatusDeniedExpected},
@@ -21,7 +22,7 @@ func TestFormatNegativeAck(t *testing.T) {
 		{ID: "NEG-AUDIT-DECIDE", Status: confine.StatusDeniedExpected},
 		{ID: "NEG-JOURNAL-NET", Status: confine.StatusDeniedExpected},
 	})
-	want := "|NEG-FS:denied_as_expected|NEG-FS-READ:denied_as_expected|NEG-EXEC:denied_as_expected|NEG-PTRACE:skipped|NEG-ROLE-NET:denied_as_expected|NEG-NET-ARCHIVE:denied_as_expected|NEG-PARSER-NET:skipped|NEG-PLAN-WRITE:denied_as_expected|NEG-AUDIT-DECIDE:denied_as_expected|NEG-JOURNAL-NET:denied_as_expected"
+	want := "|NEG-FS:denied_as_expected|NEG-FS-READ:denied_as_expected|NEG-FS-PATH:skipped|NEG-EXEC:denied_as_expected|NEG-PTRACE:skipped|NEG-ROLE-NET:denied_as_expected|NEG-NET-ARCHIVE:denied_as_expected|NEG-PARSER-NET:skipped|NEG-PLAN-WRITE:denied_as_expected|NEG-AUDIT-DECIDE:denied_as_expected|NEG-JOURNAL-NET:denied_as_expected"
 	if ack != want {
 		t.Fatalf("%q", ack)
 	}

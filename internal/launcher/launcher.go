@@ -18,6 +18,7 @@ const (
 	EnvKeyTransport = "INTEGRIS_KEY_TRANSPORT"
 	EnvConfer       = "INTEGRIS_CONFER"
 	EnvSlots        = "INTEGRIS_SLOTS"
+	EnvAllowRoots   = "INTEGRIS_ALLOW_ROOTS"
 	ModeEngineering = "engineering"
 	// IPCFileFD is the child's inherited IPC socket (ExtraFiles[0] → fd 3).
 	IPCFileFD = 3
@@ -58,6 +59,8 @@ type Request struct {
 	// Confer and SlotKinds are non-secret inventory labels for role-semantic probes.
 	Confer      []authority.Capability
 	SlotKinds   []string
+	// AllowRoots are absolute archive path allow-list entries (EvalSymlinks in child).
+	AllowRoots  []string
 	WaitTimeout time.Duration
 	WorkDir     string
 }

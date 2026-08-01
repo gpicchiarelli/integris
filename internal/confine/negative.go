@@ -58,12 +58,78 @@ func NegativeFSRead() Finding {
 	}
 }
 
+// NegativeFSPath attempts to open a conferred allow-root after apply.
+// Expected StatusAvailable when RoleArchiveFSMode is non-none and roots were
+// installed; otherwise skipped.
+func NegativeFSPath(role authority.ProcessRole, roots []string) Finding {
+	plat := runtime.GOOS + "/" + runtime.GOARCH
+	mode := RoleArchiveFSMode(role)
+	if mode == ArchiveFSNone || len(roots) == 0 {
+		return Finding{
+			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
+			Status: StatusSkipped, Detail: "no archive allow-roots for role",
+		}
+	}
+	switch runtime.GOOS {
+	case "linux", "openbsd", "darwin":
+	case "freebsd":
+		return Finding{
+			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
+			Status: StatusSkipped, Detail: "Capsicum is fd-only; path allow-lists N/A",
+		}
+	default:
+		return Finding{
+			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
+			Status: StatusSkipped, Detail: "no path allow-list on this OS",
+		}
+	}
+	norm, err := NormalizeAllowRoots(roots)
+	if err != nil || len(norm) == 0 {
+		detail := "normalize failed"
+		if err != nil {
+			detail = err.Error()
+		}
+		return Finding{
+			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
+			Status: StatusUnavailable, Detail: detail,
+		}
+	}
+	f, err := os.Open(norm[0])
+	if err != nil {
+		return Finding{
+			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
+			Status: StatusUnavailable, Detail: "allow-root open failed: " + err.Error(),
+		}
+	}
+	_ = f.Close()
+	return Finding{
+		ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
+		Status: StatusAvailable, Detail: "allow-root open ok mode=" + archiveModeLabel(mode),
+	}
+}
+
+func archiveModeLabel(mode ArchiveFSMode) string {
+	switch mode {
+	case ArchiveFSReadonly:
+		return "readonly"
+	case ArchiveFSReadWrite:
+		return "readwrite"
+	default:
+		return "none"
+	}
+}
+
 // NegativeEngineering runs in-child OS denial probes after ApplyEngineering.
-// Role-semantic conferral probes live in NegativeRoleSemantic.
 func NegativeEngineering(role authority.ProcessRole) []Finding {
+	return NegativeEngineeringOpts(role, ApplyOptions{})
+}
+
+// NegativeEngineeringOpts includes path allow-list probes for archive roles.
+func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	return []Finding{
 		NegativeFSOpen(),
 		NegativeFSRead(),
+		NegativeFSPath(role, opts.AllowRoots),
 		NegativeExec(),
 		NegativePtrace(),
 		NegativeRoleNet(role),
@@ -79,6 +145,8 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-FS:")
 		case "NEG-FS-READ":
 			b.WriteString("|NEG-FS-READ:")
+		case "NEG-FS-PATH":
+			b.WriteString("|NEG-FS-PATH:")
 		case "NEG-EXEC":
 			b.WriteString("|NEG-EXEC:")
 		case "NEG-PTRACE":

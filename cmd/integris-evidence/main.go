@@ -192,10 +192,10 @@ func run(root string) error {
 			},
 			residual: []string{
 				"session AEAD + mutual HMAC peer/archive-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
-				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge; Darwin Seatbelt deny ambient path read/write + role-net",
-				"NEG-FS/FS-READ/EXEC/PTRACE/ROLE-NET + full role-semantic conferral NEG-* (net/parser/plan/audit/journal) via role stub",
+				"engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index; role-net deny; Capsicum fd-only",
+				"NEG-FS/FS-READ/FS-PATH/EXEC/PTRACE/ROLE-NET + full role-semantic conferral NEG-* via role stub",
 				"MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
-				"role-differentiated path allow-lists and per-FD object caps beyond conferred fds still open",
+				"broader path allow-lists beyond archive caps; FreeBSD conferred directory FDs still open",
 				"Runtime.RestartChild covers supervisor-held peer edges; dual-live-child crash recovery still open",
 				"independent cryptography/security review required for IC-1",
 				"VER-PROTO-001 / VER-ARCH-001 remain planned",

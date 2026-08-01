@@ -14,36 +14,10 @@ import "C"
 import (
 	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 )
-
-// Seatbelt profiles deny path-based file open/mutation and process-exec while
-// allowing I/O on already-conferred descriptors, unix IPC, and Mach/sysctl for
-// the Go runtime. Network is role-parameterized. Not App Sandbox / Hardened
-// Runtime equivalence.
-const engineeringSeatbeltBase = `(version 1)
-(deny default)
-(allow signal)
-(allow sysctl-read)
-(allow mach*)
-(allow process-info*)
-(allow file-read-metadata)
-(deny file-read-data)
-(deny file-write*)
-(deny file-write-create)
-(deny file-write-unlink)
-(deny process-exec*)
-(deny process-fork)
-`
-
-const engineeringSeatbeltAllowNet = engineeringSeatbeltBase + `(allow system-socket)
-(allow network*)
-`
-
-const engineeringSeatbeltDenyNet = engineeringSeatbeltBase + `(deny system-socket)
-(deny network*)
-`
 
 func probeEngineering() []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
@@ -53,13 +27,14 @@ func probeEngineering() []Finding {
 	}}
 }
 
-func applyEngineering(role authority.ProcessRole) []Finding {
+func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
-	profile := engineeringSeatbeltDenyNet
-	detail := "deny ambient path read/write + process-exec/fork + system-socket/network*; inherited fds allowed"
-	if RoleMayHoldNetwork(role) {
-		profile = engineeringSeatbeltAllowNet
-		detail = "deny ambient path read/write + process-exec/fork; system-socket/network + inherited fds allowed"
+	profile, detail, err := buildSeatbeltProfile(role, opts.AllowRoots)
+	if err != nil {
+		return []Finding{{
+			ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
+			Status: StatusUnavailable, Detail: err.Error(),
+		}}
 	}
 	if err := sandboxInit(profile); err != nil {
 		return []Finding{{
@@ -71,6 +46,58 @@ func applyEngineering(role authority.ProcessRole) []Finding {
 		ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
 		Status: StatusAvailable, Detail: detail,
 	}}
+}
+
+func buildSeatbeltProfile(role authority.ProcessRole, roots []string) (profile, detail string, err error) {
+	var b strings.Builder
+	b.WriteString(`(version 1)
+(deny default)
+(allow signal)
+(allow sysctl-read)
+(allow mach*)
+(allow process-info*)
+(allow file-read-metadata)
+`)
+	mode := RoleArchiveFSMode(role)
+	for _, root := range roots {
+		if err := seatbeltSafePath(root); err != nil {
+			return "", "", err
+		}
+		fmt.Fprintf(&b, "(allow file-read* (subpath %q))\n", root)
+		if mode == ArchiveFSReadWrite {
+			fmt.Fprintf(&b, "(allow file-write* (subpath %q))\n", root)
+		}
+	}
+	b.WriteString(`(deny process-exec*)
+(deny process-fork)
+`)
+	if RoleMayHoldNetwork(role) {
+		b.WriteString(`(allow system-socket)
+(allow network*)
+`)
+		detail = "Seatbelt; network allowed"
+	} else {
+		b.WriteString(`(deny system-socket)
+(deny network*)
+`)
+		detail = "Seatbelt; deny ambient network"
+	}
+	switch {
+	case mode == ArchiveFSNone || len(roots) == 0:
+		detail += "; deny ambient path read/write (inherited fds ok)"
+	case mode == ArchiveFSReadonly:
+		detail += fmt.Sprintf("; readonly allow-roots=%d", len(roots))
+	default:
+		detail += fmt.Sprintf("; readwrite allow-roots=%d", len(roots))
+	}
+	return b.String(), detail, nil
+}
+
+func seatbeltSafePath(p string) error {
+	if p == "" || strings.ContainsAny(p, "\"\n\r\x00") {
+		return fmt.Errorf("unsafe allow-root path")
+	}
+	return nil
 }
 
 func sandboxInit(profile string) error {

@@ -1,7 +1,7 @@
 {
   "evidence_id": "EVD-TXN-001",
-  "source_revision": "b0264178052050dbe79f6dc7fb4f2b4616527aee",
-  "produced_at": "2026-08-01T14:05:53Z",
+  "source_revision": "6c0ac50197013becc3a0f5507b45c0837065c86e",
+  "produced_at": "2026-08-01T14:12:35Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
@@ -14,8 +14,8 @@
     {
       "command": "go test ./internal/e2e/ -count=1 -run PlanJournalRecover",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/e2e\t0.305s\n",
-      "stdout_sha256": "176597d9b7230076b39b4bfb628ff77d124d23836f8e26ec02157d28ca370d85"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/e2e\t0.271s\n",
+      "stdout_sha256": "6fbaa95f8dfc81f0a5233762d2ef23f419581fdbb3b700a7acc913856f6100d1"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

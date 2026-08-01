@@ -70,6 +70,9 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 	if len(req.SlotKinds) > 0 {
 		env = append(env, EnvSlots+"="+strings.Join(req.SlotKinds, ","))
 	}
+	if len(req.AllowRoots) > 0 {
+		env = append(env, EnvAllowRoots+"="+strings.Join(req.AllowRoots, ":"))
+	}
 	keyFD, transport, err := CreateKeyFD(req.MACKey)
 	if err != nil {
 		return nil, err
