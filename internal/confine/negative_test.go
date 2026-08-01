@@ -31,6 +31,8 @@ func TestFormatNegativeAck(t *testing.T) {
 		{ID: "NEG-APPLY-KEYS", Status: confine.StatusSkipped},
 		{ID: "NEG-APPLY-PATH", Status: confine.StatusSkipped},
 		{ID: "NEG-PLAN-WRITE", Status: confine.StatusDeniedExpected},
+		{ID: "NEG-PLAN-KEYS", Status: confine.StatusSkipped},
+		{ID: "NEG-PLAN-NET", Status: confine.StatusSkipped},
 		{ID: "NEG-AUDIT-DECIDE", Status: confine.StatusDeniedExpected},
 		{ID: "NEG-AUDIT-ARCHIVES", Status: confine.StatusSkipped},
 		{ID: "NEG-AUDIT-SECRETS", Status: confine.StatusSkipped},
@@ -38,7 +40,7 @@ func TestFormatNegativeAck(t *testing.T) {
 		{ID: "NEG-JOURNAL-POLICY", Status: confine.StatusSkipped},
 		{ID: "NEG-JOURNAL-MUTATE", Status: confine.StatusSkipped},
 	})
-	want := "|NEG-FS:denied_as_expected|NEG-FS-READ:denied_as_expected|NEG-FS-PATH:skipped|NEG-FS-WRITE:skipped|NEG-EXEC:denied_as_expected|NEG-PTRACE:skipped|NEG-ROLE-NET:denied_as_expected|NEG-NET-ARCHIVE:denied_as_expected|NEG-NET-KEYS:skipped|NEG-NET-JOURNAL:skipped|NEG-PARSER-NET:skipped|NEG-PARSER-KEYS:skipped|NEG-PARSER-ARCHIVES:skipped|NEG-AUTH-ACCEPT:denied_as_expected|NEG-AUTH-CONTENTS:denied_as_expected|NEG-AUTH-PUB:denied_as_expected|NEG-INDEX-PUB:skipped|NEG-INDEX-DELETE:skipped|NEG-APPLY-KEYS:skipped|NEG-APPLY-PATH:skipped|NEG-PLAN-WRITE:denied_as_expected|NEG-AUDIT-DECIDE:denied_as_expected|NEG-AUDIT-ARCHIVES:skipped|NEG-AUDIT-SECRETS:skipped|NEG-JOURNAL-NET:denied_as_expected|NEG-JOURNAL-POLICY:skipped|NEG-JOURNAL-MUTATE:skipped"
+	want := "|NEG-FS:denied_as_expected|NEG-FS-READ:denied_as_expected|NEG-FS-PATH:skipped|NEG-FS-WRITE:skipped|NEG-EXEC:denied_as_expected|NEG-PTRACE:skipped|NEG-ROLE-NET:denied_as_expected|NEG-NET-ARCHIVE:denied_as_expected|NEG-NET-KEYS:skipped|NEG-NET-JOURNAL:skipped|NEG-PARSER-NET:skipped|NEG-PARSER-KEYS:skipped|NEG-PARSER-ARCHIVES:skipped|NEG-AUTH-ACCEPT:denied_as_expected|NEG-AUTH-CONTENTS:denied_as_expected|NEG-AUTH-PUB:denied_as_expected|NEG-INDEX-PUB:skipped|NEG-INDEX-DELETE:skipped|NEG-APPLY-KEYS:skipped|NEG-APPLY-PATH:skipped|NEG-PLAN-WRITE:denied_as_expected|NEG-PLAN-KEYS:skipped|NEG-PLAN-NET:skipped|NEG-AUDIT-DECIDE:denied_as_expected|NEG-AUDIT-ARCHIVES:skipped|NEG-AUDIT-SECRETS:skipped|NEG-JOURNAL-NET:denied_as_expected|NEG-JOURNAL-POLICY:skipped|NEG-JOURNAL-MUTATE:skipped"
 	if ack != want {
 		t.Fatalf("%q", ack)
 	}

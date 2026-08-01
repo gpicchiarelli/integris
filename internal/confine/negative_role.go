@@ -35,6 +35,8 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 		negApplyKeys(plat, in),
 		negApplyPath(plat, in),
 		negPlanWrite(plat, in),
+		negPlanKeys(plat, in),
+		negPlanNet(plat, in),
 		negAuditDecide(plat, in),
 		negAuditArchives(plat, in),
 		negAuditSecrets(plat, in),
@@ -429,6 +431,62 @@ func negPlanWrite(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "plan lacks filesystem_writes in inventory and conferral"
+	return base
+}
+
+func negPlanKeys(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-PLAN-KEYS", Platform: plat, Control: "keys",
+	}
+	if in.Role != authority.RolePlan {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-plan only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapKeys) ||
+		hasCap(in.Confer, authority.CapPermanentKeys) ||
+		hasCap(in.Confer, authority.CapLongTermKeys) ||
+		hasCap(in.Confer, authority.CapIdentityKeys) ||
+		hasCap(in.Confer, authority.CapIdentityHandle) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "plan role conferred key capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RolePlan, authority.CapKeys)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows keys for plan"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "plan lacks keys in inventory and conferral"
+	return base
+}
+
+func negPlanNet(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-PLAN-NET", Platform: plat, Control: "network",
+	}
+	if in.Role != authority.RolePlan {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-plan only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapNetwork) ||
+		hasCap(in.Confer, authority.CapNetworkSockets) ||
+		hasCap(in.Confer, authority.CapNetworkAcceptLoop) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "plan role conferred network capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RolePlan, authority.CapNetwork)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows network for plan"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "plan lacks network in inventory and conferral"
 	return base
 }
 

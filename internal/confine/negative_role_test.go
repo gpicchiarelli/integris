@@ -321,6 +321,38 @@ func TestNegativeRoleSemanticPlanAuditJournal(t *testing.T) {
 			want: confine.StatusUnexpectedAllow,
 		},
 		{
+			id: "NEG-PLAN-KEYS",
+			in: confine.RoleProbeInput{
+				Role:   authority.RolePlan,
+				Confer: []authority.Capability{authority.CapCanonicalManifests, authority.CapPlanOutput},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-PLAN-KEYS",
+			in: confine.RoleProbeInput{
+				Role:   authority.RolePlan,
+				Confer: []authority.Capability{authority.CapCanonicalManifests, authority.CapKeys},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
+			id: "NEG-PLAN-NET",
+			in: confine.RoleProbeInput{
+				Role:   authority.RolePlan,
+				Confer: []authority.Capability{authority.CapCanonicalManifests, authority.CapPlanOutput},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-PLAN-NET",
+			in: confine.RoleProbeInput{
+				Role:   authority.RolePlan,
+				Confer: []authority.Capability{authority.CapCanonicalManifests, authority.CapNetwork},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
 			id: "NEG-AUDIT-DECIDE",
 			in: confine.RoleProbeInput{
 				Role:   authority.RoleAudit,

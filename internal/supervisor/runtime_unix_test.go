@@ -819,6 +819,86 @@ func TestRuntimeStartChildNetMustNot(t *testing.T) {
 	}
 }
 
+func TestRuntimeStartChildPlanMustNot(t *testing.T) {
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role: authority.RoleAuth,
+			Confer: []authority.Capability{
+				authority.CapIdentityHandle, authority.CapSessionKeyDerive, authority.CapAuthorizationPolicy,
+			},
+			IPCPeers: []authority.ProcessRole{authority.RolePlan},
+		},
+		{
+			Role:     authority.RolePlan,
+			Confer:   []authority.Capability{authority.CapCanonicalManifests, authority.CapPlanOutput},
+			IPCPeers: []authority.ProcessRole{authority.RoleAuth},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x70}, 32)
+	var nonce [16]byte
+	nonce[2] = 13
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := rt.StartChild(ctx, authority.RolePlan, authority.RoleAuth, bin); err != nil {
+		t.Fatal(err)
+	}
+
+	parent, err := rt.Fabric.Endpoint(authority.RoleAuth, authority.RolePlan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("plan"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:plan|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-PLAN-WRITE:denied_as_expected")) {
+		t.Fatalf("missing NEG-PLAN-WRITE in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-PLAN-KEYS:denied_as_expected")) {
+		t.Fatalf("missing NEG-PLAN-KEYS in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-PLAN-NET:denied_as_expected")) {
+		t.Fatalf("missing NEG-PLAN-NET in %q", resp.Payload)
+	}
+	if err := rt.WaitChild(authority.RolePlan); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRuntimeRestartPairIPC(t *testing.T) {
 	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {
