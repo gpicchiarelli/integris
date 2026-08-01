@@ -8,11 +8,16 @@ import (
 
 // memNode is an in-memory filesystem node for deterministic Resolve tests.
 type memNode struct {
-	name     string
-	info     FileInfo
-	children map[string]*memNode // directories only
-	closed   bool
-	mu       sync.Mutex
+	name      string
+	info      FileInfo
+	children  map[string]*memNode // directories only
+	closed    bool
+	mu        sync.Mutex
+	infoReads int
+	// flipAfter, when >0, makes Info return flipped after that many reads
+	// (simulates substitution race between post-open observations).
+	flipAfter int
+	flipped   FileInfo
 }
 
 func (n *memNode) Info() (FileInfo, error) {
@@ -20,6 +25,10 @@ func (n *memNode) Info() (FileInfo, error) {
 	defer n.mu.Unlock()
 	if n.closed {
 		return FileInfo{}, reject(RuleOpen, -1, "descriptor closed")
+	}
+	n.infoReads++
+	if n.flipAfter > 0 && n.infoReads > n.flipAfter {
+		return n.flipped, nil
 	}
 	return n.info, nil
 }
@@ -49,9 +58,11 @@ func (n *memNode) OpenNoFollow(ctx context.Context, name []byte) (File, error) {
 	}
 	// Return a live view sharing metadata but with its own close flag.
 	out := &memNode{
-		name:     child.name,
-		info:     child.info,
-		children: child.children,
+		name:      child.name,
+		info:      child.info,
+		children:  child.children,
+		flipAfter: child.flipAfter,
+		flipped:   child.flipped,
 	}
 	return out, nil
 }

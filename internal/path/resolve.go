@@ -127,33 +127,24 @@ func Resolve(ctx context.Context, root Dir, components [][]byte, opts ResolveOpt
 			_ = f.Close()
 			return fail(reject(RuleOpen, i, "post-open info: "+err.Error()))
 		}
-		if info.Type == TypeSymlink {
+		if err := checkOpened(info, i, lastComponent(i, len(components)), opts); err != nil {
 			_ = f.Close()
-			return fail(reject(RuleLink, i, "symlink encountered"))
+			return fail(err)
 		}
-		if info.Type == TypeOther || info.Type == TypeUnknown {
+		// Re-query identity facts before retaining the descriptor. A change
+		// between the first and second observation is treated as a substitution
+		// race (IP-S-0001 / path-resolution safety properties).
+		info2, err := f.Info()
+		if err != nil {
 			_ = f.Close()
-			return fail(reject(RuleType, i, "unsupported object type"))
+			return fail(reject(RuleOpen, i, "post-open recheck: "+err.Error()))
 		}
-		last := i == len(components)-1
-		needDir := !last || opts.RequireDir
-		if needDir && info.Type != TypeDir {
+		if !sameIdentity(info, info2) {
 			_ = f.Close()
-			return fail(reject(RuleType, i, "expected directory"))
-		}
-		if last && opts.ExpectFinal != TypeUnknown && info.Type != opts.ExpectFinal {
-			_ = f.Close()
-			return fail(reject(RuleType, i, "final object type mismatch"))
-		}
-		if !opts.AllowHardLinks && info.LinkCount > 1 {
-			_ = f.Close()
-			return fail(reject(RulePolicy, i, "hard link not permitted"))
-		}
-		if !volumeAllowed(info.Volume, opts.Root) {
-			_ = f.Close()
-			return fail(reject(RuleVolume, i, "unauthorized mount/volume"))
+			return fail(reject(RuleIdent, i, "object identity changed after open"))
 		}
 		out = append(out, f)
+		last := lastComponent(i, len(components))
 		if info.Type == TypeDir {
 			d, ok := f.(Dir)
 			if !ok {
@@ -181,4 +172,33 @@ func volumeAllowed(v VolumeID, root RootIdentity) bool {
 		}
 	}
 	return false
+}
+
+func lastComponent(i, n int) bool { return i == n-1 }
+
+func checkOpened(info FileInfo, i int, last bool, opts ResolveOpts) error {
+	if info.Type == TypeSymlink {
+		return reject(RuleLink, i, "symlink encountered")
+	}
+	if info.Type == TypeOther || info.Type == TypeUnknown {
+		return reject(RuleType, i, "unsupported object type")
+	}
+	needDir := !last || opts.RequireDir
+	if needDir && info.Type != TypeDir {
+		return reject(RuleType, i, "expected directory")
+	}
+	if last && opts.ExpectFinal != TypeUnknown && info.Type != opts.ExpectFinal {
+		return reject(RuleType, i, "final object type mismatch")
+	}
+	if !opts.AllowHardLinks && info.LinkCount > 1 {
+		return reject(RulePolicy, i, "hard link not permitted")
+	}
+	if !volumeAllowed(info.Volume, opts.Root) {
+		return reject(RuleVolume, i, "unauthorized mount/volume")
+	}
+	return nil
+}
+
+func sameIdentity(a, b FileInfo) bool {
+	return a.Type == b.Type && a.ID == b.ID && a.Volume == b.Volume && a.LinkCount == b.LinkCount
 }

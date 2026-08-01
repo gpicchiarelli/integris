@@ -101,3 +101,51 @@ func TestResolveContextCancel(t *testing.T) {
 		t.Fatalf("got %v", err)
 	}
 }
+
+func TestResolveRejectsIdentityRace(t *testing.T) {
+	root := newMemRoot(1, map[string]any{
+		"x": FileInfo{Type: TypeFile, ID: 9, Volume: 1, LinkCount: 1},
+	})
+	child := root.children["x"]
+	child.flipAfter = 1
+	child.flipped = FileInfo{Type: TypeFile, ID: 99, Volume: 1, LinkCount: 1}
+	_, err := Resolve(context.Background(), root, comps("x"), ResolveOpts{
+		Root:        RootIdentity{Volume: 1},
+		ExpectFinal: TypeFile,
+	}, DefaultProfile)
+	if ruleOf(err) != RuleIdent {
+		t.Fatalf("got %v want G-IDENT", err)
+	}
+}
+
+func TestResolveRejectsSymlinkSubstitutionRace(t *testing.T) {
+	root := newMemRoot(1, map[string]any{
+		"x": FileInfo{Type: TypeFile, ID: 9, Volume: 1, LinkCount: 1},
+	})
+	child := root.children["x"]
+	child.flipAfter = 1
+	child.flipped = FileInfo{Type: TypeSymlink, ID: 9, Volume: 1, LinkCount: 1}
+	_, err := Resolve(context.Background(), root, comps("x"), ResolveOpts{
+		Root:        RootIdentity{Volume: 1},
+		ExpectFinal: TypeFile,
+	}, DefaultProfile)
+	if ruleOf(err) != RuleIdent {
+		t.Fatalf("got %v want G-IDENT", err)
+	}
+}
+
+func TestResolveRejectsVolumeSwapRace(t *testing.T) {
+	root := newMemRoot(1, map[string]any{
+		"x": FileInfo{Type: TypeFile, ID: 9, Volume: 1, LinkCount: 1},
+	})
+	child := root.children["x"]
+	child.flipAfter = 1
+	child.flipped = FileInfo{Type: TypeFile, ID: 9, Volume: 2, LinkCount: 1}
+	_, err := Resolve(context.Background(), root, comps("x"), ResolveOpts{
+		Root:        RootIdentity{Volume: 1},
+		ExpectFinal: TypeFile,
+	}, DefaultProfile)
+	if ruleOf(err) != RuleIdent {
+		t.Fatalf("got %v want G-IDENT", err)
+	}
+}
