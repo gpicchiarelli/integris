@@ -211,7 +211,7 @@ func run(root string) error {
 				"NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET + role-semantic NEG-* covering complete inventory MustNot for all nine roles via role stub",
 				"MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
 				"broader path allow-lists beyond archive caps; FreeBSD conferred directory FDs still open",
-				"Runtime.RestartChild + RestartPair (KeyViaExtraFiles dual-live); in-place peer FD rebind still open",
+				"Runtime.RestartChild + RestartPair (KeyViaExtraFiles dual-live); RestartChild retains AllowRoots path probes; in-place peer FD rebind still open",
 				"independent cryptography/security review required for IC-1",
 				"VER-PROTO-001 / VER-ARCH-001 remain planned",
 			},

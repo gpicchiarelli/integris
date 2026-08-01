@@ -503,6 +503,106 @@ func TestRuntimeStartChildAllowRootsIndex(t *testing.T) {
 	}
 }
 
+func TestRuntimeRestartChildAllowRoots(t *testing.T) {
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	allowRoot := filepath.Join(t.TempDir(), "archive-restart")
+	if err := os.MkdirAll(allowRoot, 0o700); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleAuth,
+			Confer:   []authority.Capability{authority.CapIdentityHandle, authority.CapSessionKeyDerive, authority.CapAuthorizationPolicy},
+			IPCPeers: []authority.ProcessRole{authority.RoleApply},
+		},
+		{
+			Role:     authority.RoleApply,
+			Confer:   []authority.Capability{authority.CapArchiveRoots},
+			IPCPeers: []authority.ProcessRole{authority.RoleAuth},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x71}, 32)
+	var nonce [16]byte
+	nonce[2] = 15
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+	rt.AllowRoots = map[authority.ProcessRole][]string{
+		authority.RoleApply: {allowRoot},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	if err := rt.StartChild(ctx, authority.RoleApply, authority.RoleAuth, bin); err != nil {
+		t.Fatal(err)
+	}
+
+	probe := func(label string) {
+		t.Helper()
+		parent, err := rt.Fabric.Endpoint(authority.RoleAuth, authority.RoleApply)
+		if err != nil {
+			t.Fatal(err)
+		}
+		raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte(label))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+			t.Fatal(err)
+		}
+		respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp, err := parent.Chan.Decode(respRaw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		prefix := []byte("ack:" + label + "|NEG-FS:")
+		if !bytes.HasPrefix(resp.Payload, prefix) {
+			t.Fatalf("%q", resp.Payload)
+		}
+		switch runtime.GOOS {
+		case "darwin", "linux", "openbsd":
+			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
+				t.Fatalf("expected NEG-FS-PATH available after %s on %s: %q", label, runtime.GOOS, resp.Payload)
+			}
+		case "freebsd":
+			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:skipped")) {
+				t.Fatalf("expected NEG-FS-PATH skipped on freebsd after %s: %q", label, resp.Payload)
+			}
+		}
+	}
+
+	probe("roots-before-restart")
+	if err := rt.WaitChild(authority.RoleApply); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.RestartChild(ctx, authority.RoleApply, authority.RoleAuth, bin); err != nil {
+		t.Fatal(err)
+	}
+	probe("roots-after-restart")
+	if err := rt.WaitChild(authority.RoleApply); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRuntimeStartChildAuthAccept(t *testing.T) {
 	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {
