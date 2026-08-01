@@ -20,6 +20,6 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-XATTR", Platform: plat, Control: "extended_attributes", Status: StatusAvailable, Detail: "platform.CopyXattr (listxattr/getxattr/setxattr) on CloneFile degraded copy (INT-IC4-0001 / CapXattr)"},
 		{ID: "DISC-BSDFLAGS", Platform: plat, Control: "bsd_file_flags", Status: StatusAvailable, Detail: "platform.CopyBSDFlags (chflags) on CloneFile degraded copy (INT-IC4-0001 / CapBSDFlags)"},
 		{ID: "DISC-RFORK", Platform: plat, Control: "resource_fork", Status: StatusAvailable, Detail: "platform.CopyResourceFork (..namedfork/rsrc) on CloneFile degraded copy (INT-IC4-0001 / CapResourceFork)"},
-		{ID: "DISC-TIMES", Platform: plat, Control: "atime_mtime", Status: StatusAvailable, Detail: "platform.CopyTimes + degraded-copy SyncFile/UtimesNano (INT-IC4-0001 / CapTimes)"},
+		{ID: "DISC-TIMES", Platform: plat, Control: "atime_mtime_birthtime", Status: StatusAvailable, Detail: "platform.CopyTimes + degraded-copy SyncFile/UtimesNano/Setattrlist CRTIME (INT-IC4-0001 / CapTimes)"},
 	}
 }

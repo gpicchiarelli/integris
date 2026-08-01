@@ -11,8 +11,10 @@ import (
 )
 
 type sourceTimes struct {
-	atime unix.Timespec
-	mtime unix.Timespec
+	atime    unix.Timespec
+	mtime    unix.Timespec
+	birth    unix.Timespec
+	hasBirth bool
 }
 
 func readSourceTimes(path string) (sourceTimes, error) {
@@ -20,7 +22,9 @@ func readSourceTimes(path string) (sourceTimes, error) {
 	if err := unix.Stat(path, &st); err != nil {
 		return sourceTimes{}, fmt.Errorf("platform: stat for times: %w", err)
 	}
-	return sourceTimes{atime: st.Atim, mtime: st.Mtim}, nil
+	saved := sourceTimes{atime: st.Atim, mtime: st.Mtim}
+	captureBirth(&st, &saved)
+	return saved, nil
 }
 
 func copyTimes(dst, src string) error {
@@ -35,6 +39,9 @@ func copyTimes(dst, src string) error {
 	mt := time.Unix(saved.mtime.Sec, saved.mtime.Nsec)
 	if err := os.Chtimes(dst, at, mt); err != nil {
 		return fmt.Errorf("platform: chtimes: %w", err)
+	}
+	if err := applyBirth(dst, saved); err != nil {
+		return err
 	}
 	return nil
 }
@@ -57,6 +64,9 @@ func syncAndApplyTimes(dst string, saved sourceTimes) error {
 	ts := []unix.Timespec{saved.atime, saved.mtime}
 	if err := unix.UtimesNano(dst, ts); err != nil {
 		return fmt.Errorf("platform: utimens: %w", err)
+	}
+	if err := applyBirth(dst, saved); err != nil {
+		return err
 	}
 	return nil
 }

@@ -61,7 +61,7 @@ Observation→Recover; OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels via crash-
 (`CrashSegment.KillAt` / `FilePublisher.KillAt`); Darwin `F_FULLFSYNC` via
 `platform.SyncFile` and `clonefile` via `platform.CloneFile`→`PublishFrom`
 (with sparse `SEEK_DATA`/`SEEK_HOLE` + `CopyXattr`+`CopyBSDFlags`+`CopyACL`+
-`CopyResourceFork`+`CopyTimes` on degraded byte-copy);
+`CopyResourceFork`+`CopyTimes` incl. Darwin birthtime on degraded byte-copy);
 CapCOW/CapXattr/CapBSDFlags/CapSparse/CapResourceFork/CapTimes/CapACL/CapUnicode
 probed in `fsmodel.ProbeScratch`;
 power-fail/unflushed pages still open);

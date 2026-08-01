@@ -112,7 +112,7 @@ func run(root string) error {
 				{"go", "test", "./internal/recovery/", "-count=1"},
 			},
 			residual: []string{
-				"J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (sparse SEEK + CopyXattr+CopyBSDFlags+CopyACL+CopyResourceFork+CopyTimes on degraded copy) complete; power-fail/unflushed pages still open",
+				"J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom (sparse SEEK + CopyXattr+CopyBSDFlags+CopyACL+CopyResourceFork+CopyTimes/birthtime on degraded copy) complete; power-fail/unflushed pages still open",
 				"independent assurance review of evidence not recorded",
 			},
 		},
@@ -182,7 +182,7 @@ func run(root string) error {
 				"CopyACL on CloneFile degraded copy (Darwin cgo; clonefile preserves ACL natively)",
 				"CopyXattr on CloneFile degraded copy (listxattr/getxattr/setxattr; skips Darwin ACL xattr)",
 				"CopyBSDFlags on CloneFile degraded copy (chflags from Stat_t.Flags; Darwin/FreeBSD/OpenBSD)",
-				"CopyTimes on CloneFile degraded copy (pre-capture Stat; SyncFile then UtimesNano)",
+				"CopyTimes on CloneFile degraded copy (pre-capture Stat; SyncFile then UtimesNano; Darwin Setattrlist CRTIME)",
 				"CopyResourceFork on CloneFile degraded copy (Darwin ..namedfork/rsrc; skips xattr twin)",
 				"Sparse-aware CloneFile degraded copy (SEEK_DATA/SEEK_HOLE; io.Copy fallback)",
 				"CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
