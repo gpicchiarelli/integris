@@ -192,7 +192,7 @@ func run(root string) error {
 			},
 			residual: []string{
 				"session AEAD + mutual HMAC peer/archive-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
-				"engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index; role-net deny; Capsicum fd-only",
+				"engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index via Runtime.AllowRoots; role-net deny; Capsicum fd-only",
 				"NEG-FS/FS-READ/FS-PATH/EXEC/PTRACE/ROLE-NET + full role-semantic conferral NEG-* via role stub",
 				"MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
 				"broader path allow-lists beyond archive caps; FreeBSD conferred directory FDs still open",

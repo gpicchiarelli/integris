@@ -5,6 +5,7 @@ package supervisor_test
 import (
 	"bytes"
 	"context"
+	"os"
 	"path/filepath"
 	"runtime"
 	"testing"
@@ -281,6 +282,96 @@ func TestRuntimeStartChildExtraFiles(t *testing.T) {
 		t.Fatalf("missing legacy key in %q", resp.Payload)
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRuntimeStartChildAllowRoots(t *testing.T) {
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	allowRoot := filepath.Join(t.TempDir(), "archive")
+	if err := os.MkdirAll(allowRoot, 0o700); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleAuth,
+			Confer:   []authority.Capability{authority.CapIdentityHandle, authority.CapSessionKeyDerive, authority.CapAuthorizationPolicy},
+			IPCPeers: []authority.ProcessRole{authority.RoleApply},
+		},
+		{
+			Role:     authority.RoleApply,
+			Confer:   []authority.Capability{authority.CapArchiveRoots},
+			IPCPeers: []authority.ProcessRole{authority.RoleAuth},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x69}, 32)
+	var nonce [16]byte
+	nonce[2] = 6
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+	rt.AllowRoots = map[authority.ProcessRole][]string{
+		authority.RoleApply: {allowRoot},
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := rt.StartChild(ctx, authority.RoleApply, authority.RoleAuth, bin); err != nil {
+		t.Fatal(err)
+	}
+
+	parent, err := rt.Fabric.Endpoint(authority.RoleAuth, authority.RoleApply)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("allow-roots"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:allow-roots|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	switch runtime.GOOS {
+	case "darwin", "linux", "openbsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
+			t.Fatalf("expected NEG-FS-PATH available on %s: %q", runtime.GOOS, resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
+		}
+	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:skipped")) {
+			t.Fatalf("expected NEG-FS-PATH skipped on freebsd: %q", resp.Payload)
+		}
+	}
+	if err := rt.WaitChild(authority.RoleApply); err != nil {
 		t.Fatal(err)
 	}
 }

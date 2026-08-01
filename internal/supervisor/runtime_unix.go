@@ -23,6 +23,9 @@ type Runtime struct {
 	// KeyViaExtraFiles uses legacy ExtraFiles fd4 key conferral.
 	// Default (false) uses SCM_RIGHTS after spawn.
 	KeyViaExtraFiles bool
+	// AllowRoots maps roles to absolute archive path allow-lists forwarded to
+	// launcher/stub ApplyEngineeringOpts (EvalSymlinks in child).
+	AllowRoots map[authority.ProcessRole][]string
 }
 
 // OpenRuntime builds launch tokens and a socket fabric. It does not spawn.
@@ -68,6 +71,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 		return fail("key", err.Error())
 	}
 	confer, slotKinds := r.childInventory(role)
+	allowRoots := r.allowRootsFor(role)
 
 	if r.KeyViaExtraFiles {
 		_ = ep.Conn.Close()
@@ -83,6 +87,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 			KeyViaExtraFiles: true,
 			Confer:           confer,
 			SlotKinds:        slotKinds,
+			AllowRoots:       allowRoots,
 		})
 		_ = sock.Close()
 		if err != nil {
@@ -109,6 +114,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 		EngineeringMode: true,
 		Confer:          confer,
 		SlotKinds:       slotKinds,
+		AllowRoots:      allowRoots,
 	})
 	_ = sock.Close()
 	if err != nil {
@@ -127,6 +133,17 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 	h.KeyFD = nil
 	r.Children[role] = h
 	return nil
+}
+
+func (r *Runtime) allowRootsFor(role authority.ProcessRole) []string {
+	if r == nil || r.AllowRoots == nil {
+		return nil
+	}
+	roots := r.AllowRoots[role]
+	if len(roots) == 0 {
+		return nil
+	}
+	return append([]string{}, roots...)
 }
 
 func (r *Runtime) childInventory(role authority.ProcessRole) ([]authority.Capability, []string) {

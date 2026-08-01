@@ -41,8 +41,10 @@ profile defect.
 `launcher.Start` may start a single absolute executable with:
 
 - `ExtraFiles` containing the conferred IPC socket end(s) (socket-only by default);
-- argv/env limited to role, peer, session nonce, and key-transport label
-  (non-secret);
+- argv/env limited to role, peer, session nonce, key-transport label, optional
+  confer/slot inventory, and optional `INTEGRIS_ALLOW_ROOTS` (non-secret);
+- `supervisor.Runtime.AllowRoots` forwards absolute archive roots into
+  `launcher.Start` for Apply/Index engineering probes;
 - MAC key via `CreateKeyFD`, never via environment:
   - **default ABI:** ExtraFiles is socket-only (IPC on **fd 3**); parent sends the
     key FD with `SCM_RIGHTS` (`ipc.SendFD` on `Handle.KeyFD`) before the first
