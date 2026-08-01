@@ -1,19 +1,20 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "ce395f9619ba485a8a27a91da241814d12415cd0",
-  "produced_at": "2026-08-01T17:56:05Z",
+  "source_revision": "cf4c3913ab03ec4f071c4c5531159a00c34d4c97",
+  "produced_at": "2026-08-01T18:09:28Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.261s\n",
-      "stdout_sha256": "2f31a1b905c6a747d2fa9d01e21803d38a952e2d6da2f273f960c696949f0688"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.253s\n",
+      "stdout_sha256": "5af8ed94c03f193fd7739768822708400753a8033772dd7487c489bda843ac5e"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
+    "CapCOW empirical via platform.CloneFile (Darwin clonefile→LOSSLESS; copy→UNREPRESENTABLE)",
     "ACL/xattr/sparse/resource-fork probes still UNKNOWN placeholders",
     "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",

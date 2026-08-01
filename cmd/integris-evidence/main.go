@@ -174,6 +174,7 @@ func run(root string) error {
 				{"go", "test", "./internal/fsmodel/", "-count=1"},
 			},
 			residual: []string{
+				"CapCOW empirical via platform.CloneFile (Darwin clonefile→LOSSLESS; copy→UNREPRESENTABLE)",
 				"ACL/xattr/sparse/resource-fork probes still UNKNOWN placeholders",
 				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",

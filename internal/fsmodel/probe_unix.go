@@ -63,7 +63,7 @@ func ProbeScratch(scratchDir string) (ProbeResult, error) {
 		{ID: plan.CapMount, Result: plan.ResultUnknown},
 		{ID: plan.CapRenameAtomicity, Result: probeRename(dir)},
 		{ID: plan.CapSync, Result: plan.ResultLossless}, // platform SyncFile below or unknown
-		{ID: plan.CapCOW, Result: plan.ResultUnknown},
+		probeCOW(dir),
 		{ID: plan.CapSnapshot, Result: plan.ResultUnknown},
 		{ID: plan.CapDurability, Result: plan.ResultUnknown},
 	}
@@ -165,4 +165,29 @@ func probeRename(dir string) plan.ResultCode {
 	}
 	_ = os.Remove(b)
 	return plan.ResultLossless
+}
+
+// probeCOW exercises platform.CloneFile. Native clonefile → LOSSLESS COW;
+// exclusive byte-copy degraded path → UNREPRESENTABLE (not COW).
+func probeCOW(dir string) Fact {
+	src := filepath.Join(dir, "cow-src")
+	dst := filepath.Join(dir, "cow-dst")
+	if err := os.WriteFile(src, []byte("cow-probe"), 0o600); err != nil {
+		return Fact{ID: plan.CapCOW, Result: plan.ResultUnknown}
+	}
+	defer os.Remove(src)
+	mech, err := platform.CloneFile(dst, src)
+	if err != nil {
+		return Fact{ID: plan.CapCOW, Result: plan.ResultUnknown}
+	}
+	_ = os.Remove(dst)
+	detail := codec.SHA256([]byte(mech))
+	switch mech {
+	case platform.CloneMechanismClonefile:
+		return Fact{ID: plan.CapCOW, Result: plan.ResultLossless, DetailDigest: detail}
+	case platform.CloneMechanismCopy:
+		return Fact{ID: plan.CapCOW, Result: plan.ResultUnrepresentable, DetailDigest: detail}
+	default:
+		return Fact{ID: plan.CapCOW, Result: plan.ResultUnknown, DetailDigest: detail}
+	}
 }
