@@ -119,8 +119,10 @@ M1 engineering harness: `journal.CrashSegment` FailAt on `FileSegment` covers
 `recovery.Recover` round-trip. Recovery-side `PersistIO` FailAt on `FilePersist`
 covers `P-STAGE-CREATE` / `P-STAGE-SYNC` / `P-PUBLISH-RENAME` /
 `P-PUBLISH-DIRSYNC` / `P-CONFIRM-PRE` / `P-CONFIRM-POST` (cleanup / quarantine /
-confirm side effects during Recover — not an apply-path publisher). This is
-injected I/O failure, not OS SIGKILL or power-fail simulation.
+confirm side effects during Recover). Apply-side `FilePublisher` covers the
+stage→sync→rename→dirsync publication profile with the same P-STAGE/P-PUBLISH
+labels and derives `FSObservation` for Recover (not a shared PersistIO adapter).
+This is injected I/O failure, not OS SIGKILL or power-fail simulation.
 
 ### Failure behavior
 

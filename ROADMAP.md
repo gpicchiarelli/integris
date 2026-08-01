@@ -56,7 +56,8 @@ orchestrates spawn (AllowRoots→stub), RestartChild, and RestartPair (KeyViaExt
 Apply/Index path allow-roots (Index readonly write denial probed);
 journal `CrashSegment` exercises J-APPEND-PRE/MID/POST + J-META-POST on FileSegment
 with Recover round-trip; recovery-side P-* PersistIO FailAt covers STAGE/PUBLISH/CONFIRM
-labels on FilePersist (OS kill/power-fail and apply-side publisher still open);
+on FilePersist; apply-side `FilePublisher` covers stage→rename→dirsync FailAt with
+Observation→Recover (OS kill/power-fail still open);
 sealed MAC key FD (Linux memfd; anon-unlinked
 elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys

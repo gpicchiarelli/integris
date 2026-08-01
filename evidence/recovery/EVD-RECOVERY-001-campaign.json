@@ -1,20 +1,20 @@
 {
   "evidence_id": "EVD-RECOVERY-001",
-  "source_revision": "ae8d2b987f40826eb2d12bb05194ef4fc4d161c9",
-  "produced_at": "2026-08-01T17:31:08Z",
+  "source_revision": "4669515c1e01b35b8446aacadf0266ad420a4266",
+  "produced_at": "2026-08-01T17:35:13Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.395s\n",
-      "stdout_sha256": "b9fc8e8ca4387a9ff14f089060d74642a99e15fcbf4cc01fe2d72badf18983ba"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.441s\n",
+      "stdout_sha256": "6aeed12341898be5f805fa9b48662ef65f0e728dce24af2048be5986bccbc0d4"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "J-APPEND FileSegment FailAt + recovery-side P-* FilePersist FailAt×Recover complete; OS kill/power-fail and apply-side publication writer still open",
+    "J-APPEND + recovery-side P-* FilePersist + apply-side FilePublisher FailAt×Recover complete; OS kill/power-fail still open",
     "independent assurance review of evidence not recorded"
   ],
   "extra": {

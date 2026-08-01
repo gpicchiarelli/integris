@@ -112,7 +112,7 @@ func run(root string) error {
 				{"go", "test", "./internal/recovery/", "-count=1"},
 			},
 			residual: []string{
-				"J-APPEND FileSegment FailAt + recovery-side P-* FilePersist FailAt×Recover complete; OS kill/power-fail and apply-side publication writer still open",
+				"J-APPEND + recovery-side P-* FilePersist + apply-side FilePublisher FailAt×Recover complete; OS kill/power-fail still open",
 				"independent assurance review of evidence not recorded",
 			},
 		},
