@@ -544,6 +544,12 @@ func TestRuntimeStartChildAuthAccept(t *testing.T) {
 	if !bytes.Contains(resp.Payload, []byte("|NEG-AUTH-ACCEPT:denied_as_expected")) {
 		t.Fatalf("missing NEG-AUTH-ACCEPT in %q", resp.Payload)
 	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-AUTH-CONTENTS:denied_as_expected")) {
+		t.Fatalf("missing NEG-AUTH-CONTENTS in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-AUTH-PUB:denied_as_expected")) {
+		t.Fatalf("missing NEG-AUTH-PUB in %q", resp.Payload)
+	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd", "freebsd":
 		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {

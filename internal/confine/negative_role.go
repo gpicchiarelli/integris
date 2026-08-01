@@ -24,6 +24,8 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 		negNetArchive(plat, in),
 		negParserNet(plat, in),
 		negAuthAccept(plat, in),
+		negAuthContents(plat, in),
+		negAuthPub(plat, in),
 		negPlanWrite(plat, in),
 		negAuditDecide(plat, in),
 		negJournalNet(plat, in),
@@ -110,6 +112,62 @@ func negAuthAccept(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "auth lacks network_accept_loop in inventory and conferral"
+	return base
+}
+
+func negAuthContents(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-AUTH-CONTENTS", Platform: plat, Control: "archive_contents",
+	}
+	if in.Role != authority.RoleAuth {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-auth only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapArchiveContents) ||
+		hasCap(in.Confer, authority.CapArchiveDescriptors) ||
+		hasCap(in.Confer, authority.CapArchiveRoots) ||
+		hasCap(in.Confer, authority.CapReadonlyArchiveRoot) ||
+		hasCap(in.Confer, authority.CapArchives) ||
+		hasArchiveSlot(in.SlotKinds) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "auth role conferred archive contents capability or slot"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleAuth, authority.CapArchiveContents)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows archive_contents for auth"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "auth lacks archive_contents in inventory and conferral"
+	return base
+}
+
+func negAuthPub(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-AUTH-PUB", Platform: plat, Control: "publication_rights",
+	}
+	if in.Role != authority.RoleAuth {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-auth only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapPublicationRights) ||
+		hasCap(in.Confer, authority.CapPublication) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "auth role conferred publication capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleAuth, authority.CapPublicationRights)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows publication_rights for auth"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "auth lacks publication_rights in inventory and conferral"
 	return base
 }
 

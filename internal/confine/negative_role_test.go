@@ -70,22 +70,63 @@ func TestNegativeRoleSemanticAuthOK(t *testing.T) {
 		},
 		SlotKinds: []string{"ipc_endpoint"},
 	})
+	want := map[string]confine.Status{
+		"NEG-AUTH-ACCEPT":   confine.StatusDeniedExpected,
+		"NEG-AUTH-CONTENTS": confine.StatusDeniedExpected,
+		"NEG-AUTH-PUB":      confine.StatusDeniedExpected,
+	}
 	for _, f := range fs {
-		if f.ID == "NEG-AUTH-ACCEPT" && f.Status != confine.StatusDeniedExpected {
-			t.Fatalf("%+v", f)
+		if st, ok := want[f.ID]; ok && f.Status != st {
+			t.Fatalf("%s: %+v", f.ID, f)
 		}
 	}
 }
 
 func TestNegativeRoleSemanticAuthBadCap(t *testing.T) {
-	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
-		Role: authority.RoleAuth,
-		Confer: []authority.Capability{
-			authority.CapIdentityHandle, authority.CapNetworkAcceptLoop,
+	cases := []struct {
+		id     string
+		confer []authority.Capability
+	}{
+		{
+			id: "NEG-AUTH-ACCEPT",
+			confer: []authority.Capability{
+				authority.CapIdentityHandle, authority.CapNetworkAcceptLoop,
+			},
 		},
+		{
+			id: "NEG-AUTH-CONTENTS",
+			confer: []authority.Capability{
+				authority.CapIdentityHandle, authority.CapArchiveContents,
+			},
+		},
+		{
+			id: "NEG-AUTH-PUB",
+			confer: []authority.Capability{
+				authority.CapIdentityHandle, authority.CapPublicationRights,
+			},
+		},
+	}
+	for _, tc := range cases {
+		fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+			Role:   authority.RoleAuth,
+			Confer: tc.confer,
+		})
+		for _, f := range fs {
+			if f.ID == tc.id && f.Status != confine.StatusUnexpectedAllow {
+				t.Fatalf("%s: %+v", tc.id, f)
+			}
+		}
+	}
+}
+
+func TestNegativeRoleSemanticAuthBadSlot(t *testing.T) {
+	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+		Role:      authority.RoleAuth,
+		Confer:    []authority.Capability{authority.CapIdentityHandle},
+		SlotKinds: []string{"archive_root"},
 	})
 	for _, f := range fs {
-		if f.ID == "NEG-AUTH-ACCEPT" && f.Status != confine.StatusUnexpectedAllow {
+		if f.ID == "NEG-AUTH-CONTENTS" && f.Status != confine.StatusUnexpectedAllow {
 			t.Fatalf("%+v", f)
 		}
 	}
