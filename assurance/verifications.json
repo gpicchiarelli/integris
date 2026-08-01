@@ -42,7 +42,7 @@
       "requirements": ["INT-IC2-0001"],
       "criterion": "The reader accepts exactly the longest complete valid prefix, reports a torn tail, and rejects every interior alteration, sequence gap, fork, non-canonical record, or limit violation.",
       "evidence": ["EVD-JOURNAL-001"],
-      "status": "planned",
+      "status": "implemented",
       "owner": "gpicchiarelli"
     },
     {
@@ -86,7 +86,7 @@
       "requirements": ["INT-IC2-0002"],
       "criterion": "All permutations and schedules of identical canonical inputs produce byte-identical plan output and digest.",
       "evidence": ["EVD-PLAN-001"],
-      "status": "planned",
+      "status": "implemented",
       "owner": "gpicchiarelli"
     },
     {

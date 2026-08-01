@@ -1,0 +1,24 @@
+{
+  "evidence_id": "EVD-RECOVERY-001",
+  "source_revision": "0fe5a1b5377646fbf8669cd7f1ea9065a49ed708",
+  "produced_at": "2026-08-01T12:22:20Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go test ./internal/recovery/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.363s\n",
+      "stdout_sha256": "a33df29ea9a914bb9caf20c27ff56e5350787abd9411e6abb6404abb294bb0a9"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "full persistence-point crash matrix on real FS profiles pending",
+    "TLA+ refinement gaps documented in internal/recovery/README.md",
+    "VER-RECOVERY-001 remains planned until residual gaps close"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}

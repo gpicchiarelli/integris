@@ -1,0 +1,199 @@
+// Command integris-evidence runs kernel test campaigns and writes evidence
+// manifests under evidence/<area>/. A written file is an artifact; promoting
+// assurance/evidence.json to status "produced" remains a separate review step.
+package main
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"flag"
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"strings"
+	"time"
+)
+
+type manifest struct {
+	EvidenceID  string            `json:"evidence_id"`
+	Revision    string            `json:"source_revision"`
+	ProducedAt  string            `json:"produced_at"`
+	GoVersion   string            `json:"go_version"`
+	Platform    string            `json:"platform"`
+	Commands    []commandResult   `json:"commands"`
+	ArtifactSHA string            `json:"self_digest_note"`
+	Residual    []string          `json:"residual_gaps"`
+	Extra       map[string]string `json:"extra,omitempty"`
+}
+
+type commandResult struct {
+	Command  string `json:"command"`
+	ExitCode int    `json:"exit_code"`
+	Stdout   string `json:"stdout_tail"`
+	Digest   string `json:"stdout_sha256"`
+}
+
+func main() {
+	root := flag.String("root", ".", "repository root")
+	flag.Parse()
+	if err := run(*root); err != nil {
+		fmt.Fprintf(os.Stderr, "integris-evidence: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func run(root string) error {
+	abs, err := filepath.Abs(root)
+	if err != nil {
+		return err
+	}
+	rev, err := gitOutput(abs, "rev-parse", "HEAD")
+	if err != nil {
+		return err
+	}
+	rev = strings.TrimSpace(rev)
+
+	campaigns := []struct {
+		id       string
+		dir      string
+		file     string
+		commands [][]string
+		residual []string
+	}{
+		{
+			id:   "EVD-PATH-001",
+			dir:  "evidence/path",
+			file: "EVD-PATH-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/path/", "-count=1"},
+				{"go", "test", "./internal/path/", "-fuzz=FuzzPathComponent", "-fuzztime=10s"},
+				{"go", "test", "./internal/path/", "-fuzz=FuzzPathSequence", "-fuzztime=5s"},
+			},
+			residual: []string{
+				"platform filesystem / mount-race injection not yet run",
+				"independent security review of evidence not recorded",
+				"VER-PATH-001 remains planned until residual gaps close",
+			},
+		},
+		{
+			id:   "EVD-JOURNAL-001",
+			dir:  "evidence/journal",
+			file: "EVD-JOURNAL-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/journal/...", "-count=1"},
+				{"go", "test", "./internal/codec/", "-count=1"},
+				{"go", "test", "./internal/journal/", "-fuzz=FuzzReadPrefix", "-fuzztime=10s"},
+				{"go", "test", "./internal/codec/", "-fuzz=FuzzDecodeRecord", "-fuzztime=10s"},
+			},
+			residual: []string{
+				"independent assurance review of this artifact still required for release use",
+			},
+		},
+		{
+			id:   "EVD-PLAN-001",
+			dir:  "evidence/planner",
+			file: "EVD-PLAN-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/plan/", "-count=1"},
+			},
+			residual: []string{
+				"capability-id registry still provisional (IP-S-0002 dissent)",
+				"independent technical review of evidence not recorded",
+			},
+		},
+		{
+			id:   "EVD-RECOVERY-001",
+			dir:  "evidence/recovery",
+			file: "EVD-RECOVERY-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/recovery/", "-count=1"},
+			},
+			residual: []string{
+				"full persistence-point crash matrix on real FS profiles pending",
+				"TLA+ refinement gaps documented in internal/recovery/README.md",
+				"VER-RECOVERY-001 remains planned until residual gaps close",
+			},
+		},
+	}
+
+	for _, c := range campaigns {
+		m := manifest{
+			EvidenceID: c.id,
+			Revision:   rev,
+			ProducedAt: time.Now().UTC().Format(time.RFC3339),
+			GoVersion:  runtime.Version(),
+			Platform:   runtime.GOOS + "/" + runtime.GOARCH,
+			Residual:   c.residual,
+			Extra: map[string]string{
+				"producer": "integris-evidence",
+			},
+		}
+		for _, args := range c.commands {
+			cr, err := runCmd(abs, args)
+			if err != nil {
+				return fmt.Errorf("%s: %w", c.id, err)
+			}
+			m.Commands = append(m.Commands, cr)
+			if cr.ExitCode != 0 {
+				return fmt.Errorf("%s: command failed: %s (exit %d)", c.id, strings.Join(args, " "), cr.ExitCode)
+			}
+		}
+		m.ArtifactSHA = "sha256 of this JSON file after write; see sibling .sha256"
+		outDir := filepath.Join(abs, c.dir)
+		if err := os.MkdirAll(outDir, 0o755); err != nil {
+			return err
+		}
+		outPath := filepath.Join(outDir, c.file)
+		raw, err := json.MarshalIndent(m, "", "  ")
+		if err != nil {
+			return err
+		}
+		raw = append(raw, '\n')
+		if err := os.WriteFile(outPath, raw, 0o644); err != nil {
+			return err
+		}
+		sum := sha256.Sum256(raw)
+		digest := hex.EncodeToString(sum[:])
+		if err := os.WriteFile(outPath+".sha256", []byte(digest+"  "+c.file+"\n"), 0o644); err != nil {
+			return err
+		}
+		fmt.Printf("wrote %s (%s)\n", filepath.Join(c.dir, c.file), digest)
+	}
+	return nil
+}
+
+func runCmd(dir string, args []string) (commandResult, error) {
+	cmd := exec.Command(args[0], args[1:]...)
+	cmd.Dir = dir
+	cmd.Env = append(os.Environ(), "GOTOOLCHAIN=local")
+	out, err := cmd.CombinedOutput()
+	exit := 0
+	if err != nil {
+		if ee, ok := err.(*exec.ExitError); ok {
+			exit = ee.ExitCode()
+		} else {
+			return commandResult{}, err
+		}
+	}
+	sum := sha256.Sum256(out)
+	tail := string(out)
+	if len(tail) > 4000 {
+		tail = tail[len(tail)-4000:]
+	}
+	return commandResult{
+		Command:  strings.Join(args, " "),
+		ExitCode: exit,
+		Stdout:   tail,
+		Digest:   hex.EncodeToString(sum[:]),
+	}, nil
+}
+
+func gitOutput(dir string, args ...string) (string, error) {
+	cmd := exec.Command("git", args...)
+	cmd.Dir = dir
+	out, err := cmd.Output()
+	return string(out), err
+}

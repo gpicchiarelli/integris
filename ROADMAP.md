@@ -3,7 +3,7 @@
 Progress is evidence-gated, not date-gated. A milestone is complete only after
 its acceptance criteria are met and independently approved.
 
-## M0 — Assurance baseline (current)
+## M0 — Assurance baseline
 
 - criticality policy and claim boundaries;
 - preliminary hazard analysis and threat model;
@@ -16,7 +16,10 @@ its acceptance criteria are met and independently approved.
 Exit: no orphan requirement, hazard, threat, verification method, or evidence
 record; formal models pass; two independent approvers accept every IC-1 item.
 
-## M1 — Executable reference kernels
+**Status:** baseline artifacts are complete; independent IC-1 approvers and
+hosting branch-protection evidence remain open (see `docs/github-settings.md`).
+
+## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
 - safe relative-name grammar;
@@ -28,6 +31,11 @@ record; formal models pass; two independent approvers accept every IC-1 item.
 Entrance: M0 exit criteria, an accepted IP for each kernel, and an assigned
 technical and security reviewer. Exit: complete IC-1/IC-2 evidence, continuous
 fuzzing, fault injection, and cross-platform tests.
+
+**Status:** draft IPs IP-S-0001, IP-F-0001, IP-S-0002, IP-S-0003 and reference
+packages under `internal/{path,codec,journal,plan,recovery}` exist. Produced
+evidence so far: EVD-JOURNAL-001, EVD-PLAN-001. Path and recovery campaigns
+remain planned pending platform/race residual gaps and independent review.
 
 ## M2 — Privilege-separated prototype
 

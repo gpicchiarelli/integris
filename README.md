@@ -10,9 +10,9 @@ targeted formal methods, adversarial testing, and attestable supply chains.
 
 > [!IMPORTANT]
 > Integris is **not a usable replication daemon**, is **not certified**, and
-> makes no SIL, safety-critical, or standards-conformance claim. This repository
-> currently establishes the assurance system that must exist before product
-> implementation begins.
+> makes no SIL, safety-critical, or standards-conformance claim. Product
+> kernels under `internal/` are reference implementations gated by draft IPs
+> and incomplete IC-1 evidence — not a release.
 
 ## What is here
 
@@ -21,6 +21,11 @@ targeted formal methods, adversarial testing, and attestable supply chains.
 - security architecture, transaction, journal, protocol, filesystem, and
   cryptography specifications;
 - executable TLA+ models for the transaction and session state machines;
+- M1 reference kernels: path grammar/resolution, codec, journal (+ verifier),
+  deterministic planner, and crash recovery (`internal/`);
+- draft M1 Integris Proposals under `docs/ip/` (IP-S-0001…0003, IP-F-0001);
+- evidence campaign producer (`cmd/integris-evidence`) and artifacts under
+  `evidence/`;
 - a restricted Go profile and platform confinement matrix;
 - review, change-control, release, vulnerability-response, and retirement rules;
 - pinned, least-privilege GitHub workflows and a reproducible-build contract.
@@ -44,16 +49,24 @@ The governing invariant is:
 make verify
 ```
 
-Go 1.26.5 is the pinned bootstrap toolchain. Product code may only begin after
-the entrance criteria in [ROADMAP.md](ROADMAP.md) are approved.
+Optional: regenerate kernel evidence campaigns (writes under `evidence/`):
+
+```sh
+make evidence
+```
+
+Go 1.26.5 is the pinned bootstrap toolchain. Milestone entrance/exit criteria
+are in [ROADMAP.md](ROADMAP.md).
 
 ## Repository map
 
 ```text
 assurance/       machine-readable assurance records
-cmd/             assurance tooling (not product code)
+cmd/             assurance and evidence tooling
 docs/            normative specifications and engineering policy
+evidence/        produced or interim verification artifacts
 formal/          executable formal models and model-checker configurations
+internal/        M1 reference kernels (not a daemon)
 .github/         review policy, templates, and automated controls
 ```
 
@@ -62,7 +75,9 @@ as described by RFC 2119 and RFC 8174 only where they appear in capitals.
 
 ## Status
 
-The project is at **M0 — assurance baseline**. See [ROADMAP.md](ROADMAP.md).
+The project is transitioning **M0 → M1**: assurance baseline is in place; draft
+IPs and executable reference kernels exist; IC-1 path/recovery evidence and
+independent reviewers remain open. See [ROADMAP.md](ROADMAP.md).
 No production release or compatibility promise exists yet.
 
 ## License

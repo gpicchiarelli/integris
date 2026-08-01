@@ -8,6 +8,15 @@ is accepted.
 
 ### Added
 
+- M1 draft IPs: path grammar/resolution, journal codec envelope, deterministic
+  planner, idempotent crash recovery;
+- M1 reference kernels under `internal/{path,codec,journal,plan,recovery}`;
+- `integris-evidence` campaign producer and initial `evidence/` artifacts;
+- CI short fuzz and weekly fuzz for path/codec/journal kernels;
+- produced evidence EVD-JOURNAL-001 and EVD-PLAN-001;
+
+### Previously
+
 - M0 assurance baseline with scope, criticality, lifecycle, governance, release,
   supply-chain, platform, and retirement policies;
 - machine-readable requirements, hazards, threats, verification, and evidence;

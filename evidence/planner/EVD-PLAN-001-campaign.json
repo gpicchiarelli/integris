@@ -1,0 +1,23 @@
+{
+  "evidence_id": "EVD-PLAN-001",
+  "source_revision": "0fe5a1b5377646fbf8669cd7f1ea9065a49ed708",
+  "produced_at": "2026-08-01T12:22:19Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go test ./internal/plan/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/plan\t0.365s\n",
+      "stdout_sha256": "53c249f22879609ff2468cf74a754b95673de70b56c501f8591b02e3e3d52548"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "capability-id registry still provisional (IP-S-0002 dissent)",
+    "independent technical review of evidence not recorded"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}

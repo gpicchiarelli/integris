@@ -1,9 +1,8 @@
-.PHONY: all fmt fmt-check test vet assure trace-check verify
+.PHONY: all fmt fmt-check test vet assure trace-check evidence verify
 
 all: verify
 
 # gofmt walks directories recursively; use ./cmd ./internal (not ./... — gofmt rejects that).
-# Covers path/codec/journal today and plan/recovery when added.
 fmt:
 	gofmt -w ./cmd ./internal
 
@@ -21,5 +20,8 @@ assure:
 
 trace-check:
 	go run ./cmd/integris-assure trace --root . --check
+
+evidence:
+	go run ./cmd/integris-evidence -root .
 
 verify: fmt-check test vet assure trace-check
