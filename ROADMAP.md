@@ -33,9 +33,10 @@ technical and security reviewer. Exit: complete IC-1/IC-2 evidence, continuous
 fuzzing, fault injection, and cross-platform tests.
 
 **Status:** draft IPs IP-S-0001, IP-F-0001, IP-S-0002, IP-S-0003 and reference
-packages under `internal/{path,codec,journal,plan,recovery}` exist. Produced
-evidence so far: EVD-JOURNAL-001, EVD-PLAN-001. Path and recovery campaigns
-remain planned pending platform/race residual gaps and independent review.
+packages under `internal/` exist (including observability and bounded IPC
+prelude). Produced evidence so far: EVD-JOURNAL-001, EVD-PLAN-001,
+EVD-RECOVERY-001, EVD-CONFIG-001, EVD-RESOURCE-001. IC-1 path/arch/delete/fs/txn
+campaigns remain planned pending independent review and platform probes.
 
 ## M2 — Privilege-separated prototype
 
