@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-RESOURCE-001",
-  "source_revision": "cd6cc64fa24157273434c5850782b303534300df",
-  "produced_at": "2026-08-01T19:54:50Z",
+  "source_revision": "9d7f88066beb16ad31db6314d94dec2bb4290a73",
+  "produced_at": "2026-08-01T20:03:24Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/resource/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t2.960s\n",
-      "stdout_sha256": "e0507bad94686aac940c1b4ae1620afe0c8c81cf72d702d6bf6ea4c14ae4adff"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t2.547s\n",
+      "stdout_sha256": "5ccc64c3f8841a4d1ad1a0a5929efbc31faae3ba3725cada61430783511982e1"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -17,7 +17,7 @@
     "RLIMIT_NOFILE descriptor saturation harness complete (WithSoftNOFILE)",
     "RLIMIT_FSIZE disk-write saturation harness complete (WithSoftFSIZE → EFBIG; not ENOSPC)",
     "RLIMIT_CPU process CPU-time harness complete (WithSoftCPU → SIGXCPU; not system-wide load)",
-    "RLIMIT_NPROC process-count harness complete (WithSoftNPROC → EAGAIN on fork/exec)",
+    "RLIMIT_NPROC process-count harness complete (WithSoftNPROC → EAGAIN; FreeBSD also clamps hard max)",
     "true ENOSPC full-volume harness complete (Darwin hdiutil 2MiB HFS+ image → unix.ENOSPC)",
     "independent security review of evidence not recorded"
   ],
