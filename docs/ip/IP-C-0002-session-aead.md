@@ -26,12 +26,14 @@ pretending a stable release crypto claim.
 | Nonce | `00 00 00 00 \|\| seq_be64` | per-direction sequence; never reuse under same key |
 | AAD | `INTPRO01 \|\| type_u16le \|\| session_id \|\| seq_u64le` | binds frame metadata |
 | Scope | `TypeData` bodies only when `Driver.AEADKey` set | control frames remain HMAC/MAC path |
+| Peer auth (provisional) | HMAC-SHA256 proof over suite \|\| session id \|\| transcript \|\| direction | `AuthenticateProof` / `EncodePeerAuth`; not Noise/TLS |
 
-Suite ID string: `integris-session-aead-chacha20poly1305-v1`.
+Suite ID strings: `integris-session-aead-chacha20poly1305-v1`,
+`integris-peer-auth-hmac-sha256-v1`.
 
 ## Explicit non-decisions
 
-- Handshake / Noise / TLS / mutual authentication proofs
+- Handshake / Noise / TLS / post-quantum mutual authentication
 - Key ratchet, 0-RTT, post-quantum KEM
 - Journal or IPC AEAD replacement for HMAC
 - Release acceptance of EVD-PROTO-001
@@ -39,14 +41,16 @@ Suite ID string: `integris-session-aead-chacha20poly1305-v1`.
 ## Risk analysis
 
 Engineering-only. Sequence nonces are predictable; security relies on key
-secrecy and no nonce reuse. Independent cryptographic review required before
-promoting protocol evidence.
+secrecy and no nonce reuse. Peer-auth HMAC proofs share a root key and bind
+the negotiation transcript only — they are not a finished handshake.
+Independent cryptographic review required before promoting protocol evidence.
 
 ## Verification
 
 - Known round-trip and AAD mismatch tests in `internal/crypto`
 - Driver encode/decode of sealed `TypeData` in `internal/protocol`
 - Transcript-bound `InstallTrafficKey` after Activate with matching peer keys
+- HMAC peer-auth proof tests + e2e negotiate→auth→AEAD path
 - EVD-PROTO-001 remains **planned**
 
 ## Decision and approvals

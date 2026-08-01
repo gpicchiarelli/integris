@@ -1,32 +1,32 @@
 {
   "evidence_id": "EVD-PROTO-001",
-  "source_revision": "07924519da7249df23accc7cb2b3de8fa75a4151",
-  "produced_at": "2026-08-01T13:14:41Z",
+  "source_revision": "278faa47314d260a391838bd6e71eae82ec59506",
+  "produced_at": "2026-08-01T13:17:23Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/session/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.250s\n",
-      "stdout_sha256": "3d6225dbcf20ea5769cbd009d7ffd88e095e04c297ac25654baa18087309e600"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.251s\n",
+      "stdout_sha256": "83185df036cfefec5e6537ed4ef280b161fb2b13272653dd809961cff11c2bce"
     },
     {
       "command": "go test ./internal/protocol/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.266s\n",
-      "stdout_sha256": "d924d0d85466ccd109803b5784fd2b1287a61bdff1fffcfaedb501e978805bd3"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.254s\n",
+      "stdout_sha256": "16d258bb7d18c276e30e782563c7afbfa293fdc5209fb8a21dc6b4e4e6407ec7"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.236s\n",
-      "stdout_sha256": "e14c082ba6b30e18934d72858a582814c1aab60d5d3ec5945cc064ecfcc689be"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.244s\n",
+      "stdout_sha256": "564e68831b4d97f7dcae1f1a8e2d279c154240dee4a566de3efcf36d96150214"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "session AEAD / full suite pending superseding IP-C",
+    "provisional AEAD + HMAC peer-auth (IP-C-0002); Noise/TLS/PQ pending superseding IP-C",
     "independent cryptography review required",
     "VER-PROTO-001 remains planned until crypto review"
   ],

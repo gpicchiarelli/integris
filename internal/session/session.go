@@ -1,9 +1,10 @@
 // Package session implements the authenticated session state machine refined
 // from formal/session/Session.tla (M1 conformance surface for VER-PROTO-001).
 //
-// TLC does not prove this Go code. Peer authentication remains an explicit
-// boolean step; traffic protection uses provisional IP-C-0002 AEAD after suite
-// negotiation and transcript-bound key derivation.
+// TLC does not prove this Go code. Peer authentication may use the boolean
+// Authenticate step (TLA conformance) or AuthenticateProof (provisional HMAC
+// over the negotiation transcript, IP-C-0002). Traffic protection uses
+// provisional AEAD after suite negotiation and transcript-bound key derivation.
 package session
 
 import (
@@ -181,7 +182,8 @@ func (s *Session) Negotiate() error {
 	return nil
 }
 
-// Authenticate records successful peer authentication (crypto pending IP-C).
+// Authenticate records successful peer authentication without a crypto proof
+// (TLA conformance / tests). Prefer AuthenticateProof when AuthKey is available.
 func (s *Session) Authenticate() error {
 	if s.State != StateNegotiated {
 		return fail("state", "Authenticate requires NEGOTIATED")

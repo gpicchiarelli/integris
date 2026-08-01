@@ -18,6 +18,8 @@ type Driver struct {
 	RecvSeq    uint64
 	MACKey     []byte
 	AEADKey    []byte
+	AuthKey    []byte // provisional peer-auth HMAC key; enables proof on TypePeerAuth
+	AuthDir    string // "i2r" or "r2i"; default "i2r"
 	RequireMAC bool
 	// LastPlaintext is set when TypeData is opened under AEADKey.
 	LastPlaintext []byte
@@ -125,7 +127,15 @@ func (d *Driver) Handle(f Frame) error {
 			}
 		}
 	case TypePeerAuth:
-		if err := d.Session.Authenticate(); err != nil {
+		if len(d.AuthKey) > 0 {
+			dir := d.AuthDir
+			if dir == "" {
+				dir = "i2r"
+			}
+			if err := d.Session.AuthenticateProof(d.AuthKey, d.SessionID, dir, f.Body); err != nil {
+				return err
+			}
+		} else if err := d.Session.Authenticate(); err != nil {
 			return err
 		}
 	case TypeArchiveAuth:
@@ -191,6 +201,27 @@ func (d *Driver) EncodeFrame(typ MessageType, body []byte) ([]byte, error) {
 	}
 	d.SendSeq++
 	return raw, nil
+}
+
+// EncodePeerAuth builds a TypePeerAuth frame whose body is an HMAC proof over
+// the current negotiation transcript. Call DecodeAndHandle on both peers so
+// transcripts stay aligned.
+func (d *Driver) EncodePeerAuth() ([]byte, error) {
+	if d == nil {
+		return nil, fail("driver", "nil driver")
+	}
+	if len(d.AuthKey) == 0 {
+		return nil, fail("auth", "AuthKey required")
+	}
+	dir := d.AuthDir
+	if dir == "" {
+		dir = "i2r"
+	}
+	proof, err := d.Session.MakeAuthProof(d.AuthKey, d.SessionID, dir)
+	if err != nil {
+		return nil, err
+	}
+	return d.EncodeFrame(TypePeerAuth, proof)
 }
 
 // DecodeAndHandle decodes raw bytes then Handle.

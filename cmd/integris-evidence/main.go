@@ -191,7 +191,7 @@ func run(root string) error {
 				{"go", "test", "./internal/launcher/", "-count=1"},
 			},
 			residual: []string{
-				"session AEAD + suite negotiation engineering-only (IP-C-0002); mutual auth/PQ deferred",
+				"session AEAD + HMAC peer-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
 				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge",
 				"NEG-FS-OPEN reported by role stub; broader role negative probes incomplete",
 				"MAC key via pipe fd (not sealed memfd/SCM yet)",
@@ -209,7 +209,7 @@ func run(root string) error {
 				{"go", "test", "./internal/crypto/", "-count=1"},
 			},
 			residual: []string{
-				"session AEAD / full suite pending superseding IP-C",
+				"provisional AEAD + HMAC peer-auth (IP-C-0002); Noise/TLS/PQ pending superseding IP-C",
 				"independent cryptography review required",
 				"VER-PROTO-001 remains planned until crypto review",
 			},

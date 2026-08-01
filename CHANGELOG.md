@@ -32,6 +32,7 @@ is accepted.
   FreeBSD Capsicum + cap_rights_limit; in-child NEG-FS-OPEN probe via role stub;
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;
 - session crypto-suite allow-list + transcript-bound traffic key install;
+- provisional HMAC peer-auth proof over negotiation transcript (`AuthenticateProof`);
 - `supervisor.Runtime` multi-child engineering spawn helper;
 - session negotiation transcript binding (provisional);
 - engineering module inventory in `integris-release-digest`;
