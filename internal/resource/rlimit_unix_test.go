@@ -61,3 +61,48 @@ func TestWithSoftNOFILERejectsZero(t *testing.T) {
 		t.Fatal("expected error for soft=0")
 	}
 }
+
+func TestFSIZESaturationHarness(t *testing.T) {
+	var before unix.Rlimit
+	if err := unix.Getrlimit(unix.RLIMIT_FSIZE, &before); err != nil {
+		t.Fatal(err)
+	}
+	const soft = 1024
+	err := resource.WithSoftFSIZE(soft, func() error {
+		f, err := os.CreateTemp(t.TempDir(), "fsize-*")
+		if err != nil {
+			return err
+		}
+		defer func() {
+			_ = f.Close()
+			_ = os.Remove(f.Name())
+		}()
+		n, err := f.Write(make([]byte, soft*2))
+		if err == nil {
+			return errors.New("expected EFBIG under lowered FSIZE soft limit")
+		}
+		if !errors.Is(err, unix.EFBIG) {
+			return err
+		}
+		if n > int(soft) {
+			return errors.New("wrote past soft FSIZE without stopping")
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var after unix.Rlimit
+	if err := unix.Getrlimit(unix.RLIMIT_FSIZE, &after); err != nil {
+		t.Fatal(err)
+	}
+	if after.Cur != before.Cur || after.Max != before.Max {
+		t.Fatalf("rlimit not restored: before=%+v after=%+v", before, after)
+	}
+}
+
+func TestWithSoftFSIZERejectsZero(t *testing.T) {
+	if err := resource.WithSoftFSIZE(0, func() error { return nil }); err == nil {
+		t.Fatal("expected error for soft=0")
+	}
+}

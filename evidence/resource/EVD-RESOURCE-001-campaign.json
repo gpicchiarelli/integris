@@ -1,21 +1,22 @@
 {
   "evidence_id": "EVD-RESOURCE-001",
-  "source_revision": "e5be5e27515c00dc1a83afeb93bfbc615c68dcd5",
-  "produced_at": "2026-08-01T19:06:33Z",
+  "source_revision": "8abd325be3def1fd8991ef41feaf1b9bebc54d7f",
+  "produced_at": "2026-08-01T19:09:47Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/resource/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t0.234s\n",
-      "stdout_sha256": "191d327ca961ce9eac3add0403cc6e06659a5775af796d05ef2031b7f3de7cfb"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t0.249s\n",
+      "stdout_sha256": "ca1224bd17c0cb667f295575d550214a0f403177c2f8cc38b4104571dd10a360"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
     "RLIMIT_NOFILE descriptor saturation harness complete (WithSoftNOFILE)",
-    "disk/CPU system-level saturation still open",
+    "RLIMIT_FSIZE disk-write saturation harness complete (WithSoftFSIZE → EFBIG; not ENOSPC)",
+    "CPU system-level saturation still open; true ENOSPC (full volume) still open",
     "independent security review of evidence not recorded"
   ],
   "extra": {

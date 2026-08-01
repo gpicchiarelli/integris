@@ -88,6 +88,7 @@ is accepted.
 - Sparse-aware CloneFile degraded copy via `SEEK_DATA`/`SEEK_HOLE` (io.Copy fallback);
 - Darwin birthtime restore on CloneFile degraded copy (`Setattrlist` `ATTR_CMN_CRTIME`);
 - `resource.WithSoftNOFILE` FD saturation harness for EVD-RESOURCE (`RLIMIT_NOFILE`);
+- `resource.WithSoftFSIZE` disk-write saturation harness for EVD-RESOURCE (`RLIMIT_FSIZE` → EFBIG);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
