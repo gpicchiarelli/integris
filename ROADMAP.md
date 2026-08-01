@@ -47,10 +47,9 @@ pending independent review, crypto suite, and platform probes.
 - native confinement adapters for all declared platforms;
 - destructive-operation quarantine and recovery harness.
 
-**Status (prelude):** `internal/supervisor` seals launch tokens and opens both
-in-memory and Unix socketpair authenticated IPC fabrics. `internal/confine`
-records platform discovery/negative-probe scaffolding. Child spawn remains
-blocked by the Go profile (`os/exec` prohibited) pending a reviewed launcher IP.
+**Status (prelude):** sealed launch tokens, in-memory and socketpair IPC fabrics,
+confinement discovery scaffold, and engineering child spawn via
+`internal/launcher` (IP-A-0003 draft; env MAC keys; no OS confinement yet).
 
 Exit: red-team review, crash testing at every persistence point, platform
 evidence, and no open IC-1 defects.

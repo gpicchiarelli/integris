@@ -13,7 +13,12 @@ unless an isolated, reviewed platform adapter explicitly requires otherwise.
 
 - `unsafe` in IC-1/IC-2 and by default everywhere;
 - cgo outside an isolated platform adapter with an accepted IP;
-- `os/exec`, shell invocation, dynamic loading, plugins, embedded interpreters;
+- `os/exec`, shell invocation, dynamic loading, plugins, embedded interpreters
+  **except** the narrow allowance in [IP-A-0003](ip/IP-A-0003-supervised-launcher.md):
+  among `internal/*` packages only `internal/launcher` may start subprocesses
+  (no shell, no `PATH` search for role binaries, `EngineeringMode` required
+  until a superseding IP defines the release path); `cmd/integris-*` tools may
+  invoke host `git`/`go` for evidence builds only;
 - reflection in IC-1 paths without a necessity and verification argument;
 - panic for input, resource, network, storage, or other expected failures;
 - unbounded reads, allocations, collections, queues, retries, or recursion;

@@ -26,6 +26,7 @@ is accepted.
 - provisional `internal/crypto` HKDF/transcript helpers and supervisor IPC fabric;
 - sealed child launch tokens with descriptor slots (no OS spawn yet);
 - Unix socketpair IPC fabric and platform confinement discovery scaffold;
+- draft IP-A-0003 isolated launcher; `internal/launcher` + role stub (engineering);
 - session negotiation transcript binding (provisional);
 - engineering module inventory in `integris-release-digest`;
 - recovery/session optional observability event emission;

@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-ARCH-001",
-  "source_revision": "82edcf0a34c66dd5cd5a188538334359c0539ba3",
-  "produced_at": "2026-08-01T12:57:19Z",
+  "source_revision": "b8d19955364d69fd5941953bd5cceea0608a7bc2",
+  "produced_at": "2026-08-01T13:00:14Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/authority/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.243s\n",
-      "stdout_sha256": "912c842f7fee3cb4d0e7ab87c96211358f183e176ca1d700f1c3b84d824ee27d"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.255s\n",
+      "stdout_sha256": "f938450629f0d832bb0155660076fe98323f1cdd2a5dd0fa4a4d1cec4543f69b"
     },
     {
       "command": "go test ./internal/supervisor/ -count=1",
@@ -20,22 +20,28 @@
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.270s\n",
-      "stdout_sha256": "5db7899867fae9ce208ac687f8a2a97550429e377d1ddcd597eaf3d1373586e1"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.233s\n",
+      "stdout_sha256": "ea75a1ae585b351e66415adfd6006f25e891459b98a4f949fd2ff587be1ebfd2"
     },
     {
       "command": "go test ./internal/confine/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.257s\n",
-      "stdout_sha256": "52c2f6965e7f4e74760c33c6c8aac3d1a58c07ba7c636d8779b5093911350b0c"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.250s\n",
+      "stdout_sha256": "6f0ff334603c4f9b3145a959a795fc95a13c0c72430adf75d55dd423d7f30f42"
+    },
+    {
+      "command": "go test ./internal/launcher/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t0.832s\n",
+      "stdout_sha256": "d8a024d17632f0b99336346614ca119b4d0c2b9343ebe6505413a68cad65101f"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "OS negative capability probes skipped until confined child spawn exists",
-    "supervisor socket fabric is same-process (no os/exec per Go profile)",
+    "engineering launch only; MAC keys still conferred via env",
+    "child OS confinement (pledge/Capsicum/Landlock) not applied",
     "independent security review required for IC-1",
-    "VER-ARCH-001 remains planned until platform probes land"
+    "VER-ARCH-001 remains planned until confined negative probes pass"
   ],
   "extra": {
     "producer": "integris-evidence"

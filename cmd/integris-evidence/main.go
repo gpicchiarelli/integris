@@ -188,12 +188,13 @@ func run(root string) error {
 				{"go", "test", "./internal/supervisor/", "-count=1"},
 				{"go", "test", "./internal/crypto/", "-count=1"},
 				{"go", "test", "./internal/confine/", "-count=1"},
+				{"go", "test", "./internal/launcher/", "-count=1"},
 			},
 			residual: []string{
-				"OS negative capability probes skipped until confined child spawn exists",
-				"supervisor socket fabric is same-process (no os/exec per Go profile)",
+				"engineering launch only; MAC keys still conferred via env",
+				"child OS confinement (pledge/Capsicum/Landlock) not applied",
 				"independent security review required for IC-1",
-				"VER-ARCH-001 remains planned until platform probes land",
+				"VER-ARCH-001 remains planned until confined negative probes pass",
 			},
 		},
 		{

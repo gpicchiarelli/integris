@@ -22,8 +22,9 @@ operational controls.
 
 Engineering scaffold: `internal/confine` records discovery/negative-probe rows
 without claiming enforcement. Unix socketpair IPC lives in
-`supervisor.OpenSocketFabric`. Child process spawn is deferred until a reviewed
-launcher IP relaxes the Go-profile `os/exec` prohibition for an isolated adapter.
+`supervisor.OpenSocketFabric`. Engineering child spawn is gated by draft
+[IP-A-0003](ip/IP-A-0003-supervised-launcher.md) (`internal/launcher` only).
+Release-mode launch and in-child confinement remain open.
 
 ## Primary references
 
