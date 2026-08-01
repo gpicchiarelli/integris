@@ -15,10 +15,11 @@ const (
 	EnvPeer         = "INTEGRIS_PEER"
 	EnvNonce        = "INTEGRIS_NONCE_HEX"
 	EnvMode         = "INTEGRIS_LAUNCH_MODE"
+	EnvKeyTransport = "INTEGRIS_KEY_TRANSPORT"
 	ModeEngineering = "engineering"
 	// IPCFileFD is the child's inherited IPC socket (ExtraFiles[0] → fd 3).
 	IPCFileFD = 3
-	// KeyFileFD is the child's inherited MAC-key pipe (ExtraFiles[1] → fd 4).
+	// KeyFileFD is the child's inherited sealed MAC-key FD (ExtraFiles[1] → fd 4).
 	KeyFileFD = 4
 )
 

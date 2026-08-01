@@ -194,7 +194,7 @@ func run(root string) error {
 				"session AEAD + HMAC peer-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
 				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge",
 				"NEG-FS-OPEN reported by role stub; broader role negative probes incomplete",
-				"MAC key via pipe fd (not sealed memfd/SCM yet)",
+				"MAC key via sealed memfd (Linux) or anon-unlinked FD (other Unix); SCM_RIGHTS deferred",
 				"independent cryptography/security review required for IC-1",
 				"VER-PROTO-001 / VER-ARCH-001 remain planned",
 			},

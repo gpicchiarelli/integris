@@ -122,6 +122,10 @@ func TestLaunchStubIPC(t *testing.T) {
 	if !bytes.HasPrefix(resp.Payload, []byte("ack:ping|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
+	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
+		!bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportMemfd)) {
+		t.Fatalf("missing key transport in %q", resp.Payload)
+	}
 	if err := h.Wait(); err != nil {
 		t.Fatal(err)
 	}

@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-RESOURCE-001",
-  "source_revision": "278faa47314d260a391838bd6e71eae82ec59506",
-  "produced_at": "2026-08-01T13:17:18Z",
+  "source_revision": "352cb562347e5434b13220902c46d110cc7d0724",
+  "produced_at": "2026-08-01T13:20:49Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/resource/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t0.235s\n",
-      "stdout_sha256": "d5bec05efc6ee3bc123d5968db835e64bb8966ada955cd913e8296511b2405da"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t0.253s\n",
+      "stdout_sha256": "aee9762bd765c5bc4e7f0fb674bcb18ea888ec1283e96f248beb949f3366c171"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

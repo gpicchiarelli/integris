@@ -56,25 +56,20 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 		EnvPeer + "=" + string(req.Peer),
 		EnvNonce + "=" + hex.EncodeToString(req.Nonce[:]),
 	}
-	keyR, keyW, err := os.Pipe()
+	keyFD, transport, err := CreateKeyFD(req.MACKey)
 	if err != nil {
-		return nil, fail("key", err.Error())
+		return nil, err
 	}
-	if _, err := keyW.Write(req.MACKey); err != nil {
-		_ = keyR.Close()
-		_ = keyW.Close()
-		return nil, fail("key", err.Error())
-	}
-	_ = keyW.Close()
+	env = append(env, EnvKeyTransport+"="+string(transport))
 	cmd := exec.CommandContext(ctx, req.Executable)
 	cmd.Dir = work
 	cmd.Env = env // intentional: do not inherit parent env; no MAC key in env
-	cmd.ExtraFiles = []*os.File{req.Socket, keyR}
+	cmd.ExtraFiles = []*os.File{req.Socket, keyFD}
 	if err := cmd.Start(); err != nil {
-		_ = keyR.Close()
+		_ = keyFD.Close()
 		return nil, fail("start", err.Error())
 	}
-	_ = keyR.Close() // child holds the dup'd read end
+	_ = keyFD.Close() // child holds the dup'd FD
 	return &Handle{Cmd: cmd, Role: req.Role}, nil
 }
 

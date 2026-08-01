@@ -76,6 +76,9 @@ func run() error {
 	}
 	payload := append([]byte("ack:"), frame.Payload...)
 	payload = append(payload, []byte("|NEG-FS:"+string(neg.Status))...)
+	if kt := os.Getenv(launcher.EnvKeyTransport); kt != "" {
+		payload = append(payload, []byte("|KEY:"+kt)...)
+	}
 	reply, err := ch.Encode(ipc.TypeResponse, payload)
 	if err != nil {
 		return err

@@ -41,9 +41,13 @@ profile defect.
 `launcher.Start` may start a single absolute executable with:
 
 - `ExtraFiles` containing exactly the conferred IPC socket end(s);
-- argv/env limited to role, peer, session nonce (non-secret);
-- MAC key conferred on **fd 4** via a pipe (`ExtraFiles[1]`), never via
-  environment;
+- argv/env limited to role, peer, session nonce, and key-transport label
+  (non-secret);
+- MAC key conferred on **fd 4** via `CreateKeyFD` (`ExtraFiles[1]`), never via
+  environment:
+  - **Linux:** sealed `memfd` (`F_SEAL_WRITE|SHRINK|GROW|SEAL`);
+  - **other Unix:** unlinked temp file reopened `O_RDONLY` (engineering residual
+    until memfd/SCM_RIGHTS parity);
 - IPC socket on **fd 3** (`ExtraFiles[0]`);
 - a finite `context` deadline for wait;
 - `EngineeringMode=true` required; when false, Start refuses (release path not
@@ -61,7 +65,8 @@ directory owned for the test/run.
   (Linux: `no_new_privs` + empty Landlock ruleset + seccomp exec/ptrace denylist;
   OpenBSD: `pledge("stdio unix")` + `unveil` lock; FreeBSD: `cap_enter`).
   Stubs report `NegativeFSOpen` over IPC.
-- Sealed MAC key transport (memfd/SCM_RIGHTS only; pipe fd is engineering-only).
+- SCM_RIGHTS key passing over the IPC socket (fd-4 conferral remains the ABI).
+- Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
 - Multi-child restart policy and supervisor crash recovery beyond
   `supervisor.Runtime` kill-on-Close.
 - Windows process model.
@@ -77,14 +82,16 @@ appear in release acceptance evidence as a runtime component.
 - **Keep in-process socketpair only:** rejected for M2 evidence; no OS fault domain.
 - **Permit os/exec everywhere:** rejected; recreates ambient launcher hazards.
 - **cgo + posix_spawn only:** deferred; heavier and still needs an IP.
+- **Pipe fd for MAC key:** superseded for Linux by sealed memfd; pipe removed from
+  launcher path.
 
 ## Risk analysis
 
 Mitigates uncontrolled subprocess creation outside a single adapter. Residual:
-engineering MAC key still traverses a pipe readable by a compromised sibling with
-access to the child's fd table before close; acceptable only for development/tests.
-Common-cause: compromised supervisor still controls children. Complexity: one new
-package and stub binary.
+non-Linux key FDs lack memfd write-seals; a compromised sibling with the child's
+fd table before close can still read key bytes — acceptable only for
+development/tests. Common-cause: compromised supervisor still controls children.
+Complexity: one new package and stub binary.
 
 ## Compatibility and portability
 
@@ -93,19 +100,20 @@ Unix-only for this revision (`//go:build unix`). Other platforms remain refused.
 ## Verification strategy and acceptance criteria
 
 - Unit: refuse non-absolute path, refuse `EngineeringMode=false`, refuse empty
-  socket, wait deadline.
-- Integration: parent↔stub authenticated IPC over conferred socketpair fd.
-- Residual gaps recorded on EVD-ARCH-001 until confinement probes pass in-child.
+  socket, wait deadline; `CreateKeyFD` round-trip.
+- Integration: parent↔stub authenticated IPC over conferred socketpair fd; stub
+  reports `|KEY:` transport label.
+- Residual gaps recorded on EVD-ARCH-001 until confinement probes pass in-child
+  and non-Linux sealed transport reaches parity.
 
 ## Retirement/rollback plan
 
-Superseding IP removes env key conferral and requires sealed key + confinement
-before `EngineeringMode` can be false. Stub binary can be deleted without format
-churn.
+Superseding IP requires sealed key + confinement on all release platforms before
+`EngineeringMode` can be false. Stub binary can be deleted without format churn.
 
 ## Dissent and unresolved questions
 
-- Exact fd number ABI (currently ExtraFiles → fd 3 IPC, fd 4 key pipe).
+- Exact fd number ABI (currently ExtraFiles → fd 3 IPC, fd 4 key FD).
 - Whether release builds embed role binaries or invoke verified install paths.
 
 ## Decision and approvals
