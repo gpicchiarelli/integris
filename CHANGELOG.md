@@ -59,6 +59,7 @@ is accepted.
 - Recovery-side P-* FilePersist FailAt×Recover (`P-STAGE-CREATE/SYNC`, `P-PUBLISH-RENAME/DIRSYNC`, `P-CONFIRM-PRE/POST`);
 - Apply-side `FilePublisher` (stage→sync→rename→dirsync FailAt + Observation→Recover);
 - OS SIGKILL harness via `integris-crash-stub` + `FilePublisher.KillAt` + `launcher.RunEngineering`;
+- Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
 - `Runtime.StartPair`/`RestartPair` with stub initiate mode (KeyViaExtraFiles dual-live edges);
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;

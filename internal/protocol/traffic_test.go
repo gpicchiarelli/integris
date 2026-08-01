@@ -23,11 +23,13 @@ func TestDriverTrafficKeyFromTranscript(t *testing.T) {
 		protocol.TypeNegotiateOffer, protocol.TypePeerAuth,
 		protocol.TypeArchiveAuth, protocol.TypeActivate,
 	} {
-		var body []byte
+		var raw []byte
+		var err error
 		if typ == protocol.TypeNegotiateOffer {
-			body = []byte{2, 3}
+			raw, err = enc.EncodeNegotiateOffer([]session.Version{2, 3})
+		} else {
+			raw, err = enc.EncodeFrame(typ, nil)
 		}
-		raw, err := enc.EncodeFrame(typ, body)
 		if err != nil {
 			t.Fatal(err)
 		}

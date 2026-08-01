@@ -56,7 +56,8 @@ Output size is 32 bytes (`codec.Digest`).
 
 Local minimum policy MUST reject unknown suites. A peer that offers only
 post-quantum or alternate hashes before an accepted superseding IP is refused.
-M1 session code (`internal/session`) does not negotiate crypto suites yet.
+`TypeNegotiateOffer` carries suite IDs on the wire; unknown peer-only suites
+fail closed via `session.Negotiate` / `protocol.Handle`.
 
 ## Alternatives considered
 

@@ -19,17 +19,20 @@ func TestM3PreludeSuiteAEAD(t *testing.T) {
 	alice := protocol.NewDriverWithSuites([]session.Version{3, 2}, suites, sid, mac, true)
 	bob := protocol.NewDriverWithSuites([]session.Version{2, 3}, suites, sid, mac, true)
 
-	steps := []struct {
-		typ  protocol.MessageType
-		body []byte
-	}{
-		{protocol.TypeNegotiateOffer, []byte{3, 2}},
-		{protocol.TypePeerAuth, nil},
-		{protocol.TypeArchiveAuth, nil},
-		{protocol.TypeActivate, nil},
+	raw, err := alice.EncodeNegotiateOffer([]session.Version{3, 2})
+	if err != nil {
+		t.Fatal(err)
 	}
-	for _, st := range steps {
-		raw, err := alice.EncodeFrame(st.typ, st.body)
+	if _, err := bob.DecodeAndHandle(raw); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := alice.DecodeAndHandle(raw); err != nil {
+		t.Fatal(err)
+	}
+	for _, typ := range []protocol.MessageType{
+		protocol.TypePeerAuth, protocol.TypeArchiveAuth, protocol.TypeActivate,
+	} {
+		raw, err := alice.EncodeFrame(typ, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -49,7 +52,7 @@ func TestM3PreludeSuiteAEAD(t *testing.T) {
 	if err := bob.InstallTrafficKey(root); err != nil {
 		t.Fatal(err)
 	}
-	raw, err := alice.EncodeFrame(protocol.TypeData, []byte("m3-prelude"))
+	raw, err = alice.EncodeFrame(protocol.TypeData, []byte("m3-prelude"))
 	if err != nil {
 		t.Fatal(err)
 	}

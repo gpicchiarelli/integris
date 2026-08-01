@@ -17,11 +17,15 @@ func TestDriverHappyPath(t *testing.T) {
 	d := protocol.NewDriver([]session.Version{2, 3}, sid, key, true)
 	d.Session.Transcript = tr
 
+	offer, err := protocol.EncodeNegotiateOfferBody([]session.Version{2, 3}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	steps := []struct {
 		typ  protocol.MessageType
 		body []byte
 	}{
-		{protocol.TypeNegotiateOffer, []byte{2, 3}},
+		{protocol.TypeNegotiateOffer, offer},
 		{protocol.TypePeerAuth, nil},
 		{protocol.TypeArchiveAuth, nil},
 		{protocol.TypeActivate, nil},
@@ -83,11 +87,13 @@ func TestDriverAEADData(t *testing.T) {
 		protocol.TypeNegotiateOffer, protocol.TypePeerAuth,
 		protocol.TypeArchiveAuth, protocol.TypeActivate,
 	} {
-		var body []byte
+		var raw []byte
+		var err error
 		if typ == protocol.TypeNegotiateOffer {
-			body = []byte{2, 3}
+			raw, err = enc.EncodeNegotiateOffer([]session.Version{2, 3})
+		} else {
+			raw, err = enc.EncodeFrame(typ, nil)
 		}
-		raw, err := enc.EncodeFrame(typ, body)
 		if err != nil {
 			t.Fatal(err)
 		}

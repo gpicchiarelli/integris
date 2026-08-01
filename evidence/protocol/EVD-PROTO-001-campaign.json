@@ -1,32 +1,32 @@
 {
   "evidence_id": "EVD-PROTO-001",
-  "source_revision": "7bd47767214ed8cd44fd14fcceeb73bb485b2f4b",
-  "produced_at": "2026-08-01T17:38:58Z",
+  "source_revision": "b0538fa3f84c2d01904176bd163624e8e5fe9d17",
+  "produced_at": "2026-08-01T17:43:34Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/session/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.284s\n",
-      "stdout_sha256": "dd0dc0da2164c076488d8abc8e34754691a21eb7d3cda6e811c2813e915fc31d"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.248s\n",
+      "stdout_sha256": "f2768a970bd673e5868fce1879c7326cd69d3d4a7bc945763e7bdb07dc7b4eb8"
     },
     {
       "command": "go test ./internal/protocol/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.268s\n",
-      "stdout_sha256": "8ffda243f4ba4bf0a9ba3c01862f41ec6860d1435674eee6d6b7f6981bd4999a"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.266s\n",
+      "stdout_sha256": "d924d0d85466ccd109803b5784fd2b1287a61bdff1fffcfaedb501e978805bd3"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.258s\n",
-      "stdout_sha256": "551f075d27127abac6fc7f6c3460b548ea0a3e380465664b542503a0860839cc"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.251s\n",
+      "stdout_sha256": "c1bcf5a43cd1f43d384967461ccf4edbbea916112230a3d4abbc9613d742788e"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); Noise/TLS/PQ pending superseding IP-C",
+    "provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); wire NegotiateOffer carries suite IDs; Noise/TLS/PQ pending superseding IP-C",
     "independent cryptography review required",
     "VER-PROTO-001 remains planned until crypto review"
   ],

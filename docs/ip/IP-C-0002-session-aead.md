@@ -22,7 +22,7 @@ pretending a stable release crypto claim.
 |---|---|---|
 | AEAD | ChaCha20-Poly1305 (`golang.org/x/crypto`) | 32-byte key, 12-byte nonce, 16-byte tag |
 | Key derivation | HKDF-SHA256 | `SessionAEADKey` (session id only) or `TrafficKey` (suite \|\| session id \|\| transcript digest) |
-| Suite negotiation | local allow-list | `session.LocalSuites`; refuse unknown peer-only suites |
+| Suite negotiation | wire + local allow-list | `TypeNegotiateOffer` body carries suite IDs; `session.LocalSuites` ∩ offered; refuse unknown peer-only suites |
 | Nonce | `00 00 00 00 \|\| seq_be64` | per-direction sequence; never reuse under same key |
 | AAD | `INTPRO01 \|\| type_u16le \|\| session_id \|\| seq_u64le` | binds frame metadata |
 | Scope | `TypeData` bodies only when `Driver.AEADKey` set | control frames remain HMAC/MAC path |

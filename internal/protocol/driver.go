@@ -109,14 +109,17 @@ func (d *Driver) Handle(f Frame) error {
 	}
 	switch f.Type {
 	case TypeNegotiateOffer:
-		if len(f.Body) > 0 && d.Session.State == session.StateNew {
-			vers := make([]session.Version, len(f.Body))
-			for i, b := range f.Body {
-				vers[i] = session.Version(b)
-			}
-			d.Session.Offered = vers
-		}
 		if d.Session.State == session.StateNew {
+			if len(f.Body) > 0 {
+				vers, suites, err := ParseNegotiateOfferBody(f.Body)
+				if err != nil {
+					return err
+				}
+				d.Session.Offered = vers
+				if len(suites) > 0 {
+					d.Session.OfferedSuites = suites
+				}
+			}
 			if err := d.Session.Negotiate(); err != nil {
 				return err
 			}
@@ -179,6 +182,23 @@ func (d *Driver) Handle(f Frame) error {
 	}
 	d.RecvSeq++
 	return nil
+}
+
+// EncodeNegotiateOffer builds TypeNegotiateOffer with versions and suite IDs.
+// Suites default to Session.OfferedSuites when non-empty, else session.LocalSuites.
+func (d *Driver) EncodeNegotiateOffer(vers []session.Version) ([]byte, error) {
+	if d == nil {
+		return nil, fail("driver", "nil driver")
+	}
+	suites := d.Session.OfferedSuites
+	if len(suites) == 0 {
+		suites = session.LocalSuites
+	}
+	body, err := EncodeNegotiateOfferBody(vers, suites)
+	if err != nil {
+		return nil, err
+	}
+	return d.EncodeFrame(TypeNegotiateOffer, body)
 }
 
 // EncodeFrame builds the next outbound frame and advances SendSeq on success.

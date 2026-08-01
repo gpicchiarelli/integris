@@ -9,8 +9,8 @@
 - Requirements: INT-IC1-0003, INT-IC3-0002
 - Anchors: `docs/specifications/protocol.md`, `formal/session/Session.tla`,
   `internal/session`
-- Depends on: IP-C-0001 (hashing); session AEAD suite still deferred
-- Unlocks: interoperable network frame codec (future `internal/protocol`)
+- Depends on: IP-C-0001 (hashing); IP-C-0002 (provisional session AEAD / suites)
+- Unlocks: interoperable network frame codec (`internal/protocol`)
 
 ## Motivation
 
@@ -71,6 +71,18 @@ Header size before body: `8+2+2+2+4+16+8 = 42` bytes.
 
 Unknown critical types → FAIL session (matches Session.tla FAILED).
 
+### NegotiateOffer body (v0)
+
+```text
+u8 n_vers || vers[n_vers] || u8 n_suites || repeated (u8 len || suite_id[len])
+```
+
+Limits: `n_vers` ∈ 1…8; `n_suites` ≤ 8; each `suite_id` length ∈ 1…96.
+Empty suite list is allowed for version-only offers; when suites are present,
+receivers intersect with `session.LocalSuites` and fail closed on no overlap
+(IP-C-0002). Codec: `protocol.EncodeNegotiateOfferBody` /
+`ParseNegotiateOfferBody`.
+
 ### Flags
 
 Bit0 `REQUIRES_MAC` — authenticator must verify.  
@@ -106,5 +118,5 @@ Bump `protocol_version` and magic; dual-stack during M3 preview.
 
 ## Decision and approvals
 
-Draft — no `internal/protocol` package yet; session state is independent.
-Approvals open.
+Draft — `internal/protocol` implements frame v0 + NegotiateOffer suite body;
+approvals and independent crypto review remain open.
