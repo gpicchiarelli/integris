@@ -160,7 +160,6 @@ func run(root string) error {
 				{"go", "test", "./internal/deletion/", "-count=1"},
 			},
 			residual: []string{
-				"openat-relative quarantine (renameat) not yet replacing filepath rename",
 				"independent security review required for IC-1",
 				"VER-DELETE-001 remains planned until review closes",
 			},
@@ -173,9 +172,10 @@ func run(root string) error {
 				{"go", "test", "./internal/fsmodel/", "-count=1"},
 			},
 			residual: []string{
-				"empirical per-OS capability probes not yet implemented",
+				"ACL/xattr/sparse/resource-fork probes still UNKNOWN placeholders",
+				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",
-				"VER-FS-001 remains planned until platform probes land",
+				"VER-FS-001 remains planned until review closes",
 			},
 		},
 	}

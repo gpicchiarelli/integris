@@ -1,33 +1,33 @@
 {
   "evidence_id": "EVD-JOURNAL-001",
-  "source_revision": "332041f454f4bc93fe66d1607da0705a8c7c396b",
-  "produced_at": "2026-08-01T12:33:35Z",
+  "source_revision": "a01e1cde0224e730246648b6b26eead99e4df3c3",
+  "produced_at": "2026-08-01T12:35:34Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/journal/... -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/journal\t0.662s\nok  \tgithub.com/gpicchiarelli/integris/internal/journal/verify\t0.332s\n",
-      "stdout_sha256": "82efe993d8fe63b417ef9957c3903873a272e97d066adc501567e85a2b47bcf9"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/journal\t0.242s\nok  \tgithub.com/gpicchiarelli/integris/internal/journal/verify\t0.454s\n",
+      "stdout_sha256": "043afc6af5cd44a996bd841b3825efdd860d015d02ffcdd74aa1f4008dc9f059"
     },
     {
       "command": "go test ./internal/codec/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/codec\t0.360s\n",
-      "stdout_sha256": "2fa9f5fbffd61d3fdc3804a881e6fc161d04565bd7a497bc76374c66b98162a3"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/codec\t0.256s\n",
+      "stdout_sha256": "778c20e409b6ffeb46249913f4f4f804a7e78f76014fda2d1ec204d6caeb672f"
     },
     {
       "command": "go test ./internal/journal/ -fuzz=FuzzReadPrefix -fuzztime=10s",
       "exit_code": 0,
-      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/27 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 27/27 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 1053037 (351003/sec), new interesting: 1 (total: 28)\nfuzz: elapsed: 6s, execs: 2119356 (355207/sec), new interesting: 1 (total: 28)\nfuzz: elapsed: 9s, execs: 3169279 (350128/sec), new interesting: 1 (total: 28)\nfuzz: elapsed: 10s, execs: 3501951 (302020/sec), new interesting: 1 (total: 28)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/journal\t10.476s\n",
-      "stdout_sha256": "5d071188778f4168063e6f22ef28053b69921553a8d9f2b3d8b13a8b8bb1a860"
+      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/28 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 28/28 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 1026826 (342262/sec), new interesting: 0 (total: 28)\nfuzz: elapsed: 6s, execs: 2050740 (341259/sec), new interesting: 0 (total: 28)\nfuzz: elapsed: 9s, execs: 3068319 (339236/sec), new interesting: 0 (total: 28)\nfuzz: elapsed: 10s, execs: 3386256 (291396/sec), new interesting: 0 (total: 28)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/journal\t10.363s\n",
+      "stdout_sha256": "fed59d2f3031aad6907c30c2890aa0bc385f1bd55719bbc9ece73a7c10043264"
     },
     {
       "command": "go test ./internal/codec/ -fuzz=FuzzDecodeRecord -fuzztime=10s",
       "exit_code": 0,
-      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/19 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 19/19 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 1005001 (334993/sec), new interesting: 0 (total: 19)\nfuzz: elapsed: 6s, execs: 1977005 (323995/sec), new interesting: 0 (total: 19)\nfuzz: elapsed: 9s, execs: 3000581 (341175/sec), new interesting: 0 (total: 19)\nfuzz: elapsed: 10s, execs: 3333769 (304775/sec), new interesting: 0 (total: 19)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/codec\t10.472s\n",
-      "stdout_sha256": "c900c6782d299b38ae6e163524f95b568bef12245cb4ed286aa57dcc7b510c47"
+      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/19 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 19/19 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 988265 (329348/sec), new interesting: 0 (total: 19)\nfuzz: elapsed: 6s, execs: 1916499 (309282/sec), new interesting: 0 (total: 19)\nfuzz: elapsed: 9s, execs: 2863679 (315859/sec), new interesting: 0 (total: 19)\nfuzz: elapsed: 10s, execs: 3182193 (292715/sec), new interesting: 0 (total: 19)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/codec\t10.380s\n",
+      "stdout_sha256": "920b24d7c40430cb975853c23d696d2523c9a8eecfb9a9a43c053e577d6e947a"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

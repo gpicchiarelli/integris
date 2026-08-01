@@ -1,22 +1,23 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "332041f454f4bc93fe66d1607da0705a8c7c396b",
-  "produced_at": "2026-08-01T12:34:01Z",
+  "source_revision": "a01e1cde0224e730246648b6b26eead99e4df3c3",
+  "produced_at": "2026-08-01T12:36:01Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.241s\n",
-      "stdout_sha256": "4975df5a06e3f7b20ebdee7ef8ba80cdb5b74b74ca491f9cebae353a87f51fc5"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.303s\n",
+      "stdout_sha256": "3c060fbb3a02133d0eed9f5e3987f3b9ccdbb140b1a46897fe2a12a33b551761"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "empirical per-OS capability probes not yet implemented",
+    "ACL/xattr/sparse/resource-fork probes still UNKNOWN placeholders",
+    "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",
-    "VER-FS-001 remains planned until platform probes land"
+    "VER-FS-001 remains planned until review closes"
   ],
   "extra": {
     "producer": "integris-evidence"

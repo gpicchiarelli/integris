@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-TXN-001",
-  "source_revision": "332041f454f4bc93fe66d1607da0705a8c7c396b",
-  "produced_at": "2026-08-01T12:33:59Z",
+  "source_revision": "a01e1cde0224e730246648b6b26eead99e4df3c3",
+  "produced_at": "2026-08-01T12:35:59Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1 -run Conformance",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.249s\n",
-      "stdout_sha256": "4c0c4f41ef7ff50f32f6a872b34bfdd8fd7fd2722d10959cc93d4be6be2fbdce"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.245s\n",
+      "stdout_sha256": "f8faa727d90d4b921e0e7e581e53f3a93353e891be65515e070f376357cab41e"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

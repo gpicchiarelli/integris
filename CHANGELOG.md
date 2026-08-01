@@ -15,6 +15,7 @@ is accepted.
 - real-filesystem recovery PersistIO and immutable configuration kernel;
 - resource admission budgets and destructive-operation quarantine gates;
 - filesystem capability preflight (no silent loss) and FS quarantine moves;
+- Unix empirical capability probes and renameat exclusive quarantine;
 - transaction conformance tests mapped to TLA+ abstract flags;
 - `integris-evidence` campaign producer and initial `evidence/` artifacts;
 - CI short fuzz and weekly fuzz for path/codec/journal kernels;
