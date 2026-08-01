@@ -87,7 +87,8 @@ directory owned for the test/run.
   `NEG-APPLY-PATH`, `NEG-PLAN-WRITE`, `NEG-PLAN-KEYS`, `NEG-PLAN-NET`,
   `NEG-AUDIT-DECIDE`, `NEG-AUDIT-ARCHIVES`,
   `NEG-AUDIT-SECRETS`, `NEG-JOURNAL-NET`,
-  `NEG-JOURNAL-POLICY`, `NEG-JOURNAL-MUTATE`) over IPC.
+  `NEG-JOURNAL-POLICY`, `NEG-JOURNAL-MUTATE`, `NEG-SUP-PARSER`, `NEG-SUP-TRAVERSE`,
+  `NEG-SUP-KEYS`) over IPC.
 - Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles` for
   engineering callers that cannot yet SendFD after spawn.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering

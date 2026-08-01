@@ -265,6 +265,12 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-JOURNAL-POLICY:")
 		case "NEG-JOURNAL-MUTATE":
 			b.WriteString("|NEG-JOURNAL-MUTATE:")
+		case "NEG-SUP-PARSER":
+			b.WriteString("|NEG-SUP-PARSER:")
+		case "NEG-SUP-TRAVERSE":
+			b.WriteString("|NEG-SUP-TRAVERSE:")
+		case "NEG-SUP-KEYS":
+			b.WriteString("|NEG-SUP-KEYS:")
 		default:
 			continue
 		}

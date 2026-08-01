@@ -899,6 +899,88 @@ func TestRuntimeStartChildPlanMustNot(t *testing.T) {
 	}
 }
 
+func TestRuntimeStartChildSupervisorMustNot(t *testing.T) {
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role: authority.RoleAudit,
+			Confer: []authority.Capability{
+				authority.CapReadonlyJournal, authority.CapRedactedEventSink,
+			},
+			IPCPeers: []authority.ProcessRole{authority.RoleSupervisor},
+		},
+		{
+			Role: authority.RoleSupervisor,
+			Confer: []authority.Capability{
+				authority.CapChildLifecycle, authority.CapPreopenedIPC, authority.CapPolicyIdentity,
+			},
+			IPCPeers: []authority.ProcessRole{authority.RoleAudit},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x71}, 32)
+	var nonce [16]byte
+	nonce[2] = 14
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := rt.StartChild(ctx, authority.RoleSupervisor, authority.RoleAudit, bin); err != nil {
+		t.Fatal(err)
+	}
+
+	parent, err := rt.Fabric.Endpoint(authority.RoleAudit, authority.RoleSupervisor)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("supervisor"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:supervisor|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-SUP-PARSER:denied_as_expected")) {
+		t.Fatalf("missing NEG-SUP-PARSER in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-SUP-TRAVERSE:denied_as_expected")) {
+		t.Fatalf("missing NEG-SUP-TRAVERSE in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-SUP-KEYS:denied_as_expected")) {
+		t.Fatalf("missing NEG-SUP-KEYS in %q", resp.Payload)
+	}
+	if err := rt.WaitChild(authority.RoleSupervisor); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRuntimeRestartPairIPC(t *testing.T) {
 	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {

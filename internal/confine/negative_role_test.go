@@ -481,3 +481,69 @@ func TestNegativeRoleSemanticPlanAuditJournal(t *testing.T) {
 		}
 	}
 }
+
+func TestNegativeRoleSemanticSupervisorOK(t *testing.T) {
+	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+		Role: authority.RoleSupervisor,
+		Confer: []authority.Capability{
+			authority.CapChildLifecycle, authority.CapPreopenedIPC, authority.CapPolicyIdentity,
+		},
+		SlotKinds: []string{"ipc_endpoint"},
+	})
+	want := map[string]confine.Status{
+		"NEG-SUP-PARSER":   confine.StatusDeniedExpected,
+		"NEG-SUP-TRAVERSE": confine.StatusDeniedExpected,
+		"NEG-SUP-KEYS":     confine.StatusDeniedExpected,
+	}
+	for _, f := range fs {
+		if st, ok := want[f.ID]; ok && f.Status != st {
+			t.Fatalf("%s: %+v", f.ID, f)
+		}
+	}
+}
+
+func TestNegativeRoleSemanticSupervisorBadCap(t *testing.T) {
+	cases := []struct {
+		id     string
+		confer []authority.Capability
+		slots  []string
+	}{
+		{
+			id: "NEG-SUP-PARSER",
+			confer: []authority.Capability{
+				authority.CapChildLifecycle, authority.CapRemoteContentParser,
+			},
+		},
+		{
+			id: "NEG-SUP-TRAVERSE",
+			confer: []authority.Capability{
+				authority.CapChildLifecycle, authority.CapArchiveTraversal,
+			},
+		},
+		{
+			id: "NEG-SUP-TRAVERSE",
+			confer: []authority.Capability{
+				authority.CapChildLifecycle,
+			},
+			slots: []string{"archive_root"},
+		},
+		{
+			id: "NEG-SUP-KEYS",
+			confer: []authority.Capability{
+				authority.CapChildLifecycle, authority.CapLongTermKeys,
+			},
+		},
+	}
+	for _, tc := range cases {
+		fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+			Role:      authority.RoleSupervisor,
+			Confer:    tc.confer,
+			SlotKinds: tc.slots,
+		})
+		for _, f := range fs {
+			if f.ID == tc.id && f.Status != confine.StatusUnexpectedAllow {
+				t.Fatalf("%s: %+v", tc.id, f)
+			}
+		}
+	}
+}

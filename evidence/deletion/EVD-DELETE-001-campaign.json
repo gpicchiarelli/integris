@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-DELETE-001",
-  "source_revision": "df62f68b0e97bcd9f2aa3effa71ffbcfb277251f",
-  "produced_at": "2026-08-01T17:20:26Z",
+  "source_revision": "10202c77449b91764527e8cdb7a45efb4608c7b7",
+  "produced_at": "2026-08-01T17:23:07Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/deletion/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/deletion\t0.270s\n",
-      "stdout_sha256": "41ed69ccf26e227f399a83b6784fca8b493a031a1aeddffd1ad5a8044e3430f2"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/deletion\t0.443s\n",
+      "stdout_sha256": "045bfa8a2550c638cdd373f1b965159a2da2414c758b2f814d46833d7a800d0f"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

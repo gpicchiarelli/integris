@@ -43,6 +43,9 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 		negJournalNet(plat, in),
 		negJournalPolicy(plat, in),
 		negJournalMutate(plat, in),
+		negSupParser(plat, in),
+		negSupTraverse(plat, in),
+		negSupKeys(plat, in),
 	}
 }
 
@@ -660,6 +663,93 @@ func negJournalMutate(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "journal lacks archive_mutation in inventory and conferral"
+	return base
+}
+
+func negSupParser(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-SUP-PARSER", Platform: plat, Control: "remote_content_parser",
+	}
+	if in.Role != authority.RoleSupervisor {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-supervisor only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapRemoteContentParser) ||
+		hasCap(in.Confer, authority.CapBoundedMessageIPC) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "supervisor role conferred remote content parser capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleSupervisor, authority.CapRemoteContentParser)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows remote_content_parser for supervisor"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "supervisor lacks remote_content_parser in inventory and conferral"
+	return base
+}
+
+func negSupTraverse(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-SUP-TRAVERSE", Platform: plat, Control: "archive_traversal",
+	}
+	if in.Role != authority.RoleSupervisor {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-supervisor only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapArchiveTraversal) ||
+		hasCap(in.Confer, authority.CapArchives) ||
+		hasCap(in.Confer, authority.CapArchiveDescriptors) ||
+		hasCap(in.Confer, authority.CapArchiveRoots) ||
+		hasCap(in.Confer, authority.CapReadonlyArchiveRoot) ||
+		hasCap(in.Confer, authority.CapArchiveContents) ||
+		hasCap(in.Confer, authority.CapArbitraryPathLookup) ||
+		hasArchiveSlot(in.SlotKinds) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "supervisor role conferred archive traversal capability or slot"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleSupervisor, authority.CapArchiveTraversal)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows archive_traversal for supervisor"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "supervisor lacks archive_traversal in inventory and conferral"
+	return base
+}
+
+func negSupKeys(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-SUP-KEYS", Platform: plat, Control: "long_term_keys",
+	}
+	if in.Role != authority.RoleSupervisor {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-supervisor only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapLongTermKeys) ||
+		hasCap(in.Confer, authority.CapPermanentKeys) ||
+		hasCap(in.Confer, authority.CapKeys) ||
+		hasCap(in.Confer, authority.CapIdentityKeys) ||
+		hasCap(in.Confer, authority.CapIdentityHandle) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "supervisor role conferred long-term or identity key capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleSupervisor, authority.CapLongTermKeys)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows long_term_keys for supervisor"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "supervisor lacks long_term_keys in inventory and conferral"
 	return base
 }
 

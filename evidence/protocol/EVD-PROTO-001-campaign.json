@@ -1,27 +1,27 @@
 {
   "evidence_id": "EVD-PROTO-001",
-  "source_revision": "df62f68b0e97bcd9f2aa3effa71ffbcfb277251f",
-  "produced_at": "2026-08-01T17:20:49Z",
+  "source_revision": "10202c77449b91764527e8cdb7a45efb4608c7b7",
+  "produced_at": "2026-08-01T17:23:33Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/session/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.247s\n",
-      "stdout_sha256": "b354a63fe91762495bba165e75970e74c162e7c05c2f74abb6910a5ffcc4fd59"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.251s\n",
+      "stdout_sha256": "83185df036cfefec5e6537ed4ef280b161fb2b13272653dd809961cff11c2bce"
     },
     {
       "command": "go test ./internal/protocol/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.256s\n",
-      "stdout_sha256": "0b977a18f69c156b73fedef7abda97a67ff7b0c11a20b17d4b32e6e271452826"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.277s\n",
+      "stdout_sha256": "a43a8c476bf6c1df833f3fef7605b3dd70ed5c7c86c9e6399413f0c4f7659510"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.249s\n",
-      "stdout_sha256": "61b437a53922f0581647ca8395aca69df1fad7fdc37ef56caba3bdc1cf4d8d04"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.255s\n",
+      "stdout_sha256": "9b0b6978a7100d0685b95cf4330877d86e3ea63b046301c672134f3ba31a0339"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
