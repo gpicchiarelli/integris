@@ -207,10 +207,10 @@ func run(root string) error {
 			},
 			residual: []string{
 				"session AEAD + mutual HMAC peer/archive-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
-				"engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index via Runtime.AllowRoots; role-net deny; Capsicum fd-only",
+				"engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index/Journal/Audit via Runtime.AllowRoots; role-net deny; Capsicum fd-only",
 				"NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET + role-semantic NEG-* covering complete inventory MustNot for all nine roles via role stub",
 				"MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
-				"broader path allow-lists beyond archive caps; FreeBSD conferred directory FDs still open",
+				"Journal/Audit path allow-roots landed; other non-archive roles / FreeBSD conferred directory FDs still open",
 				"Runtime.RestartChild + RestartPair (KeyViaExtraFiles dual-live); in-place peer FD rebind still open",
 				"independent cryptography/security review required for IC-1",
 				"VER-PROTO-001 / VER-ARCH-001 remain planned",

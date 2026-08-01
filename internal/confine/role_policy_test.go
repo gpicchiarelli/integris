@@ -34,11 +34,17 @@ func TestRoleArchiveFSMode(t *testing.T) {
 	if got := confine.RoleArchiveFSMode(authority.RoleApply); got != confine.ArchiveFSReadWrite {
 		t.Fatalf("apply: %v", got)
 	}
+	if got := confine.RoleArchiveFSMode(authority.RoleJournal); got != confine.ArchiveFSReadWrite {
+		t.Fatalf("journal: %v", got)
+	}
 	if got := confine.RoleArchiveFSMode(authority.RoleIndex); got != confine.ArchiveFSReadonly {
 		t.Fatalf("index: %v", got)
 	}
+	if got := confine.RoleArchiveFSMode(authority.RoleAudit); got != confine.ArchiveFSReadonly {
+		t.Fatalf("audit: %v", got)
+	}
 	for _, role := range []authority.ProcessRole{
-		authority.RoleParser, authority.RoleNet, authority.RolePlan, authority.RoleJournal,
+		authority.RoleParser, authority.RoleNet, authority.RolePlan, authority.RoleAuth,
 	} {
 		if got := confine.RoleArchiveFSMode(role); got != confine.ArchiveFSNone {
 			t.Fatalf("%s: %v", role, got)
