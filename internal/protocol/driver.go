@@ -1,21 +1,26 @@
 package protocol
 
 import (
+	"encoding/binary"
 	"fmt"
 
+	"github.com/gpicchiarelli/integris/internal/crypto"
 	"github.com/gpicchiarelli/integris/internal/session"
 )
 
 // Driver maps IP-P-0001 control frames onto the session state machine.
 // Send and receive sequences are independent (per direction).
-// This is not session AEAD; MAC is provisional (IP-C-0001).
+// Optional AEADKey seals TypeData bodies (IP-C-0002 provisional).
 type Driver struct {
 	Session    session.Session
 	SessionID  [16]byte
 	SendSeq    uint64
 	RecvSeq    uint64
 	MACKey     []byte
+	AEADKey    []byte
 	RequireMAC bool
+	// LastPlaintext is set when TypeData is opened under AEADKey.
+	LastPlaintext []byte
 }
 
 // NewDriver constructs a driver in NEW with the peer's offered versions.
@@ -28,6 +33,30 @@ func NewDriver(offered []session.Version, sessionID [16]byte, macKey []byte, req
 		MACKey:     append([]byte{}, macKey...),
 		RequireMAC: requireMAC,
 	}
+}
+
+// SetAEADKey installs a provisional session traffic key (32 bytes).
+func (d *Driver) SetAEADKey(key []byte) error {
+	if d == nil {
+		return fail("driver", "nil driver")
+	}
+	if len(key) != crypto.AEADKeySize {
+		return fail("aead", fmt.Sprintf("key must be %d bytes", crypto.AEADKeySize))
+	}
+	d.AEADKey = append([]byte{}, key...)
+	return nil
+}
+
+func (d *Driver) dataAAD(typ MessageType, seq uint64) []byte {
+	buf := make([]byte, 0, 8+2+16+8)
+	buf = append(buf, FrameMagic[:]...)
+	var tmp [8]byte
+	binary.LittleEndian.PutUint16(tmp[:2], uint16(typ))
+	buf = append(buf, tmp[:2]...)
+	buf = append(buf, d.SessionID[:]...)
+	binary.LittleEndian.PutUint64(tmp[:], seq)
+	buf = append(buf, tmp[:]...)
+	return buf
 }
 
 // Handle applies one inbound decoded frame to the session.
@@ -77,6 +106,18 @@ func (d *Driver) Handle(f Frame) error {
 			return err
 		}
 	case TypeData:
+		body := f.Body
+		if len(d.AEADKey) > 0 {
+			pt, err := crypto.Open(d.AEADKey, crypto.SequenceNonce(f.Sequence), d.dataAAD(TypeData, f.Sequence), f.Body)
+			if err != nil {
+				return fail("aead", err.Error())
+			}
+			d.LastPlaintext = pt
+			body = pt
+		} else {
+			d.LastPlaintext = append([]byte{}, body...)
+		}
+		_ = body
 		if err := d.Session.AcceptNext(); err != nil {
 			return err
 		}
@@ -99,8 +140,16 @@ func (d *Driver) EncodeFrame(typ MessageType, body []byte) ([]byte, error) {
 	if d == nil {
 		return nil, fail("driver", "nil driver")
 	}
+	seq := d.SendSeq
+	if typ == TypeData && len(d.AEADKey) > 0 {
+		ct, err := crypto.Seal(d.AEADKey, crypto.SequenceNonce(seq), d.dataAAD(TypeData, seq), body)
+		if err != nil {
+			return nil, fail("aead", err.Error())
+		}
+		body = ct
+	}
 	f := Frame{
-		Type: typ, SessionID: d.SessionID, Sequence: d.SendSeq, Body: body,
+		Type: typ, SessionID: d.SessionID, Sequence: seq, Body: body,
 	}
 	if d.RequireMAC || len(d.MACKey) > 0 {
 		f.Flags = FlagRequiresMAC

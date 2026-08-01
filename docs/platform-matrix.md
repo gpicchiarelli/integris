@@ -23,10 +23,9 @@ operational controls.
 Engineering scaffold: `internal/confine` probes and applies best-effort child
 confinement (`ApplyEngineering`: Linux Landlock deny-new-FS + `no_new_privs` +
 seccomp denylist for execve/execveat/ptrace; OpenBSD `pledge`/`unveil`; FreeBSD
-`cap_enter`). Role stubs report `NEG-FS-OPEN`. Unix socketpair IPC lives in
-`supervisor.OpenSocketFabric` / `OpenRuntime`. Engineering child spawn is gated
-by draft [IP-A-0003](ip/IP-A-0003-supervised-launcher.md). Dedicated accounts,
-cap_rights_limit allow-lists, and release-mode launch remain open.
+`cap_rights_limit` then `cap_enter`). Role stubs report `NEG-FS-OPEN`. Provisional
+session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
+accounts and release-mode launch remain open.
 
 ## Primary references
 

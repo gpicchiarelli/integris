@@ -44,10 +44,12 @@ Output size is 32 bytes (`codec.Digest`).
 
 ### Explicit non-decisions (deferred)
 
-- Session AEAD / handshake (Noise, TLS, or custom) — future IP-C
+- Session AEAD / handshake (Noise, TLS, or custom) — **partial:** draft
+  [IP-C-0002](IP-C-0002-session-aead.md) seals `TypeData` with ChaCha20-Poly1305
+  for engineering only; handshake still deferred
 - Manifest/plan authorization signatures — future IP-C
 - Release signing (Sigstore / offline roots) — release policy + IP-C
-- Full KDF label registry beyond provisional IPC info strings — future IP-C
+- Full KDF label registry beyond provisional IPC/session info strings — future IP-C
 - Journal AEAD beyond hash chaining — optional future IP-C
 
 ### Negotiation policy (when sessions exist)

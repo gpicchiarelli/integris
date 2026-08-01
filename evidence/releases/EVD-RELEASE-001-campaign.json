@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-RELEASE-001",
-  "source_revision": "a0bcdbe7980d65eb5d3bfe3778fb7c6e72299305",
-  "produced_at": "2026-08-01T13:08:38Z",
+  "source_revision": "a533a1f0497d87dcfcfeacd1078aabc9b6c4686f",
+  "produced_at": "2026-08-01T13:11:42Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go run ./cmd/integris-release-digest -root .",
       "exit_code": 0,
-      "stdout_tail": "wrote evidence/releases/EVD-RELEASE-001-engineering-manifest.json (2 modules)\n",
-      "stdout_sha256": "a7f60be7ff1b342329b0a1c3a74ac0ff1100b1e46c1f2a9bdf6ca21dfba48b24"
+      "stdout_tail": "wrote evidence/releases/EVD-RELEASE-001-engineering-manifest.json (6 modules)\n",
+      "stdout_sha256": "c7764bce7d65583c992fe3f80685d178681b7675176f591401bf0bc5239b9b15"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

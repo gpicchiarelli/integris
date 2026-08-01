@@ -1,7 +1,7 @@
 {
   "kind": "engineering-input-digest-manifest",
-  "produced_at": "2026-08-01T13:08:38Z",
-  "source_revision": "a0bcdbe7980d65eb5d3bfe3778fb7c6e72299305",
+  "produced_at": "2026-08-01T13:11:42Z",
+  "source_revision": "a533a1f0497d87dcfcfeacd1078aabc9b6c4686f",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "files": [
@@ -17,8 +17,8 @@
     },
     {
       "path": "ROADMAP.md",
-      "sha256": "739a6c928c5e648b744330e08b84d8aa1a9ead16cd3a11d69b626820bdc1dc0b",
-      "bytes": 3078
+      "sha256": "0a01ebfe9992bd009f80c2b8b03bf27a85b29de36897e6b0a88fd28f296e4625",
+      "bytes": 3127
     },
     {
       "path": "assurance/evidence.json",
@@ -32,13 +32,13 @@
     },
     {
       "path": "go.mod",
-      "sha256": "9c7f749d093d610d62f26ba464625a26528c180643710c53bd9bf6756bbbdbb2",
-      "bytes": 86
+      "sha256": "db28224c22d1359d729f0c3c150d639e2736b8a9f2708f254adbf1e058dbad90",
+      "bytes": 123
     },
     {
       "path": "go.sum",
-      "sha256": "59ff7906e3b7738fa8361e647f98c13c78417293ddb48f7c4f7ca8ead4531c63",
-      "bytes": 153
+      "sha256": "31f02ce4c4b90202964d07e2856355dc4d7067455dc1bb8e39cbe26da8d359e0",
+      "bytes": 312
     }
   ],
   "modules": [
@@ -47,11 +47,27 @@
       "version": "main"
     },
     {
+      "path": "golang.org/x/crypto",
+      "version": "v0.46.0"
+    },
+    {
+      "path": "golang.org/x/net",
+      "version": "v0.47.0"
+    },
+    {
       "path": "golang.org/x/sys",
       "version": "v0.47.0"
+    },
+    {
+      "path": "golang.org/x/term",
+      "version": "v0.38.0"
+    },
+    {
+      "path": "golang.org/x/text",
+      "version": "v0.32.0"
     }
   ],
-  "modules_digest_sha256": "8f72455af19c73854dd066e84aa0193d625888cea6ac93154cc18731ce238929",
+  "modules_digest_sha256": "25071e5fcc2c954bc122222f0aa487b045b4ea6047f035879a362dd59c72d2d3",
   "residual_gaps": [
     "not an independent two-party rebuild",
     "modules inventory is engineering-only (not SPDX/CycloneDX/SLSA)",

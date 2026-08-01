@@ -29,7 +29,8 @@ is accepted.
 - draft IP-A-0003 isolated launcher; `internal/launcher` + role stub (engineering);
 - wire protocol session Driver; MAC key conferred via pipe fd (not env);
 - Linux Landlock + seccomp exec/ptrace denylist + no_new_privs; OpenBSD pledge;
-  FreeBSD Capsicum; in-child NEG-FS-OPEN probe via role stub;
+  FreeBSD Capsicum + cap_rights_limit; in-child NEG-FS-OPEN probe via role stub;
+- draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;
 - `supervisor.Runtime` multi-child engineering spawn helper;
 - session negotiation transcript binding (provisional);
 - engineering module inventory in `integris-release-digest`;

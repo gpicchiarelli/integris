@@ -1,5 +1,6 @@
 // Package crypto provides provisional M1/M2 engineering primitives per
-// IP-C-0001 (SHA-256, HMAC-SHA256, HKDF-SHA256).
+// IP-C-0001 (SHA-256, HMAC-SHA256, HKDF-SHA256) and IP-C-0002
+// (ChaCha20-Poly1305 session AEAD).
 //
 // Nothing here is a release cryptographic claim. Independent review is required
 // before promoting EVD-PROTO or release signing evidence.

@@ -191,11 +191,12 @@ func run(root string) error {
 				{"go", "test", "./internal/launcher/", "-count=1"},
 			},
 			residual: []string{
-				"engineering: Landlock+seccomp(exec/ptrace deny)+no_new_privs; Capsicum on FreeBSD; pledge on OpenBSD",
-				"NEG-FS-OPEN reported by role stub; broader role negative probes still incomplete",
+				"session AEAD is engineering-only (IP-C-0002); handshake/PQ deferred",
+				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge",
+				"NEG-FS-OPEN reported by role stub; broader role negative probes incomplete",
 				"MAC key via pipe fd (not sealed memfd/SCM yet)",
-				"independent security review required for IC-1",
-				"VER-ARCH-001 remains planned until review closes",
+				"independent cryptography/security review required for IC-1",
+				"VER-PROTO-001 / VER-ARCH-001 remain planned",
 			},
 		},
 		{

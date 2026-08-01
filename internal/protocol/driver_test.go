@@ -1,6 +1,7 @@
 package protocol_test
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/gpicchiarelli/integris/internal/crypto"
@@ -27,7 +28,6 @@ func TestDriverHappyPath(t *testing.T) {
 		{protocol.TypeData, []byte("x")},
 		{protocol.TypeClose, nil},
 	}
-	// Separate encode driver so sequences stay aligned on one peer view.
 	enc := protocol.NewDriver([]session.Version{2, 3}, sid, key, true)
 	for _, st := range steps {
 		raw, err := enc.EncodeFrame(st.typ, st.body)
@@ -59,5 +59,54 @@ func TestDriverRejectBadSequence(t *testing.T) {
 	var e *protocol.Error
 	if err == nil || !asP(err, &e) || e.Code != "sequence" {
 		t.Fatalf("got %v", err)
+	}
+}
+
+func TestDriverAEADData(t *testing.T) {
+	var sid [16]byte
+	sid[0] = 3
+	mac := []byte("0123456789abcdef")
+	root := bytes.Repeat([]byte{0x7}, 32)
+	aeadKey, err := crypto.SessionAEADKey(root, sid)
+	if err != nil {
+		t.Fatal(err)
+	}
+	enc := protocol.NewDriver([]session.Version{2, 3}, sid, mac, true)
+	dec := protocol.NewDriver([]session.Version{2, 3}, sid, mac, true)
+	if err := enc.SetAEADKey(aeadKey); err != nil {
+		t.Fatal(err)
+	}
+	if err := dec.SetAEADKey(aeadKey); err != nil {
+		t.Fatal(err)
+	}
+	for _, typ := range []protocol.MessageType{
+		protocol.TypeNegotiateOffer, protocol.TypePeerAuth,
+		protocol.TypeArchiveAuth, protocol.TypeActivate,
+	} {
+		var body []byte
+		if typ == protocol.TypeNegotiateOffer {
+			body = []byte{2, 3}
+		}
+		raw, err := enc.EncodeFrame(typ, body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := dec.DecodeAndHandle(raw); err != nil {
+			t.Fatal(err)
+		}
+	}
+	raw, err := enc.EncodeFrame(protocol.TypeData, []byte("secret"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	f, err := dec.DecodeAndHandle(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(dec.LastPlaintext) != "secret" {
+		t.Fatalf("plain=%q cipherbody=%q", dec.LastPlaintext, f.Body)
+	}
+	if bytes.Equal(f.Body, []byte("secret")) {
+		t.Fatal("body should be ciphertext")
 	}
 }

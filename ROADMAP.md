@@ -48,8 +48,9 @@ pending independent review, crypto suite, and platform probes.
 - destructive-operation quarantine and recovery harness.
 
 **Status (prelude):** engineering children apply Landlock+seccomp (Linux),
-pledge (OpenBSD), or Capsicum (FreeBSD); stub reports NEG-FS-OPEN; Runtime
-orchestrates spawn. Session AEAD, dedicated accounts, and IC-1 review remain open.
+pledge (OpenBSD), or Capsicum+cap_rights_limit (FreeBSD); stub reports
+NEG-FS-OPEN; Runtime orchestrates spawn; provisional session AEAD (IP-C-0002)
+seals TypeData. Handshake/PQ and IC-1 review remain open.
 
 Exit: red-team review, crash testing at every persistence point, platform
 evidence, and no open IC-1 defects.

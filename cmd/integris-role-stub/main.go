@@ -35,6 +35,7 @@ func run() error {
 	}
 	defer keyF.Close()
 
+	_ = confine.LimitConferredFDs(sock, keyF)
 	_ = confine.ApplyEngineering()
 	neg := confine.NegativeFSOpen()
 

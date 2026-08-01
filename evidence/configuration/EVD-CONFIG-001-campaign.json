@@ -1,7 +1,7 @@
 {
   "evidence_id": "EVD-CONFIG-001",
-  "source_revision": "a0bcdbe7980d65eb5d3bfe3778fb7c6e72299305",
-  "produced_at": "2026-08-01T13:08:32Z",
+  "source_revision": "a533a1f0497d87dcfcfeacd1078aabc9b6c4686f",
+  "produced_at": "2026-08-01T13:11:35Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
