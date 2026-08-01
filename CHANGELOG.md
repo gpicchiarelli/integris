@@ -101,6 +101,7 @@ is accepted.
 - Linux `copy_file_range` fallback in `copyFileContents` (after sparse SEEK; before `io.Copy`);
 - `Runtime.RestartChild` retains `AllowRoots` path probes across respawn;
 - Darwin abrupt-detach power-fail harness for EVD-RECOVERY (`SyncFile` survive across `hdiutil` force-detach);
+- `platform.SendFile` (`sendfile(2)` to connected socket; socketpair harness; OpenBSD unavailable);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
