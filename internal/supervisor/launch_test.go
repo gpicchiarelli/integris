@@ -81,3 +81,24 @@ func TestValidateSlotsRejectsParserNetworkCap(t *testing.T) {
 		t.Fatal("expected rejection")
 	}
 }
+
+func TestValidateSlotsRejectsPlanArchiveAndJournalNet(t *testing.T) {
+	if err := supervisor.ValidateSlots(authority.RolePlan,
+		[]authority.Capability{authority.CapPlanOutput},
+		[]supervisor.DescriptorSlot{{Kind: supervisor.DescArchiveRoot, Label: "bad"}},
+	); err == nil {
+		t.Fatal("expected plan archive rejection")
+	}
+	if err := supervisor.ValidateSlots(authority.RoleJournal,
+		[]authority.Capability{authority.CapJournalDescriptor, authority.CapNetwork},
+		nil,
+	); err == nil {
+		t.Fatal("expected journal network rejection")
+	}
+	if err := supervisor.ValidateSlots(authority.RoleAudit,
+		[]authority.Capability{authority.CapReadonlyJournal, authority.CapOperationDecisions},
+		nil,
+	); err == nil {
+		t.Fatal("expected audit decision rejection")
+	}
+}

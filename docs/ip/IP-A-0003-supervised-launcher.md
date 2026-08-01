@@ -67,12 +67,12 @@ directory owned for the test/run.
   (Linux: `no_new_privs` + empty Landlock ruleset + seccomp exec/ptrace denylist;
   OpenBSD: `pledge("stdio unix")` + `unveil` lock; FreeBSD: `cap_enter`).
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-EXEC`, `NEG-PTRACE`)
-  and role-semantic conferral probes (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`) over IPC.
+  and role-semantic conferral probes (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`,
+  `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`, `NEG-JOURNAL-NET`) over IPC.
 - SCM_RIGHTS key passing over the IPC socket (optional `KeyViaSCM`; fd-4 ExtraFiles
   remains the default ABI). Underlying FD may still be memfd/anon-unlinked.
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
-- Remaining role-semantic probes (`NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`,
-  `NEG-JOURNAL-NET`) and OS-level role denials beyond conferral inventory.
+- OS-level role denials beyond conferral inventory (syscall probes per role).
 - Multi-child restart policy and supervisor crash recovery beyond
   `supervisor.Runtime` kill-on-Close.
 - Windows process model.

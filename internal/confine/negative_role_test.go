@@ -61,3 +61,74 @@ func TestNegativeRoleSemanticParserBadCap(t *testing.T) {
 		}
 	}
 }
+
+func TestNegativeRoleSemanticPlanAuditJournal(t *testing.T) {
+	cases := []struct {
+		id   string
+		in   confine.RoleProbeInput
+		want confine.Status
+	}{
+		{
+			id: "NEG-PLAN-WRITE",
+			in: confine.RoleProbeInput{
+				Role:   authority.RolePlan,
+				Confer: []authority.Capability{authority.CapCanonicalManifests, authority.CapPlanOutput},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-PLAN-WRITE",
+			in: confine.RoleProbeInput{
+				Role:      authority.RolePlan,
+				Confer:    []authority.Capability{authority.CapPlanOutput},
+				SlotKinds: []string{"archive_root"},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
+			id: "NEG-AUDIT-DECIDE",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleAudit,
+				Confer: []authority.Capability{authority.CapReadonlyJournal, authority.CapRedactedEventSink},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-AUDIT-DECIDE",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleAudit,
+				Confer: []authority.Capability{authority.CapReadonlyJournal, authority.CapOperationDecisions},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
+			id: "NEG-JOURNAL-NET",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleJournal,
+				Confer: []authority.Capability{authority.CapJournalDescriptor, authority.CapAuthenticatedRecords},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-JOURNAL-NET",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleJournal,
+				Confer: []authority.Capability{authority.CapJournalDescriptor, authority.CapNetwork},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+	}
+	for _, tc := range cases {
+		fs := confine.NegativeRoleSemantic(tc.in)
+		var got confine.Finding
+		for _, f := range fs {
+			if f.ID == tc.id {
+				got = f
+				break
+			}
+		}
+		if got.Status != tc.want {
+			t.Fatalf("%s role=%s: got %+v want %s", tc.id, tc.in.Role, got, tc.want)
+		}
+	}
+}

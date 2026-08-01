@@ -18,15 +18,10 @@ func TestDiscoverSorted(t *testing.T) {
 	}
 }
 
-func TestNegativeBaselineSkipped(t *testing.T) {
+func TestNegativeBaselineEmpty(t *testing.T) {
 	r := confine.NegativeBaseline()
-	if len(r.Findings) == 0 {
-		t.Fatal("empty")
-	}
-	for _, f := range r.Findings {
-		if f.Status != confine.StatusSkipped {
-			t.Fatalf("%+v", f)
-		}
+	if len(r.Findings) != 0 {
+		t.Fatalf("expected empty baseline, got %+v", r.Findings)
 	}
 	if r.HasUnexpectedAllow() {
 		t.Fatal("unexpected")

@@ -47,26 +47,11 @@ func Discover() Report {
 	return r
 }
 
-// NegativeBaseline returns role-oriented negative probes still deferred for
-// PLAN/AUDIT/JOURNAL. Net/parser conferral probes live in NegativeRoleSemantic.
+// NegativeBaseline is retained for callers that expect a Report shape. All
+// role-semantic IDs are implemented by NegativeRoleSemantic; this returns an
+// empty finding set (no deferred stubs).
 func NegativeBaseline() Report {
-	r := Report{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
-	probes := []struct {
-		id, control, detail string
-	}{
-		{"NEG-PLAN-WRITE", "filesystem_writes", "plan role must not mutate archives"},
-		{"NEG-AUDIT-DECIDE", "operation_decisions", "audit role must not authorize"},
-		{"NEG-JOURNAL-NET", "network", "journal role must not hold network"},
-	}
-	for _, p := range probes {
-		r.Findings = append(r.Findings, Finding{
-			ID: p.id, Platform: runtime.GOOS + "/" + runtime.GOARCH,
-			Control: p.control, Status: StatusSkipped,
-			Detail: p.detail + "; deferred until role-specific slot probes land",
-		})
-	}
-	sort.Slice(r.Findings, func(i, j int) bool { return r.Findings[i].ID < r.Findings[j].ID })
-	return r
+	return Report{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
 }
 
 // HasUnexpectedAllow reports whether any finding is unexpected_allow.

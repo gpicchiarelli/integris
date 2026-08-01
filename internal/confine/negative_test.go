@@ -15,8 +15,11 @@ func TestFormatNegativeAck(t *testing.T) {
 		{ID: "NEG-PTRACE", Status: confine.StatusSkipped},
 		{ID: "NEG-NET-ARCHIVE", Status: confine.StatusDeniedExpected},
 		{ID: "NEG-PARSER-NET", Status: confine.StatusSkipped},
+		{ID: "NEG-PLAN-WRITE", Status: confine.StatusDeniedExpected},
+		{ID: "NEG-AUDIT-DECIDE", Status: confine.StatusDeniedExpected},
+		{ID: "NEG-JOURNAL-NET", Status: confine.StatusDeniedExpected},
 	})
-	want := "|NEG-FS:denied_as_expected|NEG-EXEC:denied_as_expected|NEG-PTRACE:skipped|NEG-NET-ARCHIVE:denied_as_expected|NEG-PARSER-NET:skipped"
+	want := "|NEG-FS:denied_as_expected|NEG-EXEC:denied_as_expected|NEG-PTRACE:skipped|NEG-NET-ARCHIVE:denied_as_expected|NEG-PARSER-NET:skipped|NEG-PLAN-WRITE:denied_as_expected|NEG-AUDIT-DECIDE:denied_as_expected|NEG-JOURNAL-NET:denied_as_expected"
 	if ack != want {
 		t.Fatalf("%q", ack)
 	}

@@ -30,7 +30,7 @@ func NegativeFSOpen() Finding {
 }
 
 // NegativeEngineering runs in-child OS denial probes after ApplyEngineering.
-// Does not cover role-semantic NegativeBaseline IDs.
+// Role-semantic conferral probes live in NegativeRoleSemantic.
 func NegativeEngineering() []Finding {
 	return []Finding{NegativeFSOpen(), NegativeExec(), NegativePtrace()}
 }
@@ -50,6 +50,12 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-NET-ARCHIVE:")
 		case "NEG-PARSER-NET":
 			b.WriteString("|NEG-PARSER-NET:")
+		case "NEG-PLAN-WRITE":
+			b.WriteString("|NEG-PLAN-WRITE:")
+		case "NEG-AUDIT-DECIDE":
+			b.WriteString("|NEG-AUDIT-DECIDE:")
+		case "NEG-JOURNAL-NET":
+			b.WriteString("|NEG-JOURNAL-NET:")
 		default:
 			continue
 		}
