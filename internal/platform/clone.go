@@ -8,6 +8,7 @@ import (
 // Clone mechanisms reported by CloneFile.
 const (
 	CloneMechanismClonefile = "clonefile"
+	CloneMechanismFiclone   = "ficlone"
 	CloneMechanismCopy      = "copy"
 )
 

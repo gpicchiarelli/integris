@@ -30,7 +30,7 @@ type FilePublisher struct {
 	ExpectedContent []byte
 
 	// StageMechanism records how staging was materialized on the last
-	// successful Publish/PublishFrom ("write", "clonefile", or "copy").
+	// successful Publish/PublishFrom ("write", "clonefile", "ficlone", or "copy").
 	StageMechanism string
 
 	Checkpoints []CrashLabel
@@ -79,9 +79,9 @@ func (p *FilePublisher) Publish(name string, data []byte) error {
 	return p.publishStaged(stagePath, pubPath)
 }
 
-// PublishFrom stages name by cloning srcPath into staging/ (Darwin clonefile
-// when available; exclusive copy otherwise), then follows the same
-// sync→rename→dirsync profile as Publish.
+// PublishFrom stages name by cloning srcPath into staging/ (Darwin clonefile /
+// Linux FICLONE when available; exclusive copy otherwise), then follows the
+// same sync→rename→dirsync profile as Publish.
 func (p *FilePublisher) PublishFrom(name, srcPath string) error {
 	if p == nil {
 		return stateErr("nil FilePublisher")

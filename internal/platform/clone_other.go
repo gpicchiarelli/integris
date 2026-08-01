@@ -1,4 +1,4 @@
-//go:build !darwin
+//go:build !darwin && !linux
 
 package platform
 
@@ -8,7 +8,7 @@ import "fmt"
 func PreferredCloneMechanism() string { return CloneMechanismCopy }
 
 // CloneFile materializes dst from src via exclusive byte copy (degraded mode
-// on non-Darwin ports until a native clone adapter is adopted).
+// until a native clone adapter is adopted on this OS).
 func CloneFile(dst, src string) (mechanism string, err error) {
 	if dst == "" || src == "" {
 		return "", fmt.Errorf("platform: empty clone path")

@@ -240,7 +240,9 @@ func TestFilePublisherPublishFromClone(t *testing.T) {
 	if runtime.GOOS == "darwin" && pub.StageMechanism != platform.CloneMechanismClonefile {
 		t.Fatalf("darwin StageMechanism=%q want clonefile", pub.StageMechanism)
 	}
-	if pub.StageMechanism != platform.CloneMechanismClonefile && pub.StageMechanism != platform.CloneMechanismCopy {
+	if pub.StageMechanism != platform.CloneMechanismClonefile &&
+		pub.StageMechanism != platform.CloneMechanismFiclone &&
+		pub.StageMechanism != platform.CloneMechanismCopy {
 		t.Fatalf("StageMechanism=%q", pub.StageMechanism)
 	}
 	has, err := pub.PublishedHas("obj")

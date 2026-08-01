@@ -31,8 +31,16 @@ func TestCloneFileRoundTrip(t *testing.T) {
 	if mech != platform.PreferredCloneMechanism() && mech != platform.CloneMechanismCopy {
 		t.Fatalf("unexpected mechanism %q", mech)
 	}
-	if runtime.GOOS == "darwin" && mech != platform.CloneMechanismClonefile {
-		t.Fatalf("darwin tempdir should clonefile, got %q", mech)
+	switch runtime.GOOS {
+	case "darwin":
+		if mech != platform.CloneMechanismClonefile {
+			t.Fatalf("darwin tempdir should clonefile, got %q", mech)
+		}
+	case "linux":
+		// Btrfs/XFS reflink → ficlone; ext4 and others degrade to copy.
+		if mech != platform.CloneMechanismFiclone && mech != platform.CloneMechanismCopy {
+			t.Fatalf("linux unexpected mechanism %q", mech)
+		}
 	}
 }
 

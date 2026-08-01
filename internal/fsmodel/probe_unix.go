@@ -204,7 +204,7 @@ func probeRename(dir string) plan.ResultCode {
 	return plan.ResultLossless
 }
 
-// probeCOW exercises platform.CloneFile. Native clonefile → LOSSLESS COW;
+// probeCOW exercises platform.CloneFile. Native clonefile/ficlone → LOSSLESS COW;
 // exclusive byte-copy degraded path → UNREPRESENTABLE (not COW).
 func probeCOW(dir string) Fact {
 	src := filepath.Join(dir, "cow-src")
@@ -220,7 +220,7 @@ func probeCOW(dir string) Fact {
 	_ = os.Remove(dst)
 	detail := codec.SHA256([]byte(mech))
 	switch mech {
-	case platform.CloneMechanismClonefile:
+	case platform.CloneMechanismClonefile, platform.CloneMechanismFiclone:
 		return Fact{ID: plan.CapCOW, Result: plan.ResultLossless, DetailDigest: detail}
 	case platform.CloneMechanismCopy:
 		return Fact{ID: plan.CapCOW, Result: plan.ResultUnrepresentable, DetailDigest: detail}

@@ -177,7 +177,7 @@ func run(root string) error {
 				{"go", "test", "./internal/fsmodel/", "-count=1"},
 			},
 			residual: []string{
-				"CapCOW empirical via platform.CloneFile (Darwin clonefile→LOSSLESS; copy→UNREPRESENTABLE)",
+				"CapCOW empirical via platform.CloneFile (Darwin clonefile / Linux FICLONE→LOSSLESS; copy→UNREPRESENTABLE)",
 				"CapXattr/CapBSDFlags empirical (Setxattr/Getxattr; Darwin/FreeBSD/OpenBSD chflags)",
 				"CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
 				"CapTimes empirical (Chtimes + Stat Atim/Mtim)",

@@ -131,8 +131,9 @@ so post-Sync durability claims match INT-IC4-0001 on each port. Darwin abrupt
 volume teardown (`hdiutil` force-detach + remount) proves `SyncFile` markers
 survive; an unflushed-loss differential is recorded when the host does not
 flush the image backing store before detach. Apply-side
-`FilePublisher.PublishFrom` stages via `platform.CloneFile` (Darwin `clonefile`;
-exclusive copy degraded elsewhere) before the same sync→rename→dirsync labels.
+`FilePublisher.PublishFrom` stages via `platform.CloneFile` (Darwin `clonefile` /
+Linux `FICLONE`; exclusive copy degraded elsewhere) before the same
+sync→rename→dirsync labels.
 
 ### Failure behavior
 

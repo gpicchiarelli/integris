@@ -75,6 +75,7 @@ is accepted.
 - `internal/platform.SyncFile`/`SyncDir` with Darwin `F_FULLFSYNC` (INT-IC4-0001) on journal, recovery, quarantine, and key-FD sync paths;
 - Consolidated hostile-peer `protocol.Driver` refuse matrix (`hostile_peer_test.go`);
 - Darwin `platform.CloneFile` (`clonefile`) + `FilePublisher.PublishFrom` (copy degraded fallback);
+- Linux `platform.CloneFile` (`FICLONE` / reflink) with exclusive-copy degraded fallback;
 - Empirical CapCOW probe in `fsmodel.ProbeScratch` via `platform.CloneFile`;
 - Multi-version negotiate happy-path suite (`multi_version_test.go`);
 - Empirical CapXattr + CapBSDFlags probes in `fsmodel.ProbeScratch`;

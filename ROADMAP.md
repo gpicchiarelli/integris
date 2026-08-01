@@ -59,7 +59,7 @@ with Recover round-trip; recovery-side P-* PersistIO FailAt covers STAGE/PUBLISH
 on FilePersist; apply-side `FilePublisher` covers stage→rename→dirsync FailAt with
 Observation→Recover; OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels via crash-stub
 (`CrashSegment.KillAt` / `FilePublisher.KillAt`); Darwin `F_FULLFSYNC` via
-`platform.SyncFile` and `clonefile` via `platform.CloneFile`→`PublishFrom`
+`platform.SyncFile` and `clonefile`/`FICLONE` via `platform.CloneFile`→`PublishFrom`
 (with sparse `SEEK_DATA`/`SEEK_HOLE` + `CopyXattr`+`CopyBSDFlags`+`CopyACL`+
 `CopyResourceFork`+`CopyTimes` incl. Darwin birthtime on degraded byte-copy);
 CapCOW/CapXattr/CapBSDFlags/CapSparse/CapResourceFork/CapTimes/CapACL/CapUnicode
