@@ -23,3 +23,6 @@ For private repositories without GitHub Advanced Security, the CodeQL workflow
 MUST run analysis with upload disabled and preserve its SARIF as a short-lived
 workflow artifact. Enabling dashboard upload and secret-scanning controls remains
 an external prerequisite when the required GitHub plan becomes available.
+GitHub Dependency Review is also unavailable in that configuration; the private
+fallback verifies the Go module graph and reachable vulnerabilities but does not
+claim equivalent dependency-diff or license-policy coverage.
