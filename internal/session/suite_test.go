@@ -38,3 +38,19 @@ func TestNegotiateSelectsSuite(t *testing.T) {
 		t.Fatalf("%q", s.SelectedSuite)
 	}
 }
+
+func TestConfirmAccept(t *testing.T) {
+	s := session.NewWithSuites([]session.Version{2, 3}, []string{crypto.SuiteIDAEAD})
+	if err := s.Negotiate(); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.ConfirmAccept(s.Selected, s.SelectedSuite); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.ConfirmAccept(s.Selected, "wrong"); err == nil {
+		t.Fatal("expected suite mismatch")
+	}
+	if s.State != session.StateFailed {
+		t.Fatalf("state=%s", s.State)
+	}
+}

@@ -60,20 +60,30 @@ func TestSessionDriveWithFrames(t *testing.T) {
 	key := []byte("0123456789abcdef")
 	d := protocol.NewDriver([]session.Version{2, 3}, sid, key, true)
 	enc := protocol.NewDriver([]session.Version{2, 3}, sid, key, true)
+
+	offer, err := enc.EncodeNegotiateOffer([]session.Version{2, 3})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := d.DecodeAndHandle(offer); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := enc.DecodeAndHandle(offer); err != nil {
+		t.Fatal(err)
+	}
+	accept, err := enc.EncodeNegotiateAccept()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := d.DecodeAndHandle(accept); err != nil {
+		t.Fatal(err)
+	}
 	for _, typ := range []protocol.MessageType{
-		protocol.TypeNegotiateOffer,
-		protocol.TypeNegotiateAccept,
 		protocol.TypePeerAuth,
 		protocol.TypeArchiveAuth,
 		protocol.TypeActivate,
 	} {
-		var raw []byte
-		var err error
-		if typ == protocol.TypeNegotiateOffer {
-			raw, err = enc.EncodeNegotiateOffer([]session.Version{2, 3})
-		} else {
-			raw, err = enc.EncodeFrame(typ, nil)
-		}
+		raw, err := enc.EncodeFrame(typ, nil)
 		if err != nil {
 			t.Fatal(err)
 		}

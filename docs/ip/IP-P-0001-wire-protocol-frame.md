@@ -83,6 +83,18 @@ receivers intersect with `session.LocalSuites` and fail closed on no overlap
 (IP-C-0002). Codec: `protocol.EncodeNegotiateOfferBody` /
 `ParseNegotiateOfferBody`.
 
+### NegotiateAccept body (v0)
+
+```text
+u8 vers || u8 suite_len || suite_id[suite_len]
+```
+
+`vers` is the selected protocol version; `suite_len` may be 0 for version-only
+engineering accepts (≤96 otherwise). Receivers that have already negotiated
+**MUST** `ConfirmAccept` against local `Selected` / `SelectedSuite` and fail
+closed on mismatch. Codec: `protocol.EncodeNegotiateAcceptBody` /
+`ParseNegotiateAcceptBody`; `Driver.EncodeNegotiateAccept`.
+
 ### Flags
 
 Bit0 `REQUIRES_MAC` — authenticator must verify.  
@@ -118,5 +130,5 @@ Bump `protocol_version` and magic; dual-stack during M3 preview.
 
 ## Decision and approvals
 
-Draft — `internal/protocol` implements frame v0 + NegotiateOffer suite body;
-approvals and independent crypto review remain open.
+Draft — `internal/protocol` implements frame v0 + NegotiateOffer/Accept suite
+bodies; approvals and independent crypto review remain open.

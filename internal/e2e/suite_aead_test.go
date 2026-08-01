@@ -26,6 +26,10 @@ func TestM3PreludeSuiteAEAD(t *testing.T) {
 	if _, err := bob.DecodeAndHandle(raw); err != nil {
 		t.Fatal(err)
 	}
+	raw, err = bob.EncodeNegotiateAccept()
+	if err != nil {
+		t.Fatal(err)
+	}
 	if _, err := alice.DecodeAndHandle(raw); err != nil {
 		t.Fatal(err)
 	}

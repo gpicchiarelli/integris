@@ -89,3 +89,44 @@ func ParseNegotiateOfferBody(body []byte) (vers []session.Version, suites []stri
 	}
 	return vers, suites, nil
 }
+
+// EncodeNegotiateAcceptBody packs the selected version and suite for
+// TypeNegotiateAccept (IP-P-0001 / IP-C-0002):
+//
+//	u8 vers || u8 suite_len || suite_id[suite_len]
+//
+// suite_len may be 0 for version-only engineering accepts.
+func EncodeNegotiateAcceptBody(vers session.Version, suite string) ([]byte, error) {
+	if vers == 0 {
+		return nil, fail("negotiate", "selected version required")
+	}
+	if len(suite) > maxSuiteIDLen {
+		return nil, fail("negotiate", "suite id too long")
+	}
+	out := make([]byte, 0, 2+len(suite))
+	out = append(out, byte(vers), byte(len(suite)))
+	out = append(out, suite...)
+	return out, nil
+}
+
+// ParseNegotiateAcceptBody decodes EncodeNegotiateAcceptBody output.
+func ParseNegotiateAcceptBody(body []byte) (vers session.Version, suite string, err error) {
+	if len(body) < 2 {
+		return 0, "", fail("negotiate", "accept body too short")
+	}
+	vers = session.Version(body[0])
+	if vers == 0 {
+		return 0, "", fail("negotiate", "bad selected version")
+	}
+	n := int(body[1])
+	if n > maxSuiteIDLen {
+		return 0, "", fail("negotiate", "bad suite id length")
+	}
+	if len(body) != 2+n {
+		return 0, "", fail("negotiate", "bad accept body length")
+	}
+	if n > 0 {
+		suite = string(body[2:])
+	}
+	return vers, suite, nil
+}

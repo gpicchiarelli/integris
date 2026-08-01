@@ -125,8 +125,25 @@ func (d *Driver) Handle(f Frame) error {
 			}
 		}
 	case TypeNegotiateAccept:
+		var (
+			wireVers  session.Version
+			wireSuite string
+			hasBody   = len(f.Body) > 0
+		)
+		if hasBody {
+			var err error
+			wireVers, wireSuite, err = ParseNegotiateAcceptBody(f.Body)
+			if err != nil {
+				return err
+			}
+		}
 		if d.Session.State == session.StateNew {
 			if err := d.Session.Negotiate(); err != nil {
+				return err
+			}
+		}
+		if hasBody {
+			if err := d.Session.ConfirmAccept(wireVers, wireSuite); err != nil {
 				return err
 			}
 		}
@@ -199,6 +216,27 @@ func (d *Driver) EncodeNegotiateOffer(vers []session.Version) ([]byte, error) {
 		return nil, err
 	}
 	return d.EncodeFrame(TypeNegotiateOffer, body)
+}
+
+// EncodeNegotiateAccept builds TypeNegotiateAccept with the selected version
+// and suite. Negotiates first when still in NEW.
+func (d *Driver) EncodeNegotiateAccept() ([]byte, error) {
+	if d == nil {
+		return nil, fail("driver", "nil driver")
+	}
+	if d.Session.State == session.StateNew {
+		if err := d.Session.Negotiate(); err != nil {
+			return nil, err
+		}
+	}
+	if d.Session.State != session.StateNegotiated {
+		return nil, fail("state", "EncodeNegotiateAccept requires NEGOTIATED")
+	}
+	body, err := EncodeNegotiateAcceptBody(d.Session.Selected, d.Session.SelectedSuite)
+	if err != nil {
+		return nil, err
+	}
+	return d.EncodeFrame(TypeNegotiateAccept, body)
 }
 
 // EncodeFrame builds the next outbound frame and advances SendSeq on success.

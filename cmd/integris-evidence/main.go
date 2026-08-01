@@ -212,7 +212,7 @@ func run(root string) error {
 				{"go", "test", "./internal/crypto/", "-count=1"},
 			},
 			residual: []string{
-				"provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); wire NegotiateOffer carries suite IDs; Noise/TLS/PQ pending superseding IP-C",
+				"provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); wire NegotiateOffer/Accept carry suite selection; Noise/TLS/PQ pending superseding IP-C",
 				"independent cryptography review required",
 				"VER-PROTO-001 remains planned until crypto review",
 			},

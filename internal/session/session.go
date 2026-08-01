@@ -194,6 +194,34 @@ func (s *Session) Negotiate() error {
 	return nil
 }
 
+// ConfirmAccept fail-closes if a peer NegotiateAccept selection disagrees with
+// the local Negotiate result (IP-P-0001 / IP-C-0002). Does not mutate the
+// transcript — selection was already bound in Negotiate.
+func (s *Session) ConfirmAccept(vers Version, suite string) error {
+	if s.State != StateNegotiated {
+		return fail("state", "ConfirmAccept requires NEGOTIATED")
+	}
+	if s.Selected != vers {
+		s.State = StateFailed
+		s.emit("session.failed", "version", "accept version mismatch", observability.SeverityError)
+		return fail("version", "accept version mismatch")
+	}
+	if suite == "" {
+		if s.SelectedSuite != "" {
+			s.State = StateFailed
+			s.emit("session.failed", "suite", "accept suite missing", observability.SeverityError)
+			return fail("suite", "accept suite missing")
+		}
+		return nil
+	}
+	if s.SelectedSuite != suite {
+		s.State = StateFailed
+		s.emit("session.failed", "suite", "accept suite mismatch", observability.SeverityError)
+		return fail("suite", "accept suite mismatch")
+	}
+	return nil
+}
+
 // Authenticate records successful mutual peer authentication without crypto
 // proofs (TLA conformance / tests). Prefer AuthenticateProof for i2r and r2i.
 func (s *Session) Authenticate() error {

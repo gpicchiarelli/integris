@@ -75,9 +75,10 @@ evidence, and no open IC-1 defects.
 - hostile-peer and multi-version test suites.
 
 **Status (prelude):** suite allow-list + TypeData AEAD over `protocol.Driver`
-with transcript-bound keys; `TypeNegotiateOffer` carries versions and suite IDs
-on the wire (`EncodeNegotiateOffer` / parse); mutual provisional HMAC peer-auth
-(`i2r`+`r2i`) and archive-auth proofs exist; Noise/TLS handshake and PQ remain open.
+with transcript-bound keys; `TypeNegotiateOffer` / `TypeNegotiateAccept` carry
+versions and suite IDs on the wire (offer allow-list + accept confirm);
+mutual provisional HMAC peer-auth (`i2r`+`r2i`) and archive-auth proofs exist;
+Noise/TLS handshake and PQ remain open.
 
 Exit: independent protocol/cryptographic review and published test vectors.
 

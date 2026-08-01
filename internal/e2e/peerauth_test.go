@@ -30,7 +30,7 @@ func TestM3PreludePeerAuthAndAEAD(t *testing.T) {
 	alice.ArchiveKey, bob.ArchiveKey = archKey, archKey
 	alice.AuthDir, bob.AuthDir = "i2r", "r2i"
 
-	// Negotiate: alice applies locally; bob via inbound wire offer (independent seqs).
+	// Negotiate: alice applies locally; bob via wire offer; alice confirms Accept.
 	if err := alice.Session.Negotiate(); err != nil {
 		t.Fatal(err)
 	}
@@ -39,6 +39,13 @@ func TestM3PreludePeerAuthAndAEAD(t *testing.T) {
 		t.Fatal(err)
 	}
 	if _, err := bob.DecodeAndHandle(raw); err != nil {
+		t.Fatal(err)
+	}
+	raw, err = bob.EncodeNegotiateAccept()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := alice.DecodeAndHandle(raw); err != nil {
 		t.Fatal(err)
 	}
 
