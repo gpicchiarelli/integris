@@ -64,6 +64,9 @@ func TestProbeScratchEmpirical(t *testing.T) {
 	default:
 		t.Fatalf("acl=%v", byID[plan.CapACL])
 	}
+	if byID[plan.CapUnicode] != plan.ResultLossless && byID[plan.CapUnicode] != plan.ResultWrapped {
+		t.Fatalf("unicode=%v", byID[plan.CapUnicode])
+	}
 	if runtime.GOOS == "darwin" {
 		if byID[plan.CapCOW] != plan.ResultLossless {
 			t.Fatalf("darwin CapCOW=%v want LOSSLESS (clonefile)", byID[plan.CapCOW])
@@ -85,6 +88,9 @@ func TestProbeScratchEmpirical(t *testing.T) {
 		}
 		if platform.ACLSupported() && byID[plan.CapACL] != plan.ResultLossless {
 			t.Fatalf("darwin+cgo CapACL=%v want LOSSLESS", byID[plan.CapACL])
+		}
+		if byID[plan.CapUnicode] != plan.ResultWrapped {
+			t.Fatalf("darwin CapUnicode=%v want WRAPPED (APFS NFC/NFD fold)", byID[plan.CapUnicode])
 		}
 	}
 	// Digest must be stable across re-probe on same FS type in same dir parent.
@@ -118,6 +124,9 @@ func TestProbeScratchEmpirical(t *testing.T) {
 		}
 		if fact(res, plan.CapACL) != fact(res2, plan.CapACL) {
 			t.Fatal("acl probe unstable")
+		}
+		if fact(res, plan.CapUnicode) != fact(res2, plan.CapUnicode) {
+			t.Fatal("unicode probe unstable")
 		}
 	}
 }

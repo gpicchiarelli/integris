@@ -3,6 +3,7 @@
 package fsmodel
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gpicchiarelli/integris/internal/codec"
+	"github.com/gpicchiarelli/integris/internal/path"
 	"github.com/gpicchiarelli/integris/internal/plan"
 	"github.com/gpicchiarelli/integris/internal/platform"
 	"golang.org/x/sys/unix"
@@ -53,7 +55,7 @@ func ProbeScratch(scratchDir string) (ProbeResult, error) {
 		probeHardlink(dir),
 		probeSpecial(dir),
 		{ID: plan.CapNameEncoding, Result: plan.ResultLossless}, // UTF-8 path ops succeeded to create dir
-		{ID: plan.CapUnicode, Result: plan.ResultUnknown, DetailDigest: codec.SHA256([]byte("nfc-probe-deferred"))},
+		probeUnicode(dir),
 		probeACL(dir),
 		probeXattr(dir),
 		probeBSDFlags(dir),
@@ -112,6 +114,40 @@ func probeCase(dir string) Fact {
 		return Fact{ID: plan.CapCase, Result: plan.ResultWrapped, DetailDigest: codec.SHA256([]byte("case-insensitive"))}
 	}
 	return Fact{ID: plan.CapCase, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte("case-sensitive"))}
+}
+
+// probeUnicode distinguishes NFC/NFD filename folding using the same é twin
+// as internal/path (NFC must accept; NFD must RuleNorm). WRAPPED means the
+// volume folds the twins onto one object; LOSSLESS means both names coexist.
+func probeUnicode(dir string) Fact {
+	nfc := []byte{0xC3, 0xA9}      // U+00E9
+	nfd := []byte{'e', 0xCC, 0x81} // e + combining acute
+	if err := path.ValidateComponentsDefault([][]byte{nfc}); err != nil {
+		return Fact{ID: plan.CapUnicode, Result: plan.ResultUnknown, DetailDigest: codec.SHA256([]byte("unicode-nfc-grammar"))}
+	}
+	var nfdErr *path.Error
+	if err := path.ValidateComponentsDefault([][]byte{nfd}); err == nil || !errors.As(err, &nfdErr) || nfdErr.Rule != path.RuleNorm {
+		return Fact{ID: plan.CapUnicode, Result: plan.ResultUnknown, DetailDigest: codec.SHA256([]byte("unicode-nfd-grammar"))}
+	}
+
+	nfcPath := filepath.Join(dir, string(nfc))
+	nfdPath := filepath.Join(dir, string(nfd))
+	if err := os.WriteFile(nfcPath, []byte("u"), 0o644); err != nil {
+		return Fact{ID: plan.CapUnicode, Result: plan.ResultUnknown}
+	}
+	_, err := os.Stat(nfdPath)
+	if err == nil {
+		_ = os.Remove(nfcPath)
+		return Fact{ID: plan.CapUnicode, Result: plan.ResultWrapped, DetailDigest: codec.SHA256([]byte("unicode-fold"))}
+	}
+	// Distinct names: try creating the NFD twin alongside NFC.
+	if err := os.WriteFile(nfdPath, []byte("v"), 0o644); err != nil {
+		_ = os.Remove(nfcPath)
+		return Fact{ID: plan.CapUnicode, Result: plan.ResultUnknown, DetailDigest: codec.SHA256([]byte("unicode-nfd-create"))}
+	}
+	_ = os.Remove(nfdPath)
+	_ = os.Remove(nfcPath)
+	return Fact{ID: plan.CapUnicode, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte("unicode-preserve"))}
 }
 
 func probeSymlink(dir string) Fact {

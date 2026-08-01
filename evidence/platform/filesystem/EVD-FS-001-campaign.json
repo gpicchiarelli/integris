@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "fc693aeb5cf31bcc3775881de6f2edd4b1e31d4a",
-  "produced_at": "2026-08-01T18:32:07Z",
+  "source_revision": "71ddc744435575129bc847803339f0baa81483e7",
+  "produced_at": "2026-08-01T18:35:52Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.278s\n",
-      "stdout_sha256": "b43cb39f1df11296d2de8ed5f81acce561c8ef9c49dd6e7a138187ea655ba175"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.260s\n",
+      "stdout_sha256": "a5c0e7f0cab14c64a307f14711a38bc614ef129fd3edad18e80ee23b8bf23722"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -19,6 +19,7 @@
     "CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
     "CapTimes empirical (Chtimes + Stat Atim/Mtim)",
     "CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; other ports UNKNOWN)",
+    "CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
     "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",
     "VER-FS-001 remains planned until review closes"

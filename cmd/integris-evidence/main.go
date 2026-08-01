@@ -179,6 +179,7 @@ func run(root string) error {
 				"CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
 				"CapTimes empirical (Chtimes + Stat Atim/Mtim)",
 				"CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; other ports UNKNOWN)",
+				"CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
 				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",
 				"VER-FS-001 remains planned until review closes",

@@ -43,7 +43,7 @@ classes. Exact APIs evolve with accepted IPs and empirical platform evidence.
 | Class | Examples (illustrative) |
 |---|---|
 | Bulk transfer | `sendfile`, `copy_file_range`, `splice`, platform clone/reflink — **adopted (Darwin):** `platform.CloneFile` → `clonefile` with exclusive-copy degraded fallback; consumer `recovery.FilePublisher.PublishFrom`; CapCOW discovery in `fsmodel.ProbeScratch` |
-| Metadata / ACL | **adopted (Darwin cgo):** `platform.ACLRoundTrip` (`acl_*`) for CapACL in `fsmodel.ProbeScratch`; CapXattr/CapBSDFlags/CapSparse/CapResourceFork/CapTimes also empirical |
+| Metadata / ACL | **adopted (Darwin cgo):** `platform.ACLRoundTrip` (`acl_*`) for CapACL in `fsmodel.ProbeScratch`; CapXattr/CapBSDFlags/CapSparse/CapResourceFork/CapTimes/CapUnicode also empirical |
 | I/O completion | `kqueue`, `epoll`, accepted bounded `io_uring` adapters where IP-approved |
 | Durability | platform-correct `fsync`/`fdatasync`/`F_FULLFSYNC`, directory sync, rename linearization profiles — **adopted:** `internal/platform.SyncFile` / `SyncDir` (Darwin `F_FULLFSYNC`; other Unix `fsync`) wired through journal, recovery publish/persist, quarantine, and key-FD materialization |
 | Notification | `kqueue` VNODE / `NOTE_*`, `inotify`/`fanotify` only behind reviewed adapters |
