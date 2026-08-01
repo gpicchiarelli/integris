@@ -1,0 +1,56 @@
+name: Workflow lint
+
+on:
+  push:
+    branches: [main]
+    paths: [".github/workflows/**", ".github/actionlint.yaml", ".github/actionlint.yml", ".github/zizmor.yml"]
+  pull_request:
+    paths: [".github/workflows/**", ".github/actionlint.yaml", ".github/actionlint.yml", ".github/zizmor.yml"]
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Lint workflows
+        env:
+          GOTOOLCHAIN: go1.26.5
+          GOWORK: "off"
+        run: go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.12 -color
+
+  zizmor:
+    name: zizmor
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Audit workflows with zizmor
+        uses: zizmorcore/zizmor-action@6fc4b006235f201fdab3722e17240ab420d580e5 # v0.6.1
+        with:
+          advanced-security: ${{ github.event.repository.private == false }}
+          online-audits: false

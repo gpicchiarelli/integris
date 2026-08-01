@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+title: Integris
+message: >-
+  If you use Integris or its assurance baseline, please cite it using
+  these metadata.
+type: software
+authors:
+  - name: Integris contributors
+repository-code: https://github.com/gpicchiarelli/integris
+url: https://github.com/gpicchiarelli/integris
+abstract: >-
+  Privilege-separated sync and backup daemon engineering baseline for
+  macOS, FreeBSD, Linux, and OpenBSD, with prior specification, formal
+  models, and attestable evidence.
+license: BSD-3-Clause
+keywords:
+  - high-integrity
+  - replication
+  - backup
+  - synchronization
+  - formal-methods
+  - TLA+
+  - Go
+  - assurance
+date-released: 2026-08-01

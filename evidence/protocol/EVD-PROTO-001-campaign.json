@@ -1,0 +1,36 @@
+{
+  "evidence_id": "EVD-PROTO-001",
+  "source_revision": "3035685462dfda63abd099350954f790f730c7e1",
+  "produced_at": "2026-08-01T19:50:33Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go test ./internal/session/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.255s\n",
+      "stdout_sha256": "188896b2825853baefb4f8bcdbfdc587fe0063cc731ddac0753d5a0223794fe7"
+    },
+    {
+      "command": "go test ./internal/protocol/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.271s\n",
+      "stdout_sha256": "1267af26e254b924ae8ca0d0ea91784c22f24e51e8104545cdfbec340ee9a7b7"
+    },
+    {
+      "command": "go test ./internal/crypto/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.252s\n",
+      "stdout_sha256": "7bcdd5148fce9b08bcb9709a6bfb25beb6a9dec5bc9318413b77cc557b7fe542"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); wire NegotiateOffer/Accept + hostile-peer refuse + multi-version happy-path suites; TypeData chunk envelope + TrackDataChunks gap/replay refuse; Noise/TLS/PQ pending superseding IP-C",
+    "independent cryptography review required",
+    "VER-PROTO-001 remains planned until crypto review"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}

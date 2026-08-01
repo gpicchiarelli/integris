@@ -1,0 +1,36 @@
+{
+  "evidence_id": "EVD-PATH-001",
+  "source_revision": "64b01dd55aae74b3250b2ca9d23a06666e9e155c",
+  "produced_at": "2026-08-01T18:41:11Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go test ./internal/path/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/path\t0.269s\n",
+      "stdout_sha256": "8b7bad0b2d8775773f3121dfc8ae6315240310d1b84aec4c2d50a15ca640e2c9"
+    },
+    {
+      "command": "go test ./internal/path/ -fuzz=FuzzPathComponent -fuzztime=10s",
+      "exit_code": 0,
+      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/144 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 144/144 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 588243 (196027/sec), new interesting: 0 (total: 144)\nfuzz: elapsed: 6s, execs: 1145385 (185723/sec), new interesting: 1 (total: 145)\nfuzz: elapsed: 9s, execs: 1683788 (179466/sec), new interesting: 1 (total: 145)\nfuzz: elapsed: 10s, execs: 1936045 (229364/sec), new interesting: 1 (total: 145)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/path\t10.409s\n",
+      "stdout_sha256": "22ebb807c8c9196f64333687c7486774928512df0891c61b65fbc093fd00487c"
+    },
+    {
+      "command": "go test ./internal/path/ -fuzz=FuzzPathSequence -fuzztime=5s",
+      "exit_code": 0,
+      "stdout_tail": "fuzz: elapsed: 0s, gathering baseline coverage: 0/152 completed\nfuzz: elapsed: 0s, gathering baseline coverage: 152/152 completed, now fuzzing with 10 workers\nfuzz: elapsed: 3s, execs: 729545 (243167/sec), new interesting: 0 (total: 152)\nfuzz: elapsed: 5s, execs: 1169125 (210089/sec), new interesting: 0 (total: 152)\nPASS\nok  \tgithub.com/gpicchiarelli/integris/internal/path\t5.401s\n",
+      "stdout_sha256": "c35e5baa17fe65488f554f65c49c2ee37fdaad5deaae780a8c72a5c152f6b762"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "independent security review of evidence not recorded",
+    "FreeBSD/OpenBSD empirical openat campaigns not yet run in CI",
+    "VER-PATH-001 remains planned until independent review closes"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}

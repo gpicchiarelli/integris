@@ -1,0 +1,68 @@
+name: SBOM
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  cyclonedx:
+    name: CycloneDX Go module SBOM
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Generate CycloneDX SBOM
+        env:
+          GOTOOLCHAIN: go1.26.5
+          GOWORK: "off"
+        run: |
+          mkdir -p dist/sbom
+          go run github.com/CycloneDX/cyclonedx-gomod/cmd/cyclonedx-gomod@v1.10.0 \
+            mod -json -output dist/sbom/integris.cdx.json -licenses -assert-licenses
+          sha256sum dist/sbom/integris.cdx.json | tee dist/sbom/integris.cdx.json.sha256
+      - name: Upload CycloneDX SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sbom-cyclonedx
+          path: dist/sbom/
+          if-no-files-found: error
+          retention-days: 30
+
+  syft:
+    name: Syft multi-format SBOM
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Create SBOM output directory
+        run: mkdir -p dist/sbom
+      - name: Generate Syft SBOM (SPDX)
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          path: .
+          format: spdx-json
+          artifact-name: sbom-syft-spdx
+          output-file: dist/sbom/integris.syft.spdx.json
+          upload-artifact: true
+          upload-release-assets: false

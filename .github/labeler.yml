@@ -1,0 +1,51 @@
+# Pull request path labels (actions/labeler v6).
+assurance:
+  - changed-files:
+      - any-glob-to-any-file:
+          - assurance/**
+          - docs/assurance-case.md
+          - docs/traceability.md
+          - docs/verification-plan.md
+
+kernels:
+  - changed-files:
+      - any-glob-to-any-file:
+          - internal/**
+
+tooling:
+  - changed-files:
+      - any-glob-to-any-file:
+          - cmd/**
+
+formal:
+  - changed-files:
+      - any-glob-to-any-file:
+          - formal/**
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/**
+          - "*.md"
+
+evidence:
+  - changed-files:
+      - any-glob-to-any-file:
+          - evidence/**
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - .github/**
+
+security:
+  - changed-files:
+      - any-glob-to-any-file:
+          - docs/security-architecture.md
+          - docs/supply-chain.md
+          - SECURITY.md
+          - internal/crypto/**
+          - internal/protocol/**
+          - internal/session/**
+          - internal/confine/**
+          - internal/authority/**

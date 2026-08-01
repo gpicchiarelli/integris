@@ -1,0 +1,65 @@
+# Integris code owners
+#
+# GitHub requests reviews from these owners on matching paths when
+# "Require review from Code Owners" is enabled on main.
+#
+# Ownership here is maintainer accountability for the listed trees.
+# Independent IC-1 technical / security / assurance approvers remain
+# separate governance roles (see GOVERNANCE.md). Do not invent fake
+# reviewer accounts in this file.
+#
+# Last updated: 2026-08-01
+
+# Default — entire tree
+*                                              @gpicchiarelli
+
+# Assurance baseline and evidence
+/assurance/                                    @gpicchiarelli
+/evidence/                                     @gpicchiarelli
+/formal/                                       @gpicchiarelli
+/docs/                                         @gpicchiarelli
+/docs/ip/                                      @gpicchiarelli
+/docs/specifications/                          @gpicchiarelli
+
+# Hosting controls and automation
+/.github/                                      @gpicchiarelli
+/Makefile                                      @gpicchiarelli
+/go.mod                                        @gpicchiarelli
+/go.sum                                        @gpicchiarelli
+
+# Operator surfaces
+/man/                                          @gpicchiarelli
+/cmd/                                          @gpicchiarelli
+
+# Security-sensitive kernels
+/internal/authority/                           @gpicchiarelli
+/internal/confine/                             @gpicchiarelli
+/internal/crypto/                              @gpicchiarelli
+/internal/ipc/                                 @gpicchiarelli
+/internal/launcher/                            @gpicchiarelli
+/internal/protocol/                            @gpicchiarelli
+/internal/session/                             @gpicchiarelli
+/internal/supervisor/                          @gpicchiarelli
+
+# Persistence, planning, recovery
+/internal/codec/                               @gpicchiarelli
+/internal/config/                              @gpicchiarelli
+/internal/deletion/                            @gpicchiarelli
+/internal/fsmodel/                             @gpicchiarelli
+/internal/journal/                             @gpicchiarelli
+/internal/path/                                @gpicchiarelli
+/internal/plan/                                @gpicchiarelli
+/internal/platform/                            @gpicchiarelli
+/internal/recovery/                            @gpicchiarelli
+/internal/resource/                            @gpicchiarelli
+
+# Legal / project identity
+/LICENSE                                       @gpicchiarelli
+/NOTICE                                        @gpicchiarelli
+/TRADEMARKS.md                                 @gpicchiarelli
+/SECURITY.md                                   @gpicchiarelli
+/GOVERNANCE.md                                 @gpicchiarelli
+/CODE_OF_CONDUCT.md                            @gpicchiarelli
+/CONTRIBUTING.md                               @gpicchiarelli
+/README.md                                     @gpicchiarelli
+/CITATION.cff                                  @gpicchiarelli

@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "verifications": [
+    {
+      "id": "VER-ARCH-001",
+      "title": "Per-process authority verification",
+      "level": "system",
+      "methods": ["design review", "descriptor inventory", "negative capability probes", "hostile IPC tests"],
+      "requirements": ["INT-IC1-0001"],
+      "criterion": "On every supported OS/version, each process can perform every allowed operation and no denied probe; inherited descriptors and effective privileges exactly match the reviewed manifest.",
+      "evidence": ["EVD-ARCH-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-PATH-001",
+      "title": "Root containment campaign",
+      "level": "integration",
+      "methods": ["exhaustive grammar tests", "property tests", "continuous fuzzing", "link and mount race injection", "platform filesystem tests", "independent code review"],
+      "requirements": ["INT-IC1-0002"],
+      "criterion": "No invalid component, race, link, identity change, or unauthorized mount causes any filesystem access outside the conferred root or any archive mutation.",
+      "evidence": ["EVD-PATH-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-PROTO-001",
+      "title": "Authenticated session and downgrade verification",
+      "level": "model-and-integration",
+      "methods": ["TLA+ model checking", "canonical codec tests", "hostile peer tests", "replay and downgrade matrix", "independent cryptographic review"],
+      "requirements": ["INT-IC1-0003"],
+      "criterion": "Only mutually authenticated, archive-authorized, transcript-bound sessions become active; all replay, cross-context, non-canonical, unknown-critical, and downgrade cases fail before product mutation.",
+      "evidence": ["EVD-PROTO-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-JOURNAL-001",
+      "title": "Journal corruption and truncation campaign",
+      "level": "unit-and-integration",
+      "methods": ["format vectors", "property tests", "fuzzing", "write truncation at every byte", "bit corruption", "independent verifier differential test"],
+      "requirements": ["INT-IC2-0001"],
+      "criterion": "The reader accepts exactly the longest complete valid prefix, reports a torn tail, and rejects every interior alteration, sequence gap, fork, non-canonical record, or limit violation.",
+      "evidence": ["EVD-JOURNAL-001"],
+      "status": "implemented",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-TXN-001",
+      "title": "Authorization and transaction invariant verification",
+      "level": "model-and-system",
+      "methods": ["TLA+ model checking", "field mutation tests", "state transition tests", "fault injection", "independent review"],
+      "requirements": ["INT-IC1-0004"],
+      "criterion": "Publication is unreachable without exact authorization bindings, and mutation of any bound field or illegal state transition prevents publication without archive side effects.",
+      "evidence": ["EVD-TXN-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-DELETE-001",
+      "title": "Destructive-operation safety verification",
+      "level": "system",
+      "methods": ["threshold boundary properties", "empty/incomplete origin tests", "volume and sentinel substitution", "disk exhaustion", "restore/purge tests", "fault injection"],
+      "requirements": ["INT-IC1-0005"],
+      "criterion": "Every missing precondition, threshold crossing, overflow, unknown value, capacity failure, or identity mismatch stops before mutation; every completed removal remains restorable for retention.",
+      "evidence": ["EVD-DELETE-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-FS-001",
+      "title": "Filesystem semantic compatibility matrix",
+      "level": "platform-integration",
+      "methods": ["capability probes", "golden semantic corpus", "cross-filesystem round trip", "unknown-feature injection", "independent review"],
+      "requirements": ["INT-IC1-0006"],
+      "criterion": "Every declared semantic has exactly one evidenced classification for each supported profile; unrepresentable and unknown cases are refused without target mutation.",
+      "evidence": ["EVD-FS-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-PLAN-001",
+      "title": "Planner determinism verification",
+      "level": "property-and-differential",
+      "methods": ["randomized acquisition order", "parallel schedule stress", "map order perturbation", "cross-platform golden vectors", "repeatability test"],
+      "requirements": ["INT-IC2-0002"],
+      "criterion": "All permutations and schedules of identical canonical inputs produce byte-identical plan output and digest.",
+      "evidence": ["EVD-PLAN-001"],
+      "status": "implemented",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-CONFIG-001",
+      "title": "Configuration grammar and immutability verification",
+      "level": "unit-and-integration",
+      "methods": ["schema negative tests", "canonical round trip", "unknown and duplicate field fuzzing", "side-effect monitor", "reload isolation tests"],
+      "requirements": ["INT-IC3-0001"],
+      "criterion": "Invalid or ambiguous configuration is rejected before authority acquisition; canonical equivalent inputs have one digest; active session policy never changes on reload.",
+      "evidence": ["EVD-CONFIG-001"],
+      "status": "implemented",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-RESOURCE-001",
+      "title": "Resource exhaustion verification",
+      "level": "system",
+      "methods": ["boundary and overflow tests", "memory/disk/descriptor/CPU saturation", "queue and retry stress", "hostile size/count fuzzing"],
+      "requirements": ["INT-IC3-0002"],
+      "criterion": "No external value allocates or admits work before limit validation; exhaustion produces bounded cleanup, truthful status, and preserves recovery evidence.",
+      "evidence": ["EVD-RESOURCE-001"],
+      "status": "implemented",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-RECOVERY-001",
+      "title": "Persistence-point crash recovery campaign",
+      "level": "model-and-system",
+      "methods": ["TLA+ model checking", "kill before and after each persistence operation", "power-failure simulation", "repeated recovery", "independent state verifier"],
+      "requirements": ["INT-IC2-0003"],
+      "criterion": "Every injected interruption preserves authorization and valid-prefix invariants; recovery never duplicates publication/confirmation and a second recovery has no additional effect.",
+      "evidence": ["EVD-RECOVERY-001"],
+      "status": "implemented",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-RELEASE-001",
+      "title": "Independent release reconstruction and verification",
+      "level": "acceptance",
+      "methods": ["two-party clean rebuild", "bitwise digest comparison", "SBOM validation", "provenance policy verification", "online and offline signature verification", "downgrade test"],
+      "requirements": ["INT-IC3-0003"],
+      "criterion": "An independent builder reproduces every specified artifact bit for bit and a disconnected verifier validates digests, signatures, SBOM, provenance, and authorized source without a public service.",
+      "evidence": ["EVD-RELEASE-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-ASSURANCE-001",
+      "title": "Assurance record referential integrity",
+      "level": "repository",
+      "methods": ["schema and identifier validation", "bidirectional reference validation", "generated traceability comparison", "unit tests"],
+      "requirements": ["INT-IC3-0004"],
+      "criterion": "The validator reports no duplicate, malformed, orphan, missing, or asymmetric reference and generated traceability is byte-current.",
+      "evidence": ["EVD-ASSURANCE-001"],
+      "status": "implemented",
+      "owner": "gpicchiarelli"
+    },
+    {
+      "id": "VER-PERF-001",
+      "title": "Native platform optimization inventory and selection",
+      "level": "platform",
+      "methods": ["per-OS facility inventory review", "capability-vector inspection", "adapter unit tests", "degraded-mode negative tests", "comparative microbenchmarks against portable fallback"],
+      "requirements": ["INT-IC4-0001"],
+      "criterion": "For each declared platform, every qualifying stable native facility in the port inventory is either exercised on the release path or covered by an explicit degraded-mode record or reviewed IP waiver; no release claims full platform support while omitting a qualifying facility.",
+      "evidence": ["EVD-PERF-001"],
+      "status": "planned",
+      "owner": "gpicchiarelli"
+    }
+  ]
+}

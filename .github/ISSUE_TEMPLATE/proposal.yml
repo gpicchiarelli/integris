@@ -1,0 +1,32 @@
+name: Engineering proposal
+description: Suggest an architecture, protocol, format, security, operations, or governance change.
+title: "[Proposal]: "
+labels: [proposal, triage]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and requirement
+      description: Identify the need, affected requirement IDs, and why a change is necessary.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and tradeoffs
+      description: Include complexity, portability, failure behavior, and why each alternative is insufficient.
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Hazard and threat analysis
+      description: Identify mitigated and residual risks plus new assumptions.
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: Verification and retirement strategy
+    validations:
+      required: true

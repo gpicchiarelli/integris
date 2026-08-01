@@ -1,0 +1,156 @@
+.\" Copyright (c) 2026 Integris contributors
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd August 1, 2026
+.Dt INTEGRIS 7
+.Os
+.Sh NAME
+.Nm integris
+.Nd high-integrity filesystem sync and backup system (overview)
+.Sh DESCRIPTION
+.Nm Integris
+is a privilege-separated sync and backup system intended to replicate
+explicitly authorized filesystem archives between mutually authenticated
+nodes on macOS,
+.Fx ,
+Linux, and
+.Ox .
+Protected properties include archive identity, containment, authenticity,
+integrity, deterministic planning, recoverability, and truthful completion.
+.Pp
+This manual page describes the installed engineering baseline and how the
+shipped tools relate to the future product daemon.
+It is not a certification or production-readiness claim.
+See
+.Xr integrisd 8
+for the intended daemon surface.
+.Ss Components
+.Bl -tag -width "integris-release-digest"
+.It Xr integris-assure 1
+Validate assurance records and the traceability matrix.
+.It Xr integris-crash-stub 1
+Unix engineering crash harness for publish and journal labels.
+.It Xr integris-evidence 1
+Run kernel test campaigns and write evidence manifests.
+.It Xr integris-release-digest 1
+Write an engineering input-digest manifest (not release acceptance).
+.It Xr integris-role-stub 1
+Unix engineering IPC child for confinement and authority probes.
+.It Xr integris-verify-config 1
+Validate a configuration document without side effects.
+.It Xr integrisd 8
+Intended privilege-separated sync and backup daemon
+(not yet released as a product binary).
+.El
+.Ss Installation layout
+Portable installs from this repository default to:
+.Bl -column ".Pa ${PREFIX}/share/man/man8" "contents" -offset indent
+.It Sy directory Ta Sy contents
+.It Pa ${PREFIX}/bin Ta command binaries
+.It Pa ${PREFIX}/share/man/man1 Ta section 1 pages
+.It Pa ${PREFIX}/share/man/man7 Ta this overview
+.It Pa ${PREFIX}/share/man/man8 Ta daemon page (integrisd)
+.El
+.Pp
+Traditional BSD ports layouts that use
+.Pa ${PREFIX}/man
+instead of
+.Pa ${PREFIX}/share/man
+are selected at install time with:
+.Bd -literal -offset indent
+make MANDIR=${PREFIX}/man install-man
+.Ed
+.Pp
+Typical
+.Ev PREFIX
+values include
+.Pa /usr/local
+on
+.Fx ,
+.Ox ,
+and many Linux packages;
+.Pa /opt/homebrew
+or
+.Pa /usr/local
+on macOS; and
+.Pa /usr
+for FHS distribution packages.
+Destinations respect
+.Ev DESTDIR
+for staged packaging.
+.Ss Assurance model
+Every significant decision is expected to have a requirement, rationale,
+risk analysis, verifiable specification, verification method, produced
+evidence, and named approval role.
+On every declared platform, qualifying stable native operating-system and
+filesystem facilities must be preferred (requirement INT-IC4-0001);
+portable lowest-common-denominator paths are degraded mode only.
+.Sh ENVIRONMENT
+No environment variables are defined by this overview page.
+Individual tools document their own variables.
+.Sh FILES
+.Bl -tag -width "assurance/requirements.json" -compact
+.It Pa assurance/*.json
+Normative assurance records.
+.It Pa docs/
+Specifications, IPs, and policies.
+.It Pa evidence/
+Campaign manifests and digests.
+.It Pa man/
+mdoc manual page sources installed by
+.Nm make install-man .
+.El
+.Sh EXIT STATUS
+Individual tools document their own exit statuses.
+As a project convention:
+.Bl -tag -width Ds -compact
+.It 0
+Success.
+.It 1
+Operational or validation failure.
+.It 2
+Usage error.
+.El
+.Sh EXAMPLES
+.Bd -literal -offset indent
+make PREFIX=/usr/local install
+make PREFIX=/usr/local MANDIR=/usr/local/man install-man
+man integris
+man 8 integrisd
+.Ed
+.Sh SEE ALSO
+.Xr integris-assure 1 ,
+.Xr integris-crash-stub 1 ,
+.Xr integris-evidence 1 ,
+.Xr integris-release-digest 1 ,
+.Xr integris-role-stub 1 ,
+.Xr integris-verify-config 1 ,
+.Xr integrisd 8
+.Pp
+Project files:
+.Pa README.md ,
+.Pa TRADEMARKS.md ,
+.Pa NOTICE ,
+.Pa LICENSE ,
+.Pa docs/scope-and-claims.md ,
+.Pa docs/platform-matrix.md ,
+.Pa docs/specifications/platform-optimization.md .
+.Sh STANDARDS
+Normative MUST, MUST NOT, SHOULD, and MAY in Integris specifications follow
+RFC 2119 and RFC 8174 when capitalized.
+.Sh HISTORY
+The Integris engineering baseline and these manual pages were introduced
+during the M0 to M1 transition.
+.Sh AUTHORS
+.An Integris contributors
+.Sh CAVEATS
+Integris is not a usable production sync or backup daemon, is not certified,
+and makes no SIL or standards-conformance claim.
+Product kernels under
+.Pa internal/
+are reference implementations gated by draft IPs and incomplete IC-1 evidence.
+Third-party names such as macOS,
+.Fx ,
+Linux,
+.Ox ,
+and Go identify platforms and tools only; see
+.Pa TRADEMARKS.md .

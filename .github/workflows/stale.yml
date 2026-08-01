@@ -1,0 +1,39 @@
+name: Stale
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Mark and close stale issues/PRs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Run stale bot
+        uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93 # v11.0.0
+        with:
+          days-before-issue-stale: 90
+          days-before-issue-close: 30
+          days-before-pr-stale: 60
+          days-before-pr-close: 30
+          stale-issue-label: stale
+          stale-pr-label: stale
+          stale-issue-message: >-
+            This issue has been marked stale due to inactivity. It will be closed
+            in 30 days unless there is new activity or it is explicitly kept open
+            for an assurance/roadmap item.
+          stale-pr-message: >-
+            This pull request has been marked stale due to inactivity. It will be
+            closed in 30 days unless updated or explicitly retained for review.
+          close-issue-message: Closed due to prolonged inactivity.
+          close-pr-message: Closed due to prolonged inactivity.
+          exempt-issue-labels: ic-1,security,assurance,roadmap
+          exempt-pr-labels: ic-1,security,assurance,roadmap
+          operations-per-run: 60

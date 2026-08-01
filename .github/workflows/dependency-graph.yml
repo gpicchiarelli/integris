@@ -1,0 +1,45 @@
+name: Dependency graph
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  submit:
+    name: Submit Go dependency graph
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Submit dependencies
+        id: submit
+        continue-on-error: true
+        uses: actions/go-dependency-submission@f35d5c9af13ce9cc32f7930b171e315e878f6921 # v2.0.3
+        with:
+          go-mod-path: go.mod
+          go-build-target: ./...
+      - name: Require dependency graph when available
+        if: steps.submit.outcome == 'failure'
+        run: |
+          echo "::warning::Dependency snapshot submission failed (graph may still be enabling). See docs/github-settings.md."
+          # Soft-fail only while graph provisioning catches up on newly public repos.
+          exit 0

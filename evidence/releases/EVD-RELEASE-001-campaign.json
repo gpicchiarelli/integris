@@ -1,0 +1,24 @@
+{
+  "evidence_id": "EVD-RELEASE-001",
+  "source_revision": "7bd47767214ed8cd44fd14fcceeb73bb485b2f4b",
+  "produced_at": "2026-08-01T17:39:00Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go run ./cmd/integris-release-digest -root .",
+      "exit_code": 0,
+      "stdout_tail": "wrote evidence/releases/EVD-RELEASE-001-engineering-manifest.json (6 modules)\n",
+      "stdout_sha256": "c7764bce7d65583c992fe3f80685d178681b7675176f591401bf0bc5239b9b15"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "engineering manifest only — not an independent two-party rebuild",
+    "no SBOM/SLSA/signatures",
+    "VER-RELEASE-001 remains planned"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}
