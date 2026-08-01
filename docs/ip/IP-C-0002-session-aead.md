@@ -55,6 +55,8 @@ required before promoting protocol evidence.
 - Mutual HMAC peer-auth (`i2r`+`r2i`) + archive-auth proof + e2e AEAD path
 - Hostile-peer Driver refuse matrix (`hostile_peer_test.go`): unknown suite,
   accept mismatch, bad HMAC/archive proof, MAC/AEAD tamper, early Data, seq/sid gaps
+- Multi-version negotiate happy-path suite (`multi_version_test.go`): highest
+  common version, suite ∩, Accept confirm, optional Activate+AEAD path
 - Session.tla `PeerAuthIsMutual` invariant
 - EVD-PROTO-001 remains **planned**
 
