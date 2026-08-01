@@ -24,3 +24,16 @@ func WithSoftFSIZE(soft uint64, fn func() error) error {
 func WithSoftCPU(soft uint64, fn func() error) error {
 	return withSoftCPU(soft, fn)
 }
+
+// WithSoftNPROC temporarily lowers RLIMIT_NPROC for the duration of fn, then
+// restores the previous limit. Soft is capped to the prior hard max.
+// Darwin/Linux/OpenBSD lower the soft ceiling; FreeBSD/DragonFly also clamp
+// the hard max for the window because soft-only lowering does not reliably
+// refuse fork there. Fork/exec under a binding ceiling typically surfaces as
+// EAGAIN when the kernel enforces the limit; euid 0 with PRIV_PROC_LIMIT
+// (FreeBSD) may still fork. On Darwin, lowering NPROC soft may permanently
+// clamp the hard max to the prior soft value (Cur is still restored). On
+// platforms without RLIMIT_NPROC, returns an error.
+func WithSoftNPROC(soft uint64, fn func() error) error {
+	return withSoftNPROC(soft, fn)
+}

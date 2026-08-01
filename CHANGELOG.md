@@ -97,6 +97,7 @@ is accepted.
 - Restrict int64 `Rlimit` helpers to FreeBSD/DragonFly (OpenBSD/NetBSD use uint64 like Linux/Darwin);
 - Hostile IPC refuse matrix (`internal/ipc/hostile_test.go`) for IP-A-0002 / VER-ARCH engineering probes;
 - TypeData chunk envelope (`offset||length||data`) + `Driver.TrackDataChunks` contiguous resume refuse matrix;
+- `resource.WithSoftNPROC` process-count saturation harness for EVD-RESOURCE (`RLIMIT_NPROC` → EAGAIN);
 - Darwin abrupt-detach power-fail harness for EVD-RECOVERY (`SyncFile` survive across `hdiutil` force-detach);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);

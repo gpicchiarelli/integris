@@ -4,7 +4,9 @@ package resource_test
 
 import (
 	"errors"
+	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
 	"runtime"
 	"testing"
@@ -150,6 +152,61 @@ func TestCPUSaturationHarness(t *testing.T) {
 
 func TestWithSoftCPURejectsZero(t *testing.T) {
 	if err := resource.WithSoftCPU(0, func() error { return nil }); err == nil {
+		t.Fatal("expected error for soft=0")
+	}
+}
+
+func TestNPROCSaturationHarness(t *testing.T) {
+	var before unix.Rlimit
+	if err := unix.Getrlimit(unix.RLIMIT_NPROC, &before); err != nil {
+		t.Fatal(err)
+	}
+	// soft=1: this process already counts; a further fork/exec must fail
+	// when the kernel enforces RLIMIT_NPROC. euid 0 with PRIV_PROC_LIMIT
+	// (typical FreeBSD CI VM) may still fork — assert ceiling + restore only.
+	err := resource.WithSoftNPROC(1, func() error {
+		var now unix.Rlimit
+		if err := unix.Getrlimit(unix.RLIMIT_NPROC, &now); err != nil {
+			return err
+		}
+		if now.Cur != 1 {
+			return fmt.Errorf("soft NPROC not lowered: %+v", now)
+		}
+		if os.Geteuid() == 0 {
+			return nil
+		}
+		cmd := exec.Command("/bin/echo", "nproc-probe")
+		err := cmd.Start()
+		if err == nil {
+			_ = cmd.Process.Kill()
+			_, _ = cmd.Process.Wait()
+			return errors.New("expected fork/exec failure under lowered NPROC soft limit")
+		}
+		if !errors.Is(err, unix.EAGAIN) && !errors.Is(err, unix.EWOULDBLOCK) {
+			// Darwin surfaces "resource temporarily unavailable" as EAGAIN.
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var after unix.Rlimit
+	if err := unix.Getrlimit(unix.RLIMIT_NPROC, &after); err != nil {
+		t.Fatal(err)
+	}
+	if after.Cur != before.Cur {
+		t.Fatalf("soft NPROC not restored: before=%+v after=%+v", before, after)
+	}
+	// Darwin may permanently clamp hard max to the prior soft when NPROC soft
+	// is lowered; accept Max==before.Max or Max==before.Cur.
+	if after.Max != before.Max && after.Max != before.Cur {
+		t.Fatalf("unexpected NPROC max after restore: before=%+v after=%+v", before, after)
+	}
+}
+
+func TestWithSoftNPROCRejectsZero(t *testing.T) {
+	if err := resource.WithSoftNPROC(0, func() error { return nil }); err == nil {
 		t.Fatal("expected error for soft=0")
 	}
 }
