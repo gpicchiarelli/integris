@@ -64,9 +64,11 @@ directory owned for the test/run.
   `cap_rights_limit`). Engineering children call `confine.ApplyEngineering`
   (Linux: `no_new_privs` + empty Landlock ruleset + seccomp exec/ptrace denylist;
   OpenBSD: `pledge("stdio unix")` + `unveil` lock; FreeBSD: `cap_enter`).
-  Stubs report `NegativeFSOpen` over IPC.
+  Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-EXEC`, `NEG-PTRACE`)
+  over IPC.
 - SCM_RIGHTS key passing over the IPC socket (fd-4 conferral remains the ABI).
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
+- Role-semantic negative probes (`NEG-NET-ARCHIVE`, …) beyond OS denylists.
 - Multi-child restart policy and supervisor crash recovery beyond
   `supervisor.Runtime` kill-on-Close.
 - Windows process model.
@@ -102,7 +104,7 @@ Unix-only for this revision (`//go:build unix`). Other platforms remain refused.
 - Unit: refuse non-absolute path, refuse `EngineeringMode=false`, refuse empty
   socket, wait deadline; `CreateKeyFD` round-trip.
 - Integration: parent↔stub authenticated IPC over conferred socketpair fd; stub
-  reports `|KEY:` transport label.
+  reports `|KEY:` transport and `|NEG-FS:`/`|NEG-EXEC:`/`|NEG-PTRACE:` statuses.
 - Residual gaps recorded on EVD-ARCH-001 until confinement probes pass in-child
   and non-Linux sealed transport reaches parity.
 

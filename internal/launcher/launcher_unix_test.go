@@ -122,6 +122,11 @@ func TestLaunchStubIPC(t *testing.T) {
 	if !bytes.HasPrefix(resp.Payload, []byte("ack:ping|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
+	for _, tok := range []string{"|NEG-EXEC:", "|NEG-PTRACE:"} {
+		if !bytes.Contains(resp.Payload, []byte(tok)) {
+			t.Fatalf("missing %s in %q", tok, resp.Payload)
+		}
+	}
 	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
 		!bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportMemfd)) {
 		t.Fatalf("missing key transport in %q", resp.Payload)

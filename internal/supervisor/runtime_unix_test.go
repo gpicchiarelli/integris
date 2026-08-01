@@ -79,6 +79,11 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 	if !bytes.HasPrefix(resp.Payload, []byte("ack:runtime|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
+	for _, tok := range []string{"|NEG-EXEC:", "|NEG-PTRACE:"} {
+		if !bytes.Contains(resp.Payload, []byte(tok)) {
+			t.Fatalf("missing %s in %q", tok, resp.Payload)
+		}
+	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {
 		t.Fatal(err)
 	}

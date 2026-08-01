@@ -14,8 +14,8 @@ import (
 	"github.com/gpicchiarelli/integris/internal/launcher"
 )
 
-// Engineering role stub: claim conferred fds, apply confinement, negative FS
-// probe, one IPC exchange. Not a product daemon (IP-A-0003).
+// Engineering role stub: claim conferred fds, apply confinement, negative
+// probes, one IPC exchange. Not a product daemon (IP-A-0003).
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "integris-role-stub: %v\n", err)
@@ -37,7 +37,7 @@ func run() error {
 
 	_ = confine.LimitConferredFDs(sock, keyF)
 	_ = confine.ApplyEngineering()
-	neg := confine.NegativeFSOpen()
+	negAck := confine.FormatNegativeAck(confine.NegativeEngineering())
 
 	if os.Getenv(launcher.EnvMode) != launcher.ModeEngineering {
 		return fmt.Errorf("refusing non-engineering launch mode")
@@ -75,7 +75,7 @@ func run() error {
 		return err
 	}
 	payload := append([]byte("ack:"), frame.Payload...)
-	payload = append(payload, []byte("|NEG-FS:"+string(neg.Status))...)
+	payload = append(payload, []byte(negAck)...)
 	if kt := os.Getenv(launcher.EnvKeyTransport); kt != "" {
 		payload = append(payload, []byte("|KEY:"+kt)...)
 	}

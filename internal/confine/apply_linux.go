@@ -81,7 +81,7 @@ func applyEngineering() []Finding {
 	} else {
 		out = append(out, Finding{
 			ID: "APPLY-SECCOMP", Platform: plat, Control: "seccomp_bpf",
-			Status: StatusAvailable, Detail: "deny execve/execveat/ptrace (KILL_PROCESS)",
+			Status: StatusAvailable, Detail: "deny execve/execveat/ptrace (ERRNO EPERM)",
 		})
 	}
 	return out
@@ -165,8 +165,9 @@ func seccompAuditArch() (uint32, bool) {
 	}
 }
 
-// seccompDenyExecPtrace installs a filter that kills execve/execveat/ptrace.
-// Other syscalls are allowed so the Go runtime can continue for a short stub.
+// seccompDenyExecPtrace installs a filter that returns EPERM for
+// execve/execveat/ptrace so in-child negative probes can observe the denial
+// without being killed (engineering evidence path).
 func seccompDenyExecPtrace() error {
 	arch, ok := seccompAuditArch()
 	if !ok {
@@ -176,7 +177,7 @@ func seccompDenyExecPtrace() error {
 		offNR   = 0
 		offArch = 4
 	)
-	kill := unix.SECCOMP_RET_KILL_PROCESS
+	deny := unix.SECCOMP_RET_ERRNO | uint32(unix.EPERM)
 	allow := unix.SECCOMP_RET_ALLOW
 	ldAbs := uint16(unix.BPF_LD | unix.BPF_W | unix.BPF_ABS)
 	jmpJEQ := uint16(unix.BPF_JMP | unix.BPF_JEQ | unix.BPF_K)
@@ -185,14 +186,14 @@ func seccompDenyExecPtrace() error {
 	filter := []unix.SockFilter{
 		{Code: ldAbs, K: offArch},
 		{Code: jmpJEQ, Jt: 1, Jf: 0, K: arch},
-		{Code: retK, K: kill},
+		{Code: retK, K: deny},
 		{Code: ldAbs, K: offNR},
 		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_EXECVE)},
-		{Code: retK, K: kill},
+		{Code: retK, K: deny},
 		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_EXECVEAT)},
-		{Code: retK, K: kill},
+		{Code: retK, K: deny},
 		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_PTRACE)},
-		{Code: retK, K: kill},
+		{Code: retK, K: deny},
 		{Code: retK, K: allow},
 	}
 	prog := unix.SockFprog{

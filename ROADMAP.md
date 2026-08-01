@@ -49,7 +49,7 @@ pending independent review, crypto suite, and platform probes.
 
 **Status (prelude):** engineering children apply Landlock+seccomp (Linux),
 pledge (OpenBSD), or Capsicum+cap_rights_limit (FreeBSD); stub reports
-NEG-FS-OPEN; Runtime orchestrates spawn; sealed MAC key FD (Linux memfd;
+NEG-FS/EXEC/PTRACE; Runtime orchestrates spawn; sealed MAC key FD (Linux memfd;
 anon-unlinked elsewhere); provisional session AEAD with suite negotiation,
 HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys (IP-C-0002).
 Finished handshake/PQ, SCM_RIGHTS key passing, and IC-1 review remain open.

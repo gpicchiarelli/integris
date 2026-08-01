@@ -23,7 +23,8 @@ operational controls.
 Engineering scaffold: `internal/confine` probes and applies best-effort child
 confinement (`ApplyEngineering`: Linux Landlock deny-new-FS + `no_new_privs` +
 seccomp denylist for execve/execveat/ptrace; OpenBSD `pledge`/`unveil`; FreeBSD
-`cap_rights_limit` then `cap_enter`). Role stubs report `NEG-FS-OPEN`. Provisional
+`cap_rights_limit` then `cap_enter`). Role stubs report `NEG-FS-OPEN`,
+`NEG-EXEC`, and `NEG-PTRACE`. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts and release-mode launch remain open.
 

@@ -2,8 +2,8 @@
 // scaffolding per docs/platform-matrix.md.
 //
 // Results are observational. An unconfined developer process will often report
-// unexpected_allow; that is not release evidence. OS spawn remains out of
-// scope (Go profile prohibits os/exec in product code).
+// unexpected_allow; that is not release evidence. Product kernels must not
+// import os/exec; in-child NEG-EXEC uses unix.Exec only inside confined stubs.
 package confine
 
 import (
@@ -48,7 +48,7 @@ func Discover() Report {
 }
 
 // NegativeBaseline returns role-oriented negative probes. Unconfined processes
-// mark these skipped; confined children should run NegativeFSOpen instead.
+// mark these skipped; confined children should run NegativeEngineering instead.
 func NegativeBaseline() Report {
 	r := Report{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
 	probes := []struct {
@@ -64,7 +64,7 @@ func NegativeBaseline() Report {
 		r.Findings = append(r.Findings, Finding{
 			ID: p.id, Platform: runtime.GOOS + "/" + runtime.GOARCH,
 			Control: p.control, Status: StatusSkipped,
-			Detail: p.detail + "; use confined child NegativeFSOpen for FS denial evidence",
+			Detail: p.detail + "; use confined child NegativeEngineering for OS denial evidence",
 		})
 	}
 	sort.Slice(r.Findings, func(i, j int) bool { return r.Findings[i].ID < r.Findings[j].ID })
