@@ -25,7 +25,7 @@ targeted formal methods, adversarial testing, and attestable supply chains.
   deletion, fsmodel, authority, observability, IPC prelude, and session
   (`internal/`);
 - draft Integris Proposals under `docs/ip/` (IP-S-0001…0003, IP-F-0001,
-  IP-A-0002, IP-C-0001);
+  IP-A-0002, IP-C-0001, IP-P-0001);
 - evidence campaign producer (`cmd/integris-evidence`), `integris-verify-config`,
   and artifacts under `evidence/`;
 - a restricted Go profile and platform confinement matrix;

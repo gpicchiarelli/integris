@@ -54,10 +54,13 @@ error with `Close=true`. Callers MUST tear down the OS channel.
 
 ### Authentication deferral
 
-M1 ships length/role/sequence enforcement only. Cryptographic binding of frames
-to peer OS identity requires an accepted IP-C (and possibly platform credential
-handles). Until then, no release claim of confused-deputy resistance rests on
-this codec alone.
+When `MACKey` is set on `ChannelState`, every frame is sealed with
+**HMAC-SHA256** over `header||payload` (32-byte trailer) per IP-C-0001. This is
+an engineering MAC for local IPC tests — **not** a release claim of
+confused-deputy resistance without OS isolation (IP-A-0001) and crypto review.
+
+Unauthenticated channels (`MACKey == nil`) remain available for unit tests of
+length/role/sequence policy only.
 
 ## Alternatives considered
 

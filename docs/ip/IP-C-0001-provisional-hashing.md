@@ -36,6 +36,7 @@ claim of cryptographic suite stability pending independent review.
 | Configuration digest | SHA-256 over canonical JSON | `internal/config` |
 | Capability vector digest | SHA-256 | `internal/fsmodel` |
 | Path/archive pseudonyms | SHA-256 keyed commitment | observability |
+| Local IPC frame MAC | HMAC-SHA256 | `internal/ipc` when MACKey set; provisional |
 
 Output size is 32 bytes (`codec.Digest`).
 

@@ -77,6 +77,57 @@ func TestCloseFrame(t *testing.T) {
 	}
 }
 
+func TestAuthenticatedRoundTrip(t *testing.T) {
+	var nonce [16]byte
+	nonce[0] = 9
+	key := []byte("0123456789abcdef")
+	send, err := ipc.NewAuthenticatedChannel(authority.RolePlan, authority.RoleApply, nonce, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	recv, err := ipc.NewAuthenticatedChannel(authority.RoleApply, authority.RolePlan, nonce, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := send.Encode(ipc.TypeRequest, []byte("auth-payload"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(raw) < ipc.HeaderBytes+ipc.MACBytes {
+		t.Fatalf("short mac frame %d", len(raw))
+	}
+	f, err := recv.Decode(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(f.Payload) != "auth-payload" {
+		t.Fatalf("%+v", f)
+	}
+}
+
+func TestRejectTamperedMAC(t *testing.T) {
+	var nonce [16]byte
+	key := []byte("0123456789abcdef")
+	send, err := ipc.NewAuthenticatedChannel(authority.RoleJournal, authority.RoleAudit, nonce, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	recv, err := ipc.NewAuthenticatedChannel(authority.RoleAudit, authority.RoleJournal, nonce, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := send.Encode(ipc.TypeRequest, []byte("x"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw[len(raw)-1] ^= 0xff
+	_, err = recv.Decode(raw)
+	var e *ipc.Error
+	if err == nil || !asIPC(err, &e) || e.Code != "mac" || !e.Close {
+		t.Fatalf("got %v", err)
+	}
+}
+
 func asIPC(err error, target **ipc.Error) bool {
 	if e, ok := err.(*ipc.Error); ok {
 		*target = e
