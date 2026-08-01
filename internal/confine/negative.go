@@ -231,6 +231,10 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-AUTH-CONTENTS:")
 		case "NEG-AUTH-PUB":
 			b.WriteString("|NEG-AUTH-PUB:")
+		case "NEG-INDEX-PUB":
+			b.WriteString("|NEG-INDEX-PUB:")
+		case "NEG-INDEX-DELETE":
+			b.WriteString("|NEG-INDEX-DELETE:")
 		case "NEG-PLAN-WRITE":
 			b.WriteString("|NEG-PLAN-WRITE:")
 		case "NEG-AUDIT-DECIDE":

@@ -26,6 +26,8 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 		negAuthAccept(plat, in),
 		negAuthContents(plat, in),
 		negAuthPub(plat, in),
+		negIndexPub(plat, in),
+		negIndexDelete(plat, in),
 		negPlanWrite(plat, in),
 		negAuditDecide(plat, in),
 		negJournalNet(plat, in),
@@ -168,6 +170,57 @@ func negAuthPub(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "auth lacks publication_rights in inventory and conferral"
+	return base
+}
+
+func negIndexPub(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-INDEX-PUB", Platform: plat, Control: "publication",
+	}
+	if in.Role != authority.RoleIndex {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-index only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapPublication) ||
+		hasCap(in.Confer, authority.CapPublicationRights) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "index role conferred publication capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleIndex, authority.CapPublication)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows publication for index"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "index lacks publication in inventory and conferral"
+	return base
+}
+
+func negIndexDelete(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-INDEX-DELETE", Platform: plat, Control: "deletion",
+	}
+	if in.Role != authority.RoleIndex {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-index only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapDeletion) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "index role conferred deletion capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleIndex, authority.CapDeletion)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows deletion for index"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "index lacks deletion in inventory and conferral"
 	return base
 }
 

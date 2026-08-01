@@ -132,6 +132,56 @@ func TestNegativeRoleSemanticAuthBadSlot(t *testing.T) {
 	}
 }
 
+func TestNegativeRoleSemanticIndexOK(t *testing.T) {
+	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+		Role: authority.RoleIndex,
+		Confer: []authority.Capability{
+			authority.CapReadonlyArchiveRoot, authority.CapBoundedIndexOutput,
+		},
+		SlotKinds: []string{"archive_root"},
+	})
+	want := map[string]confine.Status{
+		"NEG-INDEX-PUB":    confine.StatusDeniedExpected,
+		"NEG-INDEX-DELETE": confine.StatusDeniedExpected,
+	}
+	for _, f := range fs {
+		if st, ok := want[f.ID]; ok && f.Status != st {
+			t.Fatalf("%s: %+v", f.ID, f)
+		}
+	}
+}
+
+func TestNegativeRoleSemanticIndexBadCap(t *testing.T) {
+	cases := []struct {
+		id     string
+		confer []authority.Capability
+	}{
+		{
+			id: "NEG-INDEX-PUB",
+			confer: []authority.Capability{
+				authority.CapReadonlyArchiveRoot, authority.CapPublication,
+			},
+		},
+		{
+			id: "NEG-INDEX-DELETE",
+			confer: []authority.Capability{
+				authority.CapReadonlyArchiveRoot, authority.CapDeletion,
+			},
+		},
+	}
+	for _, tc := range cases {
+		fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+			Role:   authority.RoleIndex,
+			Confer: tc.confer,
+		})
+		for _, f := range fs {
+			if f.ID == tc.id && f.Status != confine.StatusUnexpectedAllow {
+				t.Fatalf("%s: %+v", tc.id, f)
+			}
+		}
+	}
+}
+
 func TestNegativeRoleSemanticPlanAuditJournal(t *testing.T) {
 	cases := []struct {
 		id   string

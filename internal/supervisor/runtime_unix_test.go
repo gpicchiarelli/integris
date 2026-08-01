@@ -454,6 +454,12 @@ func TestRuntimeStartChildAllowRootsIndex(t *testing.T) {
 	if !bytes.HasPrefix(resp.Payload, []byte("ack:index-roots|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-INDEX-PUB:denied_as_expected")) {
+		t.Fatalf("missing NEG-INDEX-PUB in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-INDEX-DELETE:denied_as_expected")) {
+		t.Fatalf("missing NEG-INDEX-DELETE in %q", resp.Payload)
+	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd":
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
