@@ -1,8 +1,12 @@
 package recovery_test
 
 import (
+	"os"
+	"path/filepath"
+	"runtime"
 	"testing"
 
+	"github.com/gpicchiarelli/integris/internal/platform"
 	"github.com/gpicchiarelli/integris/internal/recovery"
 )
 
@@ -215,5 +219,68 @@ func TestFilePublisherRejectsBadNameAndOverwrite(t *testing.T) {
 	obs, err := pub.Observation(dig("root"), dig("vol"))
 	if err != nil || !obs.PublishedContentMatches {
 		t.Fatalf("%+v err=%v", obs, err)
+	}
+}
+
+func TestFilePublisherPublishFromClone(t *testing.T) {
+	root := t.TempDir()
+	src := filepath.Join(root, "source.bin")
+	payload := []byte("clone-publish-v1")
+	if err := os.WriteFile(src, payload, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	pub, err := recovery.NewFilePublisher(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pub.ExpectedContent = payload
+	if err := pub.PublishFrom("obj", src); err != nil {
+		t.Fatal(err)
+	}
+	if runtime.GOOS == "darwin" && pub.StageMechanism != platform.CloneMechanismClonefile {
+		t.Fatalf("darwin StageMechanism=%q want clonefile", pub.StageMechanism)
+	}
+	if pub.StageMechanism != platform.CloneMechanismClonefile && pub.StageMechanism != platform.CloneMechanismCopy {
+		t.Fatalf("StageMechanism=%q", pub.StageMechanism)
+	}
+	has, err := pub.PublishedHas("obj")
+	if err != nil || !has {
+		t.Fatalf("published has=%v err=%v", has, err)
+	}
+	obs, err := pub.Observation(dig("root"), dig("vol"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !obs.PublicationLinearized || !obs.PublishedContentMatches {
+		t.Fatalf("%+v", obs)
+	}
+	p := prefixWithAuthChain(t, false)
+	out, err := recovery.Recover(p, obs, recovery.Policy{}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if out.State != recovery.StatePublished {
+		t.Fatalf("%+v", out)
+	}
+}
+
+func TestFilePublisherPublishFromFailAtCreate(t *testing.T) {
+	root := t.TempDir()
+	src := filepath.Join(root, "source.bin")
+	if err := os.WriteFile(src, []byte("x"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	pub, err := recovery.NewFilePublisher(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pub.FailAt = recovery.LabelPStageCreate
+	err = pub.PublishFrom("obj", src)
+	if err == nil || !recovery.AsKind(err, recovery.KindIO) {
+		t.Fatalf("want IO fault, got %v", err)
+	}
+	staged, err := pub.StagingHas("obj")
+	if err != nil || staged {
+		t.Fatalf("staging has=%v err=%v", staged, err)
 	}
 }

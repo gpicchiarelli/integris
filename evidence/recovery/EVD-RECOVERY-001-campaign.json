@@ -1,20 +1,20 @@
 {
   "evidence_id": "EVD-RECOVERY-001",
-  "source_revision": "ce395f9619ba485a8a27a91da241814d12415cd0",
-  "produced_at": "2026-08-01T17:56:00Z",
+  "source_revision": "a083c58a40c39c365d712a05223614cd0d77d5cf",
+  "produced_at": "2026-08-01T18:05:56Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t1.862s\n",
-      "stdout_sha256": "a07ac5c9be77d7d1381d06152356e9a75ab46c102a6b21ec944e067b5b375bee"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t1.871s\n",
+      "stdout_sha256": "ad3bc46ca7b29fb5ca32fa0f524cfadb9b6831190eec23cb56b9278f139591f2"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "J-APPEND + recovery/apply P-* FailAt + OS SIGKILL at J-* and publish labels + Darwin F_FULLFSYNC SyncFile complete; power-fail/unflushed pages still open",
+    "J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom complete; power-fail/unflushed pages still open",
     "independent assurance review of evidence not recorded"
   ],
   "extra": {

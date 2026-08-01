@@ -112,7 +112,7 @@ func run(root string) error {
 				{"go", "test", "./internal/recovery/", "-count=1"},
 			},
 			residual: []string{
-				"J-APPEND + recovery/apply P-* FailAt + OS SIGKILL at J-* and publish labels + Darwin F_FULLFSYNC SyncFile complete; power-fail/unflushed pages still open",
+				"J-APPEND + recovery/apply P-* FailAt + OS SIGKILL + Darwin F_FULLFSYNC SyncFile + CloneFile PublishFrom complete; power-fail/unflushed pages still open",
 				"independent assurance review of evidence not recorded",
 			},
 		},

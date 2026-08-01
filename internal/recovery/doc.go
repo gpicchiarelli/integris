@@ -37,8 +37,9 @@
 //     apply-side FilePublisher covers stage→sync→rename→dirsync FailAt with
 //     Observation→Recover; OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels is
 //     exercised via cmd/integris-crash-stub (KillAt; mode=journal|publish).
-//     Sync paths use platform.SyncFile (Darwin F_FULLFSYNC). Power-fail /
-//     unflushed-page simulation remains open.
+//     Sync paths use platform.SyncFile (Darwin F_FULLFSYNC). PublishFrom stages
+//     via platform.CloneFile (Darwin clonefile). Power-fail / unflushed-page
+//     simulation remains open.
 //
 // EVD-RECOVERY-001 / EVD-TXN-001 remain planned until evidence artifacts exist.
 package recovery

@@ -29,6 +29,10 @@ type FilePublisher struct {
 	// Observation().PublishedContentMatches.
 	ExpectedContent []byte
 
+	// StageMechanism records how staging was materialized on the last
+	// successful Publish/PublishFrom ("write", "clonefile", or "copy").
+	StageMechanism string
+
 	Checkpoints []CrashLabel
 }
 
@@ -42,8 +46,8 @@ func NewFilePublisher(root string) (*FilePublisher, error) {
 	return &FilePublisher{Root: root}, nil
 }
 
-// Publish exclusive-creates staging/name, syncs, renames into published/, and
-// directory-syncs. Crash labels are hit in catalog order:
+// Publish exclusive-creates staging/name from bytes, syncs, renames into
+// published/, and directory-syncs. Crash labels are hit in catalog order:
 // P-STAGE-CREATE → P-STAGE-SYNC → P-PUBLISH-RENAME → P-PUBLISH-DIRSYNC.
 func (p *FilePublisher) Publish(name string, data []byte) error {
 	if p == nil {
@@ -71,7 +75,38 @@ func (p *FilePublisher) Publish(name string, data []byte) error {
 		_ = os.Remove(stagePath)
 		return ioErr(LabelPStageCreate, err)
 	}
+	p.StageMechanism = "write"
+	return p.publishStaged(stagePath, pubPath)
+}
 
+// PublishFrom stages name by cloning srcPath into staging/ (Darwin clonefile
+// when available; exclusive copy otherwise), then follows the same
+// sync→rename→dirsync profile as Publish.
+func (p *FilePublisher) PublishFrom(name, srcPath string) error {
+	if p == nil {
+		return stateErr("nil FilePublisher")
+	}
+	if err := validatePublishName(name); err != nil {
+		return err
+	}
+	if srcPath == "" {
+		return stateErr("empty publish source path")
+	}
+	stagePath := filepath.Join(p.Root, "staging", name)
+	pubPath := filepath.Join(p.Root, "published", name)
+
+	if err := p.checkpoint(LabelPStageCreate); err != nil {
+		return err
+	}
+	mech, err := platform.CloneFile(stagePath, srcPath)
+	if err != nil {
+		return ioErr(LabelPStageCreate, err)
+	}
+	p.StageMechanism = mech
+	return p.publishStaged(stagePath, pubPath)
+}
+
+func (p *FilePublisher) publishStaged(stagePath, pubPath string) error {
 	if err := p.checkpoint(LabelPStageSync); err != nil {
 		return err
 	}

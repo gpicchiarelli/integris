@@ -24,7 +24,8 @@ Apply-side `FilePublisher` covers stage→sync→rename→dirsync FailAt and der
 `FSObservation` for Recover. OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels is
 exercised via `cmd/integris-crash-stub` (`KillAt` + `launcher.RunEngineering`;
 `INTEGRIS_CRASH_MODE=journal|publish`). Persistence Sync uses
-`platform.SyncFile` / `SyncDir` (Darwin `F_FULLFSYNC`). Power-fail /
+`platform.SyncFile` / `SyncDir` (Darwin `F_FULLFSYNC`). `PublishFrom` stages via
+`platform.CloneFile` (Darwin `clonefile`; copy degraded elsewhere). Power-fail /
 unflushed-page simulation remains open.
 
 Evidence IDs `EVD-RECOVERY-001` and `EVD-TXN-001` stay `planned` until

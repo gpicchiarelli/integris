@@ -14,5 +14,6 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available in-process via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnknown, Detail: "launcher.CreateKeyFD uses anon-unlinked FD; memfd seals unavailable on Darwin"},
 		{ID: "DISC-FULLFSYNC", Platform: plat, Control: "durable_sync", Status: StatusAvailable, Detail: "platform.SyncFile uses F_FULLFSYNC (INT-IC4-0001)"},
+		{ID: "DISC-CLONEFILE", Platform: plat, Control: "clonefile", Status: StatusAvailable, Detail: "platform.CloneFile prefers clonefile; copy is degraded fallback (INT-IC4-0001)"},
 	}
 }
