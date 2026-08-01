@@ -186,10 +186,11 @@ func run(root string) error {
 			commands: [][]string{
 				{"go", "test", "./internal/authority/", "-count=1"},
 				{"go", "test", "./internal/supervisor/", "-count=1"},
+				{"go", "test", "./internal/crypto/", "-count=1"},
 			},
 			residual: []string{
 				"OS negative capability probes and descriptor inheritance tests pending M2",
-				"supervisor does not spawn processes yet (grant planning only)",
+				"supervisor fabric is in-process only (no OS spawn/confinement)",
 				"independent security review required for IC-1",
 				"VER-ARCH-001 remains planned until platform probes land",
 			},
@@ -201,6 +202,7 @@ func run(root string) error {
 			commands: [][]string{
 				{"go", "test", "./internal/session/", "-count=1"},
 				{"go", "test", "./internal/protocol/", "-count=1"},
+				{"go", "test", "./internal/crypto/", "-count=1"},
 			},
 			residual: []string{
 				"session AEAD / full suite pending superseding IP-C",

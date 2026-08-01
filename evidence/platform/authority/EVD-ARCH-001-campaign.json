@@ -1,27 +1,33 @@
 {
   "evidence_id": "EVD-ARCH-001",
-  "source_revision": "e9987d8c96e5ec384ef60c2021db322362412b1c",
-  "produced_at": "2026-08-01T12:48:47Z",
+  "source_revision": "0f35cc4171ac550632ceee6c091ed45784328759",
+  "produced_at": "2026-08-01T12:52:17Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/authority/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.232s\n",
-      "stdout_sha256": "e88155038bcf3df3325bb5b2e304c81f74698998bf88f2d5592f47eaa3a9ba6d"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.230s\n",
+      "stdout_sha256": "aa82eb3467fd3bf850c8652567e753a087ea675fc9be582075e4ad7f7f32238e"
     },
     {
       "command": "go test ./internal/supervisor/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t0.243s\n",
-      "stdout_sha256": "02c4bb83263e477761b7e157ac71faf7b5ad0c3138e745fb9487473084e06780"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t0.640s\n",
+      "stdout_sha256": "38aa735c34f63b4d6010586e7fbc8aa33f327cb19535cc3905d61223cd3304b2"
+    },
+    {
+      "command": "go test ./internal/crypto/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.255s\n",
+      "stdout_sha256": "9b0b6978a7100d0685b95cf4330877d86e3ea63b046301c672134f3ba31a0339"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
     "OS negative capability probes and descriptor inheritance tests pending M2",
-    "supervisor does not spawn processes yet (grant planning only)",
+    "supervisor fabric is in-process only (no OS spawn/confinement)",
     "independent security review required for IC-1",
     "VER-ARCH-001 remains planned until platform probes land"
   ],

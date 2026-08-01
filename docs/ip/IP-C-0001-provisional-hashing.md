@@ -37,6 +37,8 @@ claim of cryptographic suite stability pending independent review.
 | Capability vector digest | SHA-256 | `internal/fsmodel` |
 | Path/archive pseudonyms | SHA-256 keyed commitment | observability |
 | Local IPC frame MAC | HMAC-SHA256 | `internal/ipc` when MACKey set; provisional |
+| IPC channel key derivation | HKDF-SHA256 | `internal/crypto.ChannelMACKey`; engineering only |
+| Negotiation transcript | SHA-256 length-prefixed | `internal/crypto.Transcript`; engineering only |
 
 Output size is 32 bytes (`codec.Digest`).
 
@@ -45,7 +47,7 @@ Output size is 32 bytes (`codec.Digest`).
 - Session AEAD / handshake (Noise, TLS, or custom) — future IP-C
 - Manifest/plan authorization signatures — future IP-C
 - Release signing (Sigstore / offline roots) — release policy + IP-C
-- KDF labels and key domains — future IP-C
+- Full KDF label registry beyond provisional IPC info strings — future IP-C
 - Journal AEAD beyond hash chaining — optional future IP-C
 
 ### Negotiation policy (when sessions exist)

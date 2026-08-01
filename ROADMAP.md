@@ -47,8 +47,9 @@ pending independent review, crypto suite, and platform probes.
 - native confinement adapters for all declared platforms;
 - destructive-operation quarantine and recovery harness.
 
-**Status (prelude):** `internal/supervisor` validates child role grants against
-the authority inventory; process spawn and OS confinement remain open.
+**Status (prelude):** `internal/supervisor` validates child role grants and opens
+an in-process authenticated IPC fabric (`OpenFabric` + provisional HKDF channel
+keys). Process spawn and OS confinement remain open.
 
 Exit: red-team review, crash testing at every persistence point, platform
 evidence, and no open IC-1 defects.

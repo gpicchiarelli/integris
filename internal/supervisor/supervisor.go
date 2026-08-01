@@ -115,9 +115,9 @@ func defaultPeers(role authority.ProcessRole) []authority.ProcessRole {
 	case authority.RoleIndex:
 		return []authority.ProcessRole{authority.RolePlan, authority.RoleApply}
 	case authority.RolePlan:
-		return []authority.ProcessRole{authority.RoleAuth, authority.RoleApply, authority.RoleParser}
+		return []authority.ProcessRole{authority.RoleAuth, authority.RoleApply, authority.RoleParser, authority.RoleIndex}
 	case authority.RoleApply:
-		return []authority.ProcessRole{authority.RoleAuth, authority.RolePlan, authority.RoleJournal}
+		return []authority.ProcessRole{authority.RoleAuth, authority.RolePlan, authority.RoleJournal, authority.RoleIndex}
 	case authority.RoleJournal:
 		return []authority.ProcessRole{authority.RoleApply, authority.RoleAudit, authority.RoleSupervisor}
 	case authority.RoleAudit:

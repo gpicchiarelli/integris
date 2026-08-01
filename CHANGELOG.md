@@ -23,6 +23,7 @@ is accepted.
 - draft IP-P-0001 wire protocol frame widths; HMAC on authenticated IPC channels;
 - `internal/protocol` frame codec and engineering release-digest manifest tool;
 - M2 prelude `internal/supervisor` grant planner against authority inventory;
+- provisional `internal/crypto` HKDF/transcript helpers and supervisor IPC fabric;
 - recovery/session optional observability event emission;
 - protocol frame fuzz in CI (PR short + weekly);
 - M1 e2e pipeline tests (plan→journal→recovery, session+path, quarantine AT);

@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-RECOVERY-001",
-  "source_revision": "e9987d8c96e5ec384ef60c2021db322362412b1c",
-  "produced_at": "2026-08-01T12:48:44Z",
+  "source_revision": "0f35cc4171ac550632ceee6c091ed45784328759",
+  "produced_at": "2026-08-01T12:52:14Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.265s\n",
-      "stdout_sha256": "ae984ecb675a34e62129670e7c80e705eae6915a0ce27769278c72e844c3940f"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.261s\n",
+      "stdout_sha256": "f8f4375ebd09fb5d33d51ed328cc13607e83351c87bf123f29ea069267329a5a"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
