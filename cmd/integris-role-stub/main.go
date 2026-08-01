@@ -5,6 +5,7 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
@@ -13,7 +14,7 @@ import (
 )
 
 // Engineering role stub: one authenticated IPC request/response on fd 3, then exit.
-// Not a product daemon (IP-A-0003).
+// MAC key is read from fd 4 (pipe). Not a product daemon (IP-A-0003).
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "integris-role-stub: %v\n", err)
@@ -22,6 +23,8 @@ func main() {
 }
 
 func run() error {
+	applyBestEffortConfinement()
+
 	if os.Getenv(launcher.EnvMode) != launcher.ModeEngineering {
 		return fmt.Errorf("refusing non-engineering launch mode")
 	}
@@ -36,9 +39,10 @@ func run() error {
 	}
 	var nonce [16]byte
 	copy(nonce[:], nonceRaw)
-	macKey, err := hex.DecodeString(os.Getenv(launcher.EnvMACKey))
-	if err != nil || len(macKey) < 16 {
-		return fmt.Errorf("bad mac key")
+
+	macKey, err := readKeyFD(launcher.KeyFileFD)
+	if err != nil {
+		return err
 	}
 	sock, err := os.OpenFile(fmt.Sprintf("/dev/fd/%d", launcher.IPCFileFD), os.O_RDWR, 0)
 	if err != nil {
@@ -63,4 +67,21 @@ func run() error {
 		return err
 	}
 	return ipc.WriteFrame(sock, reply)
+}
+
+func readKeyFD(fd int) ([]byte, error) {
+	f, err := os.OpenFile(fmt.Sprintf("/dev/fd/%d", fd), os.O_RDONLY, 0)
+	if err != nil {
+		return nil, fmt.Errorf("open key fd: %w", err)
+	}
+	defer f.Close()
+	// Bound: MAC keys are small; refuse > 256 bytes.
+	buf, err := io.ReadAll(io.LimitReader(f, 257))
+	if err != nil {
+		return nil, fmt.Errorf("read key: %w", err)
+	}
+	if len(buf) < 16 || len(buf) > 256 {
+		return nil, fmt.Errorf("bad mac key length %d", len(buf))
+	}
+	return buf, nil
 }

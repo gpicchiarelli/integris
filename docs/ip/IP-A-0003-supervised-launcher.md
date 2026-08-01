@@ -41,8 +41,10 @@ profile defect.
 `launcher.Start` may start a single absolute executable with:
 
 - `ExtraFiles` containing exactly the conferred IPC socket end(s);
-- argv/env limited to role, peer, session nonce, and (engineering only) MAC key
-  material as hex;
+- argv/env limited to role, peer, session nonce (non-secret);
+- MAC key conferred on **fd 4** via a pipe (`ExtraFiles[1]`), never via
+  environment;
+- IPC socket on **fd 3** (`ExtraFiles[0]`);
 - a finite `context` deadline for wait;
 - `EngineeringMode=true` required; when false, Start refuses (release path not
   yet implemented).
@@ -74,9 +76,10 @@ appear in release acceptance evidence as a runtime component.
 ## Risk analysis
 
 Mitigates uncontrolled subprocess creation outside a single adapter. Residual:
-engineering MAC keys in environment are visible to local peers on the same host;
-acceptable only for development/tests. Common-cause: compromised supervisor still
-controls children. Complexity: one new package and stub binary.
+engineering MAC key still traverses a pipe readable by a compromised sibling with
+access to the child's fd table before close; acceptable only for development/tests.
+Common-cause: compromised supervisor still controls children. Complexity: one new
+package and stub binary.
 
 ## Compatibility and portability
 
@@ -97,8 +100,8 @@ churn.
 
 ## Dissent and unresolved questions
 
+- Exact fd number ABI (currently ExtraFiles → fd 3 IPC, fd 4 key pipe).
 - Whether release builds embed role binaries or invoke verified install paths.
-- Exact fd number ABI (currently ExtraFiles → fd 3).
 
 ## Decision and approvals
 

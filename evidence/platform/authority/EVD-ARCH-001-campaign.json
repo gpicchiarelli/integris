@@ -1,27 +1,27 @@
 {
   "evidence_id": "EVD-ARCH-001",
-  "source_revision": "b8d19955364d69fd5941953bd5cceea0608a7bc2",
-  "produced_at": "2026-08-01T13:00:14Z",
+  "source_revision": "0dbfaa62cc98e91ab9fe0003fcf86f8421d17d22",
+  "produced_at": "2026-08-01T13:02:36Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/authority/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.255s\n",
-      "stdout_sha256": "f938450629f0d832bb0155660076fe98323f1cdd2a5dd0fa4a4d1cec4543f69b"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.242s\n",
+      "stdout_sha256": "036ba5575c674ce5f3a58543586aa1c55a9564f7715338be75ac4c954b67e519"
     },
     {
       "command": "go test ./internal/supervisor/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t0.252s\n",
-      "stdout_sha256": "93cea8bfb767780890d2b6d6594e1773c3877415c99a3e9ed31cb48041db7561"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t0.240s\n",
+      "stdout_sha256": "d789ad9f68598de2140a848cbbad6dbc7c2db179bcafe74f19b5da5aea02a0df"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.233s\n",
-      "stdout_sha256": "ea75a1ae585b351e66415adfd6006f25e891459b98a4f949fd2ff587be1ebfd2"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.250s\n",
+      "stdout_sha256": "405c95286d1974d6db3c6e2399f52c6a54e3728f2867d952437ffb21140c408f"
     },
     {
       "command": "go test ./internal/confine/ -count=1",
@@ -38,8 +38,8 @@
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "engineering launch only; MAC keys still conferred via env",
-    "child OS confinement (pledge/Capsicum/Landlock) not applied",
+    "engineering launch only; MAC key via pipe fd (not sealed memfd/SCM yet)",
+    "Linux stub sets no_new_privs only; Landlock/seccomp/pledge not applied",
     "independent security review required for IC-1",
     "VER-ARCH-001 remains planned until confined negative probes pass"
   ],

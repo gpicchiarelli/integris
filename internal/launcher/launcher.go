@@ -9,16 +9,17 @@ import (
 	"github.com/gpicchiarelli/integris/internal/authority"
 )
 
-// Env keys conferred in engineering mode only.
+// Env keys conferred in engineering mode only (no MAC key material).
 const (
 	EnvRole         = "INTEGRIS_ROLE"
 	EnvPeer         = "INTEGRIS_PEER"
 	EnvNonce        = "INTEGRIS_NONCE_HEX"
-	EnvMACKey       = "INTEGRIS_MAC_KEY_HEX"
 	EnvMode         = "INTEGRIS_LAUNCH_MODE"
 	ModeEngineering = "engineering"
 	// IPCFileFD is the child's inherited IPC socket (ExtraFiles[0] → fd 3).
 	IPCFileFD = 3
+	// KeyFileFD is the child's inherited MAC-key pipe (ExtraFiles[1] → fd 4).
+	KeyFileFD = 4
 )
 
 // Error is a typed launcher failure.

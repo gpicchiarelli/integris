@@ -55,53 +55,32 @@ func TestRejectOversizeBeforeAlloc(t *testing.T) {
 }
 
 func TestSessionDriveWithFrames(t *testing.T) {
-	// Control-plane types map to session steps; bodies are opaque for M1.
-	s := session.New([]session.Version{2, 3})
-	steps := []protocol.MessageType{
+	var sid [16]byte
+	sid[1] = 9
+	key := []byte("0123456789abcdef")
+	d := protocol.NewDriver([]session.Version{2, 3}, sid, key, true)
+	enc := protocol.NewDriver([]session.Version{2, 3}, sid, key, true)
+	for _, typ := range []protocol.MessageType{
 		protocol.TypeNegotiateOffer,
 		protocol.TypeNegotiateAccept,
 		protocol.TypePeerAuth,
 		protocol.TypeArchiveAuth,
 		protocol.TypeActivate,
-	}
-	var sid [16]byte
-	sid[1] = 9
-	key := []byte("0123456789abcdef")
-	for i, typ := range steps {
-		raw, err := protocol.Encode(protocol.Frame{
-			Type: typ, Flags: protocol.FlagRequiresMAC, SessionID: sid,
-			Sequence: uint64(i + 1), Body: []byte{byte(typ)},
-		}, key)
+	} {
+		var body []byte
+		if typ == protocol.TypeNegotiateOffer {
+			body = []byte{2, 3}
+		}
+		raw, err := enc.EncodeFrame(typ, body)
 		if err != nil {
 			t.Fatal(err)
 		}
-		f, err := protocol.Decode(raw, key, true)
-		if err != nil {
+		if _, err := d.DecodeAndHandle(raw); err != nil {
 			t.Fatal(err)
 		}
-		switch f.Type {
-		case protocol.TypeNegotiateOffer, protocol.TypeNegotiateAccept:
-			if s.State == session.StateNew {
-				if err := s.Negotiate(); err != nil {
-					t.Fatal(err)
-				}
-			}
-		case protocol.TypePeerAuth:
-			if err := s.Authenticate(); err != nil {
-				t.Fatal(err)
-			}
-		case protocol.TypeArchiveAuth:
-			if err := s.AuthorizeArchive(); err != nil {
-				t.Fatal(err)
-			}
-		case protocol.TypeActivate:
-			if err := s.Activate(); err != nil {
-				t.Fatal(err)
-			}
-		}
 	}
-	if err := s.Invariants(); err != nil || s.State != session.StateActive {
-		t.Fatalf("state=%s err=%v", s.State, err)
+	if err := d.Session.Invariants(); err != nil || d.Session.State != session.StateActive {
+		t.Fatalf("state=%s err=%v", d.Session.State, err)
 	}
 }
 

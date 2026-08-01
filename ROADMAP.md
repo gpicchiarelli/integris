@@ -47,9 +47,9 @@ pending independent review, crypto suite, and platform probes.
 - native confinement adapters for all declared platforms;
 - destructive-operation quarantine and recovery harness.
 
-**Status (prelude):** sealed launch tokens, in-memory and socketpair IPC fabrics,
-confinement discovery scaffold, and engineering child spawn via
-`internal/launcher` (IP-A-0003 draft; env MAC keys; no OS confinement yet).
+**Status (prelude):** sealed launch tokens, socketpair IPC, engineering child
+spawn with MAC key on fd 4, protocol session Driver, and confinement discovery
+scaffold. OS confinement beyond Linux `no_new_privs` in the stub remains open.
 
 Exit: red-team review, crash testing at every persistence point, platform
 evidence, and no open IC-1 defects.
