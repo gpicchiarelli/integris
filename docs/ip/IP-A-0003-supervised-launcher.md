@@ -80,15 +80,15 @@ directory owned for the test/run.
     `NEG-FS-WRITE` asserts create under root succeeds for Apply and is denied for Index).
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
   `NEG-FS-WRITE`, `NEG-EXEC`, `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
-  (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`, `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`,
-  `NEG-JOURNAL-NET`) over IPC.
+  (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`, `NEG-AUTH-ACCEPT`, `NEG-PLAN-WRITE`,
+  `NEG-AUDIT-DECIDE`, `NEG-JOURNAL-NET`) over IPC.
 - Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles` for
   engineering callers that cannot yet SendFD after spawn.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
   apply is not claimed equivalent).
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
 - Broader role path allow-lists beyond Apply/Index archive caps; pre-conferred
-  directory FDs on FreeBSD Capsicum; auth-role accept-loop denials.
+  directory FDs on FreeBSD Capsicum.
 - Dual-live crash recovery beyond kill-both `RestartPair` (in-place peer FD
   rebind while one child survives; SCM dual-spawn still unsupported).
 - Windows process model.

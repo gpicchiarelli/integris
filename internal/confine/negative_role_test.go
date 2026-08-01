@@ -62,6 +62,35 @@ func TestNegativeRoleSemanticParserBadCap(t *testing.T) {
 	}
 }
 
+func TestNegativeRoleSemanticAuthOK(t *testing.T) {
+	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+		Role: authority.RoleAuth,
+		Confer: []authority.Capability{
+			authority.CapIdentityHandle, authority.CapSessionKeyDerive, authority.CapAuthorizationPolicy,
+		},
+		SlotKinds: []string{"ipc_endpoint"},
+	})
+	for _, f := range fs {
+		if f.ID == "NEG-AUTH-ACCEPT" && f.Status != confine.StatusDeniedExpected {
+			t.Fatalf("%+v", f)
+		}
+	}
+}
+
+func TestNegativeRoleSemanticAuthBadCap(t *testing.T) {
+	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+		Role: authority.RoleAuth,
+		Confer: []authority.Capability{
+			authority.CapIdentityHandle, authority.CapNetworkAcceptLoop,
+		},
+	})
+	for _, f := range fs {
+		if f.ID == "NEG-AUTH-ACCEPT" && f.Status != confine.StatusUnexpectedAllow {
+			t.Fatalf("%+v", f)
+		}
+	}
+}
+
 func TestNegativeRoleSemanticPlanAuditJournal(t *testing.T) {
 	cases := []struct {
 		id   string

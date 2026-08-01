@@ -23,6 +23,7 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 	return []Finding{
 		negNetArchive(plat, in),
 		negParserNet(plat, in),
+		negAuthAccept(plat, in),
 		negPlanWrite(plat, in),
 		negAuditDecide(plat, in),
 		negJournalNet(plat, in),
@@ -82,6 +83,33 @@ func negParserNet(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "parser lacks network_sockets in inventory and conferral"
+	return base
+}
+
+func negAuthAccept(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-AUTH-ACCEPT", Platform: plat, Control: "network_accept_loop",
+	}
+	if in.Role != authority.RoleAuth {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-auth only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapNetworkAcceptLoop) ||
+		hasCap(in.Confer, authority.CapNetworkSockets) ||
+		hasCap(in.Confer, authority.CapNetwork) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "auth role conferred network accept or socket capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleAuth, authority.CapNetworkAcceptLoop)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows network_accept_loop for auth"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "auth lacks network_accept_loop in inventory and conferral"
 	return base
 }
 

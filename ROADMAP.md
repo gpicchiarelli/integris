@@ -50,7 +50,8 @@ pending independent review, crypto suite, and platform probes.
 **Status (prelude):** engineering children apply Landlock+seccomp (Linux),
 pledge (OpenBSD), Capsicum+cap_rights_limit (FreeBSD), or Seatbelt sandbox_init
 (Darwin, cgo) with role-parameterized ambient network denial; stub reports
-NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET and full role-semantic conferral NEG-*; Runtime
+NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET and role-semantic conferral NEG-*
+(including NEG-AUTH-ACCEPT); Runtime
 orchestrates spawn (AllowRoots→stub), RestartChild, and RestartPair (KeyViaExtraFiles + stub initiate);
 Apply/Index path allow-roots (Index readonly write denial probed);
 sealed MAC key FD (Linux memfd; anon-unlinked
