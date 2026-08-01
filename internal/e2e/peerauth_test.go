@@ -19,10 +19,15 @@ func TestM3PreludePeerAuthAndAEAD(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	archKey, err := crypto.ArchiveAuthKey(root, sid)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	alice := protocol.NewDriverWithSuites([]session.Version{3, 2}, suites, sid, mac, true)
 	bob := protocol.NewDriverWithSuites([]session.Version{2, 3}, suites, sid, mac, true)
 	alice.AuthKey, bob.AuthKey = authKey, authKey
+	alice.ArchiveKey, bob.ArchiveKey = archKey, archKey
 	alice.AuthDir, bob.AuthDir = "i2r", "r2i"
 
 	// Negotiate: alice applies locally; bob via inbound offer (independent seqs).
@@ -59,15 +64,15 @@ func TestM3PreludePeerAuthAndAEAD(t *testing.T) {
 		t.Fatalf("mutual auth incomplete: alice=%s bob=%s", alice.Session.State, bob.Session.State)
 	}
 
-	if err := alice.Session.AuthorizeArchive(); err != nil {
-		t.Fatal(err)
-	}
-	raw, err = alice.EncodeFrame(protocol.TypeArchiveAuth, nil)
+	raw, err = alice.EncodeArchiveAuth()
 	if err != nil {
 		t.Fatal(err)
 	}
 	if _, err := bob.DecodeAndHandle(raw); err != nil {
 		t.Fatal(err)
+	}
+	if alice.Session.State != session.StateArchiveAuthorized || bob.Session.State != session.StateArchiveAuthorized {
+		t.Fatalf("archive auth incomplete: alice=%s bob=%s", alice.Session.State, bob.Session.State)
 	}
 
 	if err := alice.Session.Activate(); err != nil {

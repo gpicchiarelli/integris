@@ -1,32 +1,32 @@
 {
   "evidence_id": "EVD-PROTO-001",
-  "source_revision": "365f8654567d6a2bef7128d8a5f0c70e550348e6",
-  "produced_at": "2026-08-01T13:25:06Z",
+  "source_revision": "91084b68a8460eb94f6826cc44ae290a2d0c8a50",
+  "produced_at": "2026-08-01T13:27:37Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/session/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.250s\n",
-      "stdout_sha256": "3d6225dbcf20ea5769cbd009d7ffd88e095e04c297ac25654baa18087309e600"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.242s\n",
+      "stdout_sha256": "5390e9d7fb040d3081801bb1e510815c94bfaf3ddc329ffa99f848a3836b5d2e"
     },
     {
       "command": "go test ./internal/protocol/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.261s\n",
-      "stdout_sha256": "07641eea97f63168a4dee8e56fa17fc76b7635a3c1378b294e21e4a1ea972873"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.262s\n",
+      "stdout_sha256": "8150390844a4bc578980d371b88d6e0950b7a4357203deee99e9bd4c47e6c76f"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.246s\n",
-      "stdout_sha256": "e453ed6d1584d7d505847d6a0637aa343b73200dd68f9550e05c89b162df5c9c"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.268s\n",
+      "stdout_sha256": "ba661dd7f5eed9a2bd3c7fe84382b8f9def6e90fb4676d5255391d891d0ce893"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "provisional AEAD + mutual HMAC peer-auth i2r/r2i (IP-C-0002); Noise/TLS/PQ pending superseding IP-C",
+    "provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); Noise/TLS/PQ pending superseding IP-C",
     "independent cryptography review required",
     "VER-PROTO-001 remains planned until crypto review"
   ],

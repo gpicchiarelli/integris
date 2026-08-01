@@ -65,8 +65,8 @@ evidence, and no open IC-1 defects.
 - hostile-peer and multi-version test suites.
 
 **Status (prelude):** suite allow-list + TypeData AEAD over `protocol.Driver`
-with transcript-bound keys and mutual provisional HMAC peer-auth (`i2r`+`r2i`)
-exist; Noise/TLS handshake and PQ remain open.
+with transcript-bound keys, mutual provisional HMAC peer-auth (`i2r`+`r2i`), and
+archive-auth proofs exist; Noise/TLS handshake and PQ remain open.
 
 Exit: independent protocol/cryptographic review and published test vectors.
 

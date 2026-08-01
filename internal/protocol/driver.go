@@ -20,6 +20,7 @@ type Driver struct {
 	AEADKey    []byte
 	AuthKey    []byte // provisional peer-auth HMAC key; enables proof on TypePeerAuth
 	AuthDir    string // direction this peer proves on EncodePeerAuth ("i2r"|"r2i")
+	ArchiveKey []byte // provisional archive-auth HMAC key; enables proof on TypeArchiveAuth
 	RequireMAC bool
 	// LastPlaintext is set when TypeData is opened under AEADKey.
 	LastPlaintext []byte
@@ -139,7 +140,11 @@ func (d *Driver) Handle(f Frame) error {
 			return err
 		}
 	case TypeArchiveAuth:
-		if err := d.Session.AuthorizeArchive(); err != nil {
+		if len(d.ArchiveKey) > 0 {
+			if err := d.Session.AuthorizeArchiveProof(d.ArchiveKey, d.SessionID, f.Body); err != nil {
+				return err
+			}
+		} else if err := d.Session.AuthorizeArchive(); err != nil {
 			return err
 		}
 	case TypeActivate:
@@ -226,6 +231,29 @@ func (d *Driver) EncodePeerAuth() ([]byte, error) {
 		return nil, err
 	}
 	if err := d.Session.AuthenticateProof(d.AuthKey, d.SessionID, dir, proof); err != nil {
+		return nil, err
+	}
+	return raw, nil
+}
+
+// EncodeArchiveAuth builds a TypeArchiveAuth frame with an HMAC proof over the
+// frozen post-peer-auth digest, then applies it locally (independent sequences).
+func (d *Driver) EncodeArchiveAuth() ([]byte, error) {
+	if d == nil {
+		return nil, fail("driver", "nil driver")
+	}
+	if len(d.ArchiveKey) == 0 {
+		return nil, fail("archive", "ArchiveKey required")
+	}
+	proof, err := d.Session.MakeArchiveProof(d.ArchiveKey, d.SessionID)
+	if err != nil {
+		return nil, err
+	}
+	raw, err := d.EncodeFrame(TypeArchiveAuth, proof)
+	if err != nil {
+		return nil, err
+	}
+	if err := d.Session.AuthorizeArchiveProof(d.ArchiveKey, d.SessionID, proof); err != nil {
 		return nil, err
 	}
 	return raw, nil

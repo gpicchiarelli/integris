@@ -27,9 +27,10 @@ pretending a stable release crypto claim.
 | AAD | `INTPRO01 \|\| type_u16le \|\| session_id \|\| seq_u64le` | binds frame metadata |
 | Scope | `TypeData` bodies only when `Driver.AEADKey` set | control frames remain HMAC/MAC path |
 | Peer auth (provisional) | Mutual HMAC-SHA256 proofs (`i2r` then `r2i`) over frozen negotiate digest | `AuthenticateProof` / `EncodePeerAuth`; body = dir\|\|proof; not Noise/TLS |
+| Archive auth (provisional) | HMAC-SHA256 over frozen post-peer-auth digest | `AuthorizeArchiveProof` / `EncodeArchiveAuth`; not a finished archive identity claim |
 
 Suite ID strings: `integris-session-aead-chacha20poly1305-v1`,
-`integris-peer-auth-hmac-sha256-v1`.
+`integris-peer-auth-hmac-sha256-v1`, `integris-archive-auth-hmac-sha256-v1`.
 
 ## Explicit non-decisions
 
@@ -41,17 +42,17 @@ Suite ID strings: `integris-session-aead-chacha20poly1305-v1`,
 ## Risk analysis
 
 Engineering-only. Sequence nonces are predictable; security relies on key
-secrecy and no nonce reuse. Peer-auth HMAC proofs share a root key and bind
-the frozen negotiation transcript for both directions — they are not a finished
-handshake. Independent cryptographic review required before promoting protocol
-evidence.
+secrecy and no nonce reuse. Peer-auth and archive-auth HMAC proofs share a root
+key family and bind frozen transcript digests — they are not a finished
+handshake or archive identity protocol. Independent cryptographic review
+required before promoting protocol evidence.
 
 ## Verification
 
 - Known round-trip and AAD mismatch tests in `internal/crypto`
 - Driver encode/decode of sealed `TypeData` in `internal/protocol`
 - Transcript-bound `InstallTrafficKey` after Activate with matching peer keys
-- Mutual HMAC peer-auth (`i2r`+`r2i`) + e2e negotiate→auth→AEAD path
+- Mutual HMAC peer-auth (`i2r`+`r2i`) + archive-auth proof + e2e AEAD path
 - Session.tla `PeerAuthIsMutual` invariant
 - EVD-PROTO-001 remains **planned**
 

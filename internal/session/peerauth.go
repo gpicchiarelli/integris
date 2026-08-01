@@ -75,6 +75,7 @@ func (s *Session) AuthenticateProof(authKey []byte, sessionID [16]byte, directio
 	if s.AuthI2R && s.AuthR2I {
 		s.PeerAuthenticated = true
 		s.State = StatePeerAuthenticated
+		s.freezeArchiveBase()
 	}
 	return nil
 }

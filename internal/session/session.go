@@ -3,8 +3,9 @@
 //
 // TLC does not prove this Go code. Peer authentication may use the boolean
 // Authenticate step (TLA conformance; both directions at once) or mutual
-// AuthenticateProof for i2r and r2i (provisional HMAC over the frozen
-// negotiation digest, IP-C-0002). Traffic protection uses provisional AEAD
+// AuthenticateProof for i2r and r2i. Archive authorization may use boolean
+// AuthorizeArchive or AuthorizeArchiveProof (provisional HMAC over the frozen
+// post-peer-auth digest, IP-C-0002). Traffic protection uses provisional AEAD
 // after suite negotiation and transcript-bound key derivation.
 package session
 
@@ -67,6 +68,9 @@ type Session struct {
 	// AuthBaseDigest is frozen at Negotiate for mutual peer-auth MACs.
 	AuthBaseDigest codec.Digest
 	AuthBaseSet    bool
+	// ArchiveBaseDigest is frozen when entering PEER_AUTHENTICATED.
+	ArchiveBaseDigest codec.Digest
+	ArchiveBaseSet    bool
 }
 
 func (s *Session) emit(id, cause, message string, sev observability.Severity) {
@@ -208,10 +212,12 @@ func (s *Session) Authenticate() error {
 	s.PeerAuthenticated = true
 	s.State = StatePeerAuthenticated
 	s.bind("peer_auth", []byte{1})
+	s.freezeArchiveBase()
 	return nil
 }
 
-// AuthorizeArchive records archive authorization.
+// AuthorizeArchive records archive authorization without a crypto proof
+// (TLA conformance / tests). Prefer AuthorizeArchiveProof when ArchiveKey is set.
 func (s *Session) AuthorizeArchive() error {
 	if s.State != StatePeerAuthenticated || !s.PeerAuthenticated {
 		return fail("state", "AuthorizeArchive requires PEER_AUTHENTICATED")
