@@ -80,7 +80,8 @@ directory owned for the test/run.
     `NEG-FS-WRITE` asserts create under root succeeds for Apply and is denied for Index).
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
   `NEG-FS-WRITE`, `NEG-EXEC`, `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
-  (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`, `NEG-PARSER-KEYS`, `NEG-PARSER-ARCHIVES`,
+  (`NEG-NET-ARCHIVE`, `NEG-NET-KEYS`, `NEG-NET-JOURNAL`, `NEG-PARSER-NET`,
+  `NEG-PARSER-KEYS`, `NEG-PARSER-ARCHIVES`,
   `NEG-AUTH-ACCEPT`, `NEG-AUTH-CONTENTS`,
   `NEG-AUTH-PUB`, `NEG-INDEX-PUB`, `NEG-INDEX-DELETE`, `NEG-APPLY-KEYS`,
   `NEG-APPLY-PATH`, `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`, `NEG-AUDIT-ARCHIVES`,

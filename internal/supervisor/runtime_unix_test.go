@@ -741,6 +741,84 @@ func TestRuntimeStartChildAuditMustNot(t *testing.T) {
 	}
 }
 
+func TestRuntimeStartChildNetMustNot(t *testing.T) {
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleParser,
+			Confer:   []authority.Capability{authority.CapBoundedMessageIPC},
+			IPCPeers: []authority.ProcessRole{authority.RoleNet},
+		},
+		{
+			Role:     authority.RoleNet,
+			Confer:   []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
+			IPCPeers: []authority.ProcessRole{authority.RoleParser},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x6f}, 32)
+	var nonce [16]byte
+	nonce[2] = 12
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := rt.StartChild(ctx, authority.RoleNet, authority.RoleParser, bin); err != nil {
+		t.Fatal(err)
+	}
+
+	parent, err := rt.Fabric.Endpoint(authority.RoleParser, authority.RoleNet)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("net"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:net|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-NET-ARCHIVE:denied_as_expected")) {
+		t.Fatalf("missing NEG-NET-ARCHIVE in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-NET-KEYS:denied_as_expected")) {
+		t.Fatalf("missing NEG-NET-KEYS in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-NET-JOURNAL:denied_as_expected")) {
+		t.Fatalf("missing NEG-NET-JOURNAL in %q", resp.Payload)
+	}
+	if err := rt.WaitChild(authority.RoleNet); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRuntimeRestartPairIPC(t *testing.T) {
 	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {

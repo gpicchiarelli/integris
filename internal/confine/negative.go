@@ -223,6 +223,10 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-ROLE-NET:")
 		case "NEG-NET-ARCHIVE":
 			b.WriteString("|NEG-NET-ARCHIVE:")
+		case "NEG-NET-KEYS":
+			b.WriteString("|NEG-NET-KEYS:")
+		case "NEG-NET-JOURNAL":
+			b.WriteString("|NEG-NET-JOURNAL:")
 		case "NEG-PARSER-NET":
 			b.WriteString("|NEG-PARSER-NET:")
 		case "NEG-PARSER-KEYS":

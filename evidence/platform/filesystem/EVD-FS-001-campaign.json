@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "d2989e017309103b3ed45ddb313655feb0ce536a",
-  "produced_at": "2026-08-01T17:15:03Z",
+  "source_revision": "f4462f0c41e971082091f52f5420e3fa9e9cdaa1",
+  "produced_at": "2026-08-01T17:17:55Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.255s\n",
-      "stdout_sha256": "5063130d0054c8dcf69e34d15cbc764375b633bf60d17fada34e85bf20754c3a"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.269s\n",
+      "stdout_sha256": "641a274c4bdd4841c3a46bd180a9f6b14a9bb19149a0722f7dc18919670e16f6"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

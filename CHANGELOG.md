@@ -45,6 +45,7 @@ is accepted.
 - Parser MustNot triad complete (`NEG-PARSER-KEYS`, `NEG-PARSER-ARCHIVES`);
 - Journal MustNot triad complete (`NEG-JOURNAL-POLICY`, `NEG-JOURNAL-MUTATE`);
 - Audit MustNot triad complete (`NEG-AUDIT-ARCHIVES`, `NEG-AUDIT-SECRETS`);
+- Net MustNot triad complete (`NEG-NET-KEYS`, `NEG-NET-JOURNAL`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
 - `Runtime.StartPair`/`RestartPair` with stub initiate mode (KeyViaExtraFiles dual-live edges);
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;

@@ -22,6 +22,8 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	return []Finding{
 		negNetArchive(plat, in),
+		negNetKeys(plat, in),
+		negNetJournal(plat, in),
 		negParserNet(plat, in),
 		negParserKeys(plat, in),
 		negParserArchives(plat, in),
@@ -68,6 +70,62 @@ func negNetArchive(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "net lacks archive descriptors in inventory and conferral"
+	return base
+}
+
+func negNetKeys(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-NET-KEYS", Platform: plat, Control: "permanent_keys",
+	}
+	if in.Role != authority.RoleNet {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-net only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapPermanentKeys) ||
+		hasCap(in.Confer, authority.CapKeys) ||
+		hasCap(in.Confer, authority.CapLongTermKeys) ||
+		hasCap(in.Confer, authority.CapIdentityKeys) ||
+		hasCap(in.Confer, authority.CapIdentityHandle) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "net role conferred permanent or identity key capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleNet, authority.CapPermanentKeys)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows permanent_keys for net"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "net lacks permanent_keys in inventory and conferral"
+	return base
+}
+
+func negNetJournal(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-NET-JOURNAL", Platform: plat, Control: "journal_writes",
+	}
+	if in.Role != authority.RoleNet {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-net only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapJournalWrites) ||
+		hasCap(in.Confer, authority.CapJournalDescriptor) ||
+		hasCap(in.Confer, authority.CapAuthenticatedRecords) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "net role conferred journal write capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleNet, authority.CapJournalWrites)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows journal_writes for net"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "net lacks journal_writes in inventory and conferral"
 	return base
 }
 

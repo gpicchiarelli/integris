@@ -9,30 +9,58 @@ import (
 
 func TestNegativeRoleSemanticNetOK(t *testing.T) {
 	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
-		Role:   authority.RoleNet,
-		Confer: []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
+		Role:      authority.RoleNet,
+		Confer:    []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
 		SlotKinds: []string{"ipc_endpoint"},
 	})
-	var netF confine.Finding
-	for _, f := range fs {
-		if f.ID == "NEG-NET-ARCHIVE" {
-			netF = f
-		}
+	want := map[string]confine.Status{
+		"NEG-NET-ARCHIVE": confine.StatusDeniedExpected,
+		"NEG-NET-KEYS":    confine.StatusDeniedExpected,
+		"NEG-NET-JOURNAL": confine.StatusDeniedExpected,
 	}
-	if netF.Status != confine.StatusDeniedExpected {
-		t.Fatalf("%+v", netF)
+	for _, f := range fs {
+		if st, ok := want[f.ID]; ok && f.Status != st {
+			t.Fatalf("%s: %+v", f.ID, f)
+		}
 	}
 }
 
-func TestNegativeRoleSemanticNetBadSlot(t *testing.T) {
-	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
-		Role:      authority.RoleNet,
-		Confer:    []authority.Capability{authority.CapNetworkSockets},
-		SlotKinds: []string{"archive_root"},
-	})
-	for _, f := range fs {
-		if f.ID == "NEG-NET-ARCHIVE" && f.Status != confine.StatusUnexpectedAllow {
-			t.Fatalf("%+v", f)
+func TestNegativeRoleSemanticNetBadCap(t *testing.T) {
+	cases := []struct {
+		id     string
+		confer []authority.Capability
+		slots  []string
+	}{
+		{
+			id: "NEG-NET-ARCHIVE",
+			confer: []authority.Capability{
+				authority.CapNetworkSockets,
+			},
+			slots: []string{"archive_root"},
+		},
+		{
+			id: "NEG-NET-KEYS",
+			confer: []authority.Capability{
+				authority.CapNetworkSockets, authority.CapPermanentKeys,
+			},
+		},
+		{
+			id: "NEG-NET-JOURNAL",
+			confer: []authority.Capability{
+				authority.CapNetworkSockets, authority.CapJournalWrites,
+			},
+		},
+	}
+	for _, tc := range cases {
+		fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+			Role:      authority.RoleNet,
+			Confer:    tc.confer,
+			SlotKinds: tc.slots,
+		})
+		for _, f := range fs {
+			if f.ID == tc.id && f.Status != confine.StatusUnexpectedAllow {
+				t.Fatalf("%s: %+v", tc.id, f)
+			}
 		}
 	}
 }

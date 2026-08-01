@@ -51,7 +51,7 @@ pending independent review, crypto suite, and platform probes.
 pledge (OpenBSD), Capsicum+cap_rights_limit (FreeBSD), or Seatbelt sandbox_init
 (Darwin, cgo) with role-parameterized ambient network denial; stub reports
 NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET and role-semantic conferral NEG-*
-(including auth/index/apply/parser/journal/audit MustNot probes; CapNetwork via NEG-ROLE-NET); Runtime
+(including auth/index/apply/parser/journal/audit/net MustNot probes; CapNetwork via NEG-ROLE-NET); Runtime
 orchestrates spawn (AllowRoots→stub), RestartChild, and RestartPair (KeyViaExtraFiles + stub initiate);
 Apply/Index path allow-roots (Index readonly write denial probed);
 sealed MAC key FD (Linux memfd; anon-unlinked
