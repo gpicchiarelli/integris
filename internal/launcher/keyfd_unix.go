@@ -4,6 +4,8 @@ package launcher
 
 import (
 	"os"
+
+	"github.com/gpicchiarelli/integris/internal/platform"
 )
 
 // CreateKeyFD materializes key bytes in an unlinked anonymous file opened
@@ -25,7 +27,7 @@ func CreateKeyFD(key []byte) (*os.File, KeyTransport, error) {
 		cleanup()
 		return nil, "", fail("keyfd", err.Error())
 	}
-	if err := wf.Sync(); err != nil {
+	if err := platform.SyncFile(wf); err != nil {
 		cleanup()
 		return nil, "", fail("keyfd", err.Error())
 	}

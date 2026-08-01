@@ -125,7 +125,9 @@ labels and derives `FSObservation` for Recover (not a shared PersistIO adapter).
 OS SIGKILL at J-* and apply P-STAGE/P-PUBLISH labels is exercised by
 `cmd/integris-crash-stub` (`CrashSegment.KillAt` / `FilePublisher.KillAt` +
 `launcher.RunEngineering`; modes `journal` and `publish`). Injected FailAt and
-SIGKILL are not power-fail / unflushed-page simulation.
+SIGKILL are not power-fail / unflushed-page simulation. Persistence Sync paths
+use `platform.SyncFile` / `SyncDir` (Darwin `F_FULLFSYNC`; other Unix `fsync`)
+so post-Sync durability claims match INT-IC4-0001 on each port.
 
 ### Failure behavior
 

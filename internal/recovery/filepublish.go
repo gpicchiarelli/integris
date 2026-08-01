@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gpicchiarelli/integris/internal/codec"
+	"github.com/gpicchiarelli/integris/internal/platform"
 )
 
 // FilePublisher is the apply-side publication profile for M1 crash harnesses.
@@ -78,7 +79,7 @@ func (p *FilePublisher) Publish(name string, data []byte) error {
 	if err != nil {
 		return ioErr(LabelPStageSync, err)
 	}
-	if err := sf.Sync(); err != nil {
+	if err := platform.SyncFile(sf); err != nil {
 		_ = sf.Close()
 		return ioErr(LabelPStageSync, err)
 	}

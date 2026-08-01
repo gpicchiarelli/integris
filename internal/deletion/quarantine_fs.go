@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/gpicchiarelli/integris/internal/platform"
 )
 
 // ExecuteQuarantineMove renames source to quarantine path under the same root
@@ -67,10 +69,5 @@ func validateComponent(name []byte) error {
 }
 
 func syncDir(path string) error {
-	d, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer d.Close()
-	return d.Sync()
+	return platform.SyncDir(path)
 }

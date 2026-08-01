@@ -44,7 +44,7 @@ classes. Exact APIs evolve with accepted IPs and empirical platform evidence.
 |---|---|
 | Bulk transfer | `sendfile`, `copy_file_range`, `splice`, platform clone/reflink (`clonefile` / `fclonefileat`, filesystem-specific clone) |
 | I/O completion | `kqueue`, `epoll`, accepted bounded `io_uring` adapters where IP-approved |
-| Durability | platform-correct `fsync`/`fdatasync`/`F_FULLFSYNC`, directory sync, rename linearization profiles |
+| Durability | platform-correct `fsync`/`fdatasync`/`F_FULLFSYNC`, directory sync, rename linearization profiles — **adopted:** `internal/platform.SyncFile` / `SyncDir` (Darwin `F_FULLFSYNC`; other Unix `fsync`) wired through journal, recovery publish/persist, quarantine, and key-FD materialization |
 | Notification | `kqueue` VNODE / `NOTE_*`, `inotify`/`fanotify` only behind reviewed adapters |
 | Confinement | strongest stable primitives per [platform-matrix.md](../platform-matrix.md) (`pledge`/`unveil`, Capsicum, Landlock+seccomp, Seatbelt/Hardened Runtime) |
 | Identity / secrets | Keychain or OS key stores where an accepted IP allows them |

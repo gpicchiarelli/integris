@@ -13,5 +13,6 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-LAUNCHD-IDENTITY", Platform: plat, Control: "dedicated_identity", Status: StatusUnavailable, Detail: "no launchd child identities until spawn adapter"},
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available in-process via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnknown, Detail: "launcher.CreateKeyFD uses anon-unlinked FD; memfd seals unavailable on Darwin"},
+		{ID: "DISC-FULLFSYNC", Platform: plat, Control: "durable_sync", Status: StatusAvailable, Detail: "platform.SyncFile uses F_FULLFSYNC (INT-IC4-0001)"},
 	}
 }

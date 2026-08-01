@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/gpicchiarelli/integris/internal/platform"
 )
 
 // FilePersist is a directory-backed PersistIO for real-filesystem fault tests.
@@ -106,7 +108,7 @@ func (f *FilePersist) AppendConfirmation(txid [16]byte, payload []byte) error {
 	if _, err := file.Write(txid[:]); err != nil {
 		return err
 	}
-	if err := file.Sync(); err != nil {
+	if err := platform.SyncFile(file); err != nil {
 		return err
 	}
 	f.Confirms++
@@ -147,10 +149,5 @@ func (f *FilePersist) QuarantineHas(name string) (bool, error) {
 }
 
 func syncDir(path string) error {
-	d, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer d.Close()
-	return d.Sync()
+	return platform.SyncDir(path)
 }

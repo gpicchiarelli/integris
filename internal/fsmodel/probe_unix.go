@@ -10,6 +10,7 @@ import (
 
 	"github.com/gpicchiarelli/integris/internal/codec"
 	"github.com/gpicchiarelli/integris/internal/plan"
+	"github.com/gpicchiarelli/integris/internal/platform"
 	"golang.org/x/sys/unix"
 )
 
@@ -61,18 +62,20 @@ func ProbeScratch(scratchDir string) (ProbeResult, error) {
 		{ID: plan.CapIdentityMap, Result: plan.ResultUnknown},
 		{ID: plan.CapMount, Result: plan.ResultUnknown},
 		{ID: plan.CapRenameAtomicity, Result: probeRename(dir)},
-		{ID: plan.CapSync, Result: plan.ResultLossless}, // fsync on dir succeeded below or unknown
+		{ID: plan.CapSync, Result: plan.ResultLossless}, // platform SyncFile below or unknown
 		{ID: plan.CapCOW, Result: plan.ResultUnknown},
 		{ID: plan.CapSnapshot, Result: plan.ResultUnknown},
 		{ID: plan.CapDurability, Result: plan.ResultUnknown},
 	}
 
-	// Attempt directory sync as a sync capability probe.
+	// Attempt directory sync with the platform durability barrier.
 	if d, err := os.Open(dir); err == nil {
-		if err := d.Sync(); err != nil {
+		if err := platform.SyncFile(d); err != nil {
 			facts = replaceFact(facts, plan.CapSync, plan.ResultUnknown)
+			facts = replaceFact(facts, plan.CapDurability, plan.ResultUnknown)
 		} else {
 			facts = replaceFact(facts, plan.CapSync, plan.ResultLossless)
+			facts = replaceFact(facts, plan.CapDurability, plan.ResultLossless)
 		}
 		_ = d.Close()
 	}

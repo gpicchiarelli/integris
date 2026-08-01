@@ -2,7 +2,8 @@ package journal
 
 import (
 	"errors"
-	"os"
+
+	"github.com/gpicchiarelli/integris/internal/platform"
 )
 
 // Crash-point labels matching recovery.CrashLabel / IP-S-0003 (stringly typed
@@ -105,13 +106,7 @@ func (c *CrashSegment) Sync() error {
 			return err
 		}
 		if c.Dir != "" {
-			d, err := os.Open(c.Dir)
-			if err != nil {
-				return err
-			}
-			err = d.Sync()
-			_ = d.Close()
-			if err != nil {
+			if err := platform.SyncDir(c.Dir); err != nil {
 				return err
 			}
 		}

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/gpicchiarelli/integris/internal/platform"
 )
 
 // Segment is an injectable append-only byte sequence used for fault testing.
@@ -121,8 +123,9 @@ func (s *FileSegment) Append(p []byte) error {
 	return nil
 }
 
-// Sync implements Segment.
-func (s *FileSegment) Sync() error { return s.f.Sync() }
+// Sync implements Segment using the platform durability barrier (Darwin
+// F_FULLFSYNC; fsync elsewhere).
+func (s *FileSegment) Sync() error { return platform.SyncFile(s.f) }
 
 // Truncate shrinks the durable prefix for fault-injection / quarantine repair.
 func (s *FileSegment) Truncate(n int64) error {

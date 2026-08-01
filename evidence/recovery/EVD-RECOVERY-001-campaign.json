@@ -1,20 +1,20 @@
 {
   "evidence_id": "EVD-RECOVERY-001",
-  "source_revision": "41925f1385d5676aa3019963b98439a5f99c49d2",
-  "produced_at": "2026-08-01T17:51:31Z",
+  "source_revision": "ce395f9619ba485a8a27a91da241814d12415cd0",
+  "produced_at": "2026-08-01T17:56:00Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t1.938s\n",
-      "stdout_sha256": "aa8e07fec6457f7ecf7ce4f544da48f64d217fad5b08e9cf9d8839fcc66c1da4"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t1.862s\n",
+      "stdout_sha256": "a07ac5c9be77d7d1381d06152356e9a75ab46c102a6b21ec944e067b5b375bee"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "J-APPEND + recovery/apply P-* FailAt + OS SIGKILL crash-stub at J-* and publish labels complete; power-fail/unflushed pages still open",
+    "J-APPEND + recovery/apply P-* FailAt + OS SIGKILL at J-* and publish labels + Darwin F_FULLFSYNC SyncFile complete; power-fail/unflushed pages still open",
     "independent assurance review of evidence not recorded"
   ],
   "extra": {
