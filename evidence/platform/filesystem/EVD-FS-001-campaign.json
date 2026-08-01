@@ -1,20 +1,20 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "9ba3d1668f274ec07e0ccdbbf50e977eadad8b3a",
-  "produced_at": "2026-08-01T19:03:31Z",
+  "source_revision": "b6edde3fd1c5820cb7ca63089b621079a089711c",
+  "produced_at": "2026-08-01T19:42:09Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.268s\n",
-      "stdout_sha256": "982ca21c5239b8bb9803bd1c136a1b9e846b7b67ae4185823e9af926d9fb18e5"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.257s\n",
+      "stdout_sha256": "c1b5fdcd5713f83f241fb348732274cc58ca241d06037a6063488060eebc88d7"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "CapCOW empirical via platform.CloneFile (Darwin clonefile→LOSSLESS; copy→UNREPRESENTABLE)",
+    "CapCOW empirical via platform.CloneFile (Darwin clonefile / Linux FICLONE→LOSSLESS; copy→UNREPRESENTABLE)",
     "CapXattr/CapBSDFlags empirical (Setxattr/Getxattr; Darwin/FreeBSD/OpenBSD chflags)",
     "CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
     "CapTimes empirical (Chtimes + Stat Atim/Mtim)",
