@@ -12,9 +12,11 @@ unless an isolated, reviewed platform adapter explicitly requires otherwise.
 ## Prohibited
 
 - `unsafe` in IC-1/IC-2 and by default everywhere;
-- cgo outside an isolated platform adapter with an accepted IP — exception:
-  `internal/confine` Darwin Seatbelt (`sandbox_init`) under IP-A-0003 when
-  `CGO_ENABLED=1` (nocgo builds report apply skipped);
+- cgo outside an isolated platform adapter with an accepted IP — exceptions when
+  `CGO_ENABLED=1` (nocgo builds report skipped/UNKNOWN):
+  - `internal/confine` Darwin Seatbelt (`sandbox_init`) under IP-A-0003;
+  - `internal/platform` Darwin ACL (`acl_*` / `mbr_uid_to_uuid`) for CapACL
+    filesystem probes under IP-S-0002 / INT-IC4-0001;
 - `os/exec`, shell invocation, dynamic loading, plugins, embedded interpreters
   **except** the narrow allowance in [IP-A-0003](ip/IP-A-0003-supervised-launcher.md):
   among `internal/*` packages only `internal/launcher` may start subprocesses

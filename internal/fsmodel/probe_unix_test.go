@@ -8,6 +8,7 @@ import (
 
 	"github.com/gpicchiarelli/integris/internal/fsmodel"
 	"github.com/gpicchiarelli/integris/internal/plan"
+	"github.com/gpicchiarelli/integris/internal/platform"
 )
 
 func TestProbeScratchEmpirical(t *testing.T) {
@@ -58,6 +59,11 @@ func TestProbeScratchEmpirical(t *testing.T) {
 	default:
 		t.Fatalf("times=%v", byID[plan.CapTimes])
 	}
+	switch byID[plan.CapACL] {
+	case plan.ResultLossless, plan.ResultUnrepresentable, plan.ResultUnknown:
+	default:
+		t.Fatalf("acl=%v", byID[plan.CapACL])
+	}
 	if runtime.GOOS == "darwin" {
 		if byID[plan.CapCOW] != plan.ResultLossless {
 			t.Fatalf("darwin CapCOW=%v want LOSSLESS (clonefile)", byID[plan.CapCOW])
@@ -76,6 +82,9 @@ func TestProbeScratchEmpirical(t *testing.T) {
 		}
 		if byID[plan.CapTimes] != plan.ResultLossless {
 			t.Fatalf("darwin CapTimes=%v want LOSSLESS (chtimes)", byID[plan.CapTimes])
+		}
+		if platform.ACLSupported() && byID[plan.CapACL] != plan.ResultLossless {
+			t.Fatalf("darwin+cgo CapACL=%v want LOSSLESS", byID[plan.CapACL])
 		}
 	}
 	// Digest must be stable across re-probe on same FS type in same dir parent.
@@ -106,6 +115,9 @@ func TestProbeScratchEmpirical(t *testing.T) {
 		}
 		if fact(res, plan.CapTimes) != fact(res2, plan.CapTimes) {
 			t.Fatal("times probe unstable")
+		}
+		if fact(res, plan.CapACL) != fact(res2, plan.CapACL) {
+			t.Fatal("acl probe unstable")
 		}
 	}
 }

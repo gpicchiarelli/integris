@@ -54,7 +54,7 @@ func ProbeScratch(scratchDir string) (ProbeResult, error) {
 		probeSpecial(dir),
 		{ID: plan.CapNameEncoding, Result: plan.ResultLossless}, // UTF-8 path ops succeeded to create dir
 		{ID: plan.CapUnicode, Result: plan.ResultUnknown, DetailDigest: codec.SHA256([]byte("nfc-probe-deferred"))},
-		{ID: plan.CapACL, Result: plan.ResultUnknown},
+		probeACL(dir),
 		probeXattr(dir),
 		probeBSDFlags(dir),
 		probeSparse(dir),
@@ -199,6 +199,23 @@ func xattrName() string {
 		return "user.integris.probe"
 	}
 	return "integris.probe"
+}
+
+// probeACL exercises platform.ACLRoundTrip when the Darwin cgo adapter is
+// available; otherwise leaves CapACL UNKNOWN (not yet probed on other ports).
+func probeACL(dir string) Fact {
+	if !platform.ACLSupported() {
+		return Fact{ID: plan.CapACL, Result: plan.ResultUnknown, DetailDigest: codec.SHA256([]byte("acl-unsupported"))}
+	}
+	path := filepath.Join(dir, "acl-probe")
+	if err := os.WriteFile(path, []byte("a"), 0o600); err != nil {
+		return Fact{ID: plan.CapACL, Result: plan.ResultUnknown}
+	}
+	defer os.Remove(path)
+	if err := platform.ACLRoundTrip(path); err != nil {
+		return Fact{ID: plan.CapACL, Result: plan.ResultUnrepresentable, DetailDigest: codec.SHA256([]byte("acl-fail"))}
+	}
+	return Fact{ID: plan.CapACL, Result: plan.ResultLossless, DetailDigest: codec.SHA256([]byte("acl-extended"))}
 }
 
 // probeTimes sets and reads back atime/mtime on a scratch file.

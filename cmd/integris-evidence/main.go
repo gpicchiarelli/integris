@@ -178,7 +178,7 @@ func run(root string) error {
 				"CapXattr/CapBSDFlags empirical (Setxattr/Getxattr; Darwin/FreeBSD/OpenBSD chflags)",
 				"CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
 				"CapTimes empirical (Chtimes + Stat Atim/Mtim)",
-				"ACL probe still UNKNOWN placeholder",
+				"CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; other ports UNKNOWN)",
 				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",
 				"VER-FS-001 remains planned until review closes",

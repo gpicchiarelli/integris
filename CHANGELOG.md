@@ -75,6 +75,7 @@ is accepted.
 - Empirical CapXattr + CapBSDFlags probes in `fsmodel.ProbeScratch`;
 - Empirical CapSparse + CapResourceFork probes in `fsmodel.ProbeScratch`;
 - Empirical CapTimes probe in `fsmodel.ProbeScratch` (Chtimes round-trip);
+- Empirical CapACL probe via Darwin cgo `platform.ACLRoundTrip` (`acl_*`);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;

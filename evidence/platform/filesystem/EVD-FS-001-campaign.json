@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-FS-001",
-  "source_revision": "1b257ca64ff077bbcc2c83083c96812c7559d96f",
-  "produced_at": "2026-08-01T18:28:01Z",
+  "source_revision": "fc693aeb5cf31bcc3775881de6f2edd4b1e31d4a",
+  "produced_at": "2026-08-01T18:32:07Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/fsmodel/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.269s\n",
-      "stdout_sha256": "641a274c4bdd4841c3a46bd180a9f6b14a9bb19149a0722f7dc18919670e16f6"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/fsmodel\t0.278s\n",
+      "stdout_sha256": "b43cb39f1df11296d2de8ed5f81acce561c8ef9c49dd6e7a138187ea655ba175"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
@@ -18,7 +18,7 @@
     "CapXattr/CapBSDFlags empirical (Setxattr/Getxattr; Darwin/FreeBSD/OpenBSD chflags)",
     "CapSparse/CapResourceFork empirical (SEEK_HOLE/SEEK_DATA; Darwin ..namedfork/rsrc)",
     "CapTimes empirical (Chtimes + Stat Atim/Mtim)",
-    "ACL probe still UNKNOWN placeholder",
+    "CapACL empirical via platform.ACLRoundTrip (Darwin cgo acl_*; other ports UNKNOWN)",
     "FreeBSD/OpenBSD CI probe matrix not yet scheduled",
     "independent technical review of evidence not recorded",
     "VER-FS-001 remains planned until review closes"

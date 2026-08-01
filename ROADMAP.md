@@ -60,7 +60,7 @@ on FilePersist; apply-side `FilePublisher` covers stage→rename→dirsync FailA
 Observation→Recover; OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels via crash-stub
 (`CrashSegment.KillAt` / `FilePublisher.KillAt`); Darwin `F_FULLFSYNC` via
 `platform.SyncFile` and `clonefile` via `platform.CloneFile`→`PublishFrom`
-(CapCOW/CapXattr/CapBSDFlags/CapSparse/CapResourceFork/CapTimes probed in
+(CapCOW/CapXattr/CapBSDFlags/CapSparse/CapResourceFork/CapTimes/CapACL probed in
 `fsmodel.ProbeScratch`; power-fail/unflushed pages still open);
 sealed MAC key FD (Linux memfd; anon-unlinked
 elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
