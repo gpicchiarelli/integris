@@ -112,7 +112,6 @@ func run(root string) error {
 				{"go", "test", "./internal/recovery/", "-count=1"},
 			},
 			residual: []string{
-				"real filesystem publication-profile crash matrix pending",
 				"independent assurance review of evidence not recorded",
 			},
 		},
@@ -127,6 +126,18 @@ func run(root string) error {
 				"TLC does not prove Go; see internal/recovery/README.md",
 				"independent security review of evidence not recorded",
 				"VER-TXN-001 remains planned until review closes",
+			},
+		},
+		{
+			id:   "EVD-CONFIG-001",
+			dir:  "evidence/configuration",
+			file: "EVD-CONFIG-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/config/", "-count=1"},
+			},
+			residual: []string{
+				"schema still M1 MVP subset of configuration.md",
+				"independent security review of evidence not recorded",
 			},
 		},
 	}

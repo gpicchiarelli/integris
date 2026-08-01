@@ -97,7 +97,7 @@
       "requirements": ["INT-IC3-0001"],
       "criterion": "Invalid or ambiguous configuration is rejected before authority acquisition; canonical equivalent inputs have one digest; active session policy never changes on reload.",
       "evidence": ["EVD-CONFIG-001"],
-      "status": "planned",
+      "status": "implemented",
       "owner": "gpicchiarelli"
     },
     {
@@ -119,7 +119,7 @@
       "requirements": ["INT-IC2-0003"],
       "criterion": "Every injected interruption preserves authorization and valid-prefix invariants; recovery never duplicates publication/confirmation and a second recovery has no additional effect.",
       "evidence": ["EVD-RECOVERY-001"],
-      "status": "planned",
+      "status": "implemented",
       "owner": "gpicchiarelli"
     },
     {

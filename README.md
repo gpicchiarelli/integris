@@ -22,7 +22,8 @@ targeted formal methods, adversarial testing, and attestable supply chains.
   cryptography specifications;
 - executable TLA+ models for the transaction and session state machines;
 - M1 reference kernels: path grammar/resolution, codec, journal (+ verifier),
-  deterministic planner, and crash recovery (`internal/`);
+  deterministic planner, crash recovery, and immutable configuration
+  (`internal/`);
 - draft M1 Integris Proposals under `docs/ip/` (IP-S-0001…0003, IP-F-0001);
 - evidence campaign producer (`cmd/integris-evidence`) and artifacts under
   `evidence/`;
