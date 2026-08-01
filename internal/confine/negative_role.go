@@ -28,6 +28,8 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 		negAuthPub(plat, in),
 		negIndexPub(plat, in),
 		negIndexDelete(plat, in),
+		negApplyKeys(plat, in),
+		negApplyPath(plat, in),
 		negPlanWrite(plat, in),
 		negAuditDecide(plat, in),
 		negJournalNet(plat, in),
@@ -221,6 +223,60 @@ func negIndexDelete(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "index lacks deletion in inventory and conferral"
+	return base
+}
+
+func negApplyKeys(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-APPLY-KEYS", Platform: plat, Control: "identity_keys",
+	}
+	if in.Role != authority.RoleApply {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-apply only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapIdentityKeys) ||
+		hasCap(in.Confer, authority.CapKeys) ||
+		hasCap(in.Confer, authority.CapPermanentKeys) ||
+		hasCap(in.Confer, authority.CapLongTermKeys) ||
+		hasCap(in.Confer, authority.CapIdentityHandle) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "apply role conferred identity or long-term key capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleApply, authority.CapIdentityKeys)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows identity_keys for apply"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "apply lacks identity_keys in inventory and conferral"
+	return base
+}
+
+func negApplyPath(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-APPLY-PATH", Platform: plat, Control: "arbitrary_path_lookup",
+	}
+	if in.Role != authority.RoleApply {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-apply only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapArbitraryPathLookup) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "apply role conferred arbitrary_path_lookup"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleApply, authority.CapArbitraryPathLookup)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows arbitrary_path_lookup for apply"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "apply lacks arbitrary_path_lookup in inventory and conferral"
 	return base
 }
 

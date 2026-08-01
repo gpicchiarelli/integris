@@ -358,6 +358,12 @@ func TestRuntimeStartChildAllowRoots(t *testing.T) {
 	if !bytes.HasPrefix(resp.Payload, []byte("ack:allow-roots|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-APPLY-KEYS:denied_as_expected")) {
+		t.Fatalf("missing NEG-APPLY-KEYS in %q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-APPLY-PATH:denied_as_expected")) {
+		t.Fatalf("missing NEG-APPLY-PATH in %q", resp.Payload)
+	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd":
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {

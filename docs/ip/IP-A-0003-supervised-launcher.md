@@ -81,8 +81,8 @@ directory owned for the test/run.
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
   `NEG-FS-WRITE`, `NEG-EXEC`, `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
   (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`, `NEG-AUTH-ACCEPT`, `NEG-AUTH-CONTENTS`,
-  `NEG-AUTH-PUB`, `NEG-INDEX-PUB`, `NEG-INDEX-DELETE`, `NEG-PLAN-WRITE`,
-  `NEG-AUDIT-DECIDE`, `NEG-JOURNAL-NET`) over IPC.
+  `NEG-AUTH-PUB`, `NEG-INDEX-PUB`, `NEG-INDEX-DELETE`, `NEG-APPLY-KEYS`,
+  `NEG-APPLY-PATH`, `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`, `NEG-JOURNAL-NET`) over IPC.
 - Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles` for
   engineering callers that cannot yet SendFD after spawn.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
