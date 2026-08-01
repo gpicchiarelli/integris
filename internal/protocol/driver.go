@@ -22,8 +22,14 @@ type Driver struct {
 	AuthDir    string // direction this peer proves on EncodePeerAuth ("i2r"|"r2i")
 	ArchiveKey []byte // provisional archive-auth HMAC key; enables proof on TypeArchiveAuth
 	RequireMAC bool
-	// LastPlaintext is set when TypeData is opened under AEADKey.
+	// LastPlaintext is set when TypeData is opened under AEADKey (or cleartext).
+	// When TrackDataChunks is set, this is the chunk payload only.
 	LastPlaintext []byte
+	// TrackDataChunks enables contiguous TypeData chunk offset enforcement
+	// (IP-P-0001 resumable transfer prelude). Off by default for opaque bodies.
+	TrackDataChunks bool
+	NextDataOffset  uint64 // next expected inbound chunk offset
+	NextSendOffset  uint64 // next EncodeDataChunk outbound offset
 }
 
 // NewDriver constructs a driver in NEW with the peer's offered versions.
@@ -178,12 +184,24 @@ func (d *Driver) Handle(f Frame) error {
 			if err != nil {
 				return fail("aead", err.Error())
 			}
-			d.LastPlaintext = pt
 			body = pt
+		}
+		if d.TrackDataChunks {
+			off, data, err := ParseDataChunkBody(body)
+			if err != nil {
+				return err
+			}
+			if off != d.NextDataOffset {
+				if off < d.NextDataOffset {
+					return fail("chunk", fmt.Sprintf("replay/overlap offset %d want %d", off, d.NextDataOffset))
+				}
+				return fail("chunk", fmt.Sprintf("gap offset %d want %d", off, d.NextDataOffset))
+			}
+			d.LastPlaintext = data
+			d.NextDataOffset = off + uint64(len(data))
 		} else {
 			d.LastPlaintext = append([]byte{}, body...)
 		}
-		_ = body
 		if err := d.Session.AcceptNext(); err != nil {
 			return err
 		}
@@ -237,6 +255,25 @@ func (d *Driver) EncodeNegotiateAccept() ([]byte, error) {
 		return nil, err
 	}
 	return d.EncodeFrame(TypeNegotiateAccept, body)
+}
+
+// EncodeDataChunk builds TypeData with a chunk envelope at NextSendOffset and
+// advances the send offset on success. Requires TrackDataChunks for the peer
+// to enforce contiguity; the envelope is still well-formed without it.
+func (d *Driver) EncodeDataChunk(data []byte) ([]byte, error) {
+	if d == nil {
+		return nil, fail("driver", "nil driver")
+	}
+	body, err := EncodeDataChunkBody(d.NextSendOffset, data)
+	if err != nil {
+		return nil, err
+	}
+	raw, err := d.EncodeFrame(TypeData, body)
+	if err != nil {
+		return nil, err
+	}
+	d.NextSendOffset += uint64(len(data))
+	return raw, nil
 }
 
 // EncodeFrame builds the next outbound frame and advances SendSeq on success.

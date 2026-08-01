@@ -1,32 +1,32 @@
 {
   "evidence_id": "EVD-PROTO-001",
-  "source_revision": "d70295cf837fb5ff2a2d63012ddb7bccf4d9af26",
-  "produced_at": "2026-08-01T18:12:34Z",
+  "source_revision": "3035685462dfda63abd099350954f790f730c7e1",
+  "produced_at": "2026-08-01T19:50:33Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/session/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.245s\n",
-      "stdout_sha256": "21f55cd77911be145fc2e5fa73795fa6cc80d4ee685603ab7767af2bc6e7018e"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.255s\n",
+      "stdout_sha256": "188896b2825853baefb4f8bcdbfdc587fe0063cc731ddac0753d5a0223794fe7"
     },
     {
       "command": "go test ./internal/protocol/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.258s\n",
-      "stdout_sha256": "fe2b12d79b88f15de8be235d4004a1b2d47e7993f2c33f3e17a7c7fe14c41d54"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.271s\n",
+      "stdout_sha256": "1267af26e254b924ae8ca0d0ea91784c22f24e51e8104545cdfbec340ee9a7b7"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.235s\n",
-      "stdout_sha256": "57699d893cc1aff35475d7dec7e66768964fd655da61b239694da00b44f63b12"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.252s\n",
+      "stdout_sha256": "7bcdd5148fce9b08bcb9709a6bfb25beb6a9dec5bc9318413b77cc557b7fe542"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); wire NegotiateOffer/Accept + hostile-peer refuse + multi-version happy-path suites; Noise/TLS/PQ pending superseding IP-C",
+    "provisional AEAD + mutual HMAC peer/archive-auth (IP-C-0002); wire NegotiateOffer/Accept + hostile-peer refuse + multi-version happy-path suites; TypeData chunk envelope + TrackDataChunks gap/replay refuse; Noise/TLS/PQ pending superseding IP-C",
     "independent cryptography review required",
     "VER-PROTO-001 remains planned until crypto review"
   ],

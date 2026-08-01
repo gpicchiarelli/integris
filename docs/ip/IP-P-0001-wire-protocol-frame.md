@@ -95,6 +95,19 @@ engineering accepts (≤96 otherwise). Receivers that have already negotiated
 closed on mismatch. Codec: `protocol.EncodeNegotiateAcceptBody` /
 `ParseNegotiateAcceptBody`; `Driver.EncodeNegotiateAccept`.
 
+### TypeData body — chunk envelope (v0 transfer prelude)
+
+```text
+u64 offset || u32 length || data[length]
+```
+
+`length` MUST equal `len(data)`. `offset+length` MUST NOT wrap. Max
+`length` is `MaxBodyBytes - 12`. Codec: `EncodeDataChunkBody` /
+`ParseDataChunkBody`; `Driver.EncodeDataChunk` emits the next contiguous
+chunk. When `Driver.TrackDataChunks` is set, receivers require
+`offset == NextDataOffset` (refuse gaps and replay/overlap). Opaque TypeData
+bodies remain valid when tracking is off (existing engineering paths).
+
 ### Flags
 
 Bit0 `REQUIRES_MAC` — authenticator must verify.  
