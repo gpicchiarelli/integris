@@ -1,0 +1,2 @@
+# Expected unsafe in Linux Landlock/seccomp adapters (IP-A-0003 / go-profile).
+internal/confine/apply_linux.go

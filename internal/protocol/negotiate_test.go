@@ -32,7 +32,7 @@ func TestNegotiateOfferBodyRejectsMalformed(t *testing.T) {
 		nil,
 		{0},
 		{0, 0},
-		{2, 3}, // truncated versions
+		{2, 3},                 // truncated versions
 		{1, 3, 2, 5, 'a', 'b'}, // truncated suite
 	}
 	for _, body := range cases {

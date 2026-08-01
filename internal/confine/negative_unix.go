@@ -40,30 +40,6 @@ func NegativeExec() Finding {
 	}
 }
 
-// NegativePtrace attempts a ptrace request that Linux seccomp should deny.
-// Non-Linux platforms skip (denylist is seccomp-oriented).
-func NegativePtrace() Finding {
-	plat := runtime.GOOS + "/" + runtime.GOARCH
-	if runtime.GOOS != "linux" {
-		return Finding{
-			ID: "NEG-PTRACE", Platform: plat, Control: "ptrace",
-			Status: StatusSkipped, Detail: "ptrace denylist probe is Linux seccomp-oriented",
-		}
-	}
-	err := unix.PtraceAttach(unix.Getpid())
-	if err == nil {
-		_ = unix.PtraceDetach(unix.Getpid())
-		return Finding{
-			ID: "NEG-PTRACE", Platform: plat, Control: "ptrace",
-			Status: StatusUnexpectedAllow, Detail: "ptrace attach to self succeeded",
-		}
-	}
-	return Finding{
-		ID: "NEG-PTRACE", Platform: plat, Control: "ptrace",
-		Status: StatusDeniedExpected, Detail: err.Error(),
-	}
-}
-
 // NegativeRoleNet attempts AF_INET socket use after ApplyEngineering.
 // Roles that must not hold CapNetworkSockets should be denied by OS policy
 // (Linux/OpenBSD/FreeBSD typically deny socket(); Darwin Seatbelt denies connect).

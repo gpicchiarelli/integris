@@ -36,7 +36,7 @@ jobs:
             --timeout 20
             --max-concurrency 8
             --accept 200,206,429
-            --exclude-mail
+            --include-mail=false
             './**/*.md'
           fail: true
           format: markdown
