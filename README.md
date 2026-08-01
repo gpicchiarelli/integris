@@ -1,7 +1,7 @@
 <h1 align="center">Integris</h1>
 
 <p align="center">
-  <strong>Engineering baseline for a high-integrity replication system.</strong>
+  <strong>High-integrity filesystem sync and backup for Unix servers.</strong>
 </p>
 
 <p align="center">
@@ -28,16 +28,21 @@
   <a href="LICENSE"><img alt="BSD-3-Clause" src="https://img.shields.io/badge/license-BSD--3--Clause-blue"></a>
 </p>
 
-![Integris high-integrity replication and assurance laboratory](docs/assets/integris-hero.png)
+![Integris high-integrity sync and backup laboratory](docs/assets/integris-hero.png)
 
-Integris is the engineering baseline for a high-integrity replication system targeting
-macOS, FreeBSD, Linux, and OpenBSD. It is designed around prior specification, privilege
-separation, capability-oriented security, an authenticated protocol, transactional
-application, verifiable persistence, targeted formal methods, adversarial testing, and
-attestable supply chains.
+Integris is intended as a high-integrity sync and backup service: it replicates
+explicitly authorized filesystem archives between mutually authenticated nodes on
+macOS, FreeBSD, Linux, and OpenBSD. Protected properties are archive identity,
+containment, authenticity, integrity, deterministic planning, recoverability, and
+truthful completion — not ambient multi-writer sync or silent metadata loss.
+
+This repository is the engineering baseline for that service. It is designed around
+prior specification, privilege separation, capability-oriented security, an
+authenticated protocol, transactional application, verifiable persistence, targeted
+formal methods, adversarial testing, and attestable supply chains.
 
 > [!IMPORTANT]
-> **Not a usable replication daemon — not certified.** Integris makes no SIL,
+> **Not a usable sync or backup daemon — not certified.** Integris makes no SIL,
 > safety-critical, or standards-conformance claim. Product kernels under `internal/`
 > are reference implementations gated by draft IPs and incomplete IC-1 evidence —
 > not a release.
