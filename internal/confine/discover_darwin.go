@@ -14,9 +14,10 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available in-process via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnknown, Detail: "launcher.CreateKeyFD uses anon-unlinked FD; memfd seals unavailable on Darwin"},
 		{ID: "DISC-FULLFSYNC", Platform: plat, Control: "durable_sync", Status: StatusAvailable, Detail: "platform.SyncFile uses F_FULLFSYNC (INT-IC4-0001)"},
-		{ID: "DISC-CLONEFILE", Platform: plat, Control: "clonefile", Status: StatusAvailable, Detail: "platform.CloneFile prefers clonefile; degraded copy uses CopyXattr+CopyBSDFlags+CopyACL (INT-IC4-0001)"},
+		{ID: "DISC-CLONEFILE", Platform: plat, Control: "clonefile", Status: StatusAvailable, Detail: "platform.CloneFile prefers clonefile; degraded copy uses CopyXattr+CopyBSDFlags+CopyACL+CopyTimes (INT-IC4-0001)"},
 		{ID: "DISC-ACL", Platform: plat, Control: "extended_acl", Status: StatusAvailable, Detail: "platform.ACLRoundTrip/CopyACL use acl_* when CGO enabled; CopyACL on CloneFile degraded copy (INT-IC4-0001 / CapACL)"},
 		{ID: "DISC-XATTR", Platform: plat, Control: "extended_attributes", Status: StatusAvailable, Detail: "platform.CopyXattr (listxattr/getxattr/setxattr) on CloneFile degraded copy (INT-IC4-0001 / CapXattr)"},
 		{ID: "DISC-BSDFLAGS", Platform: plat, Control: "bsd_file_flags", Status: StatusAvailable, Detail: "platform.CopyBSDFlags (chflags) on CloneFile degraded copy (INT-IC4-0001 / CapBSDFlags)"},
+		{ID: "DISC-TIMES", Platform: plat, Control: "atime_mtime", Status: StatusAvailable, Detail: "platform.CopyTimes + degraded-copy SyncFile/UtimesNano (INT-IC4-0001 / CapTimes)"},
 	}
 }

@@ -14,11 +14,16 @@ const (
 
 // copyFileExclusive creates dst exclusively and copies src bytes (degraded
 // clone path). Applies SyncFile before close. Copies extended attributes, BSD
-// flags, and when ACLSupported the extended ACL (clonefile preserves these;
+// flags, ACL (when supported), and atime/mtime last (clonefile preserves these;
 // byte-copy would otherwise drop them).
 func copyFileExclusive(dst, src string) error {
 	if dst == "" || src == "" {
 		return fmt.Errorf("platform: empty clone path")
+	}
+	// Capture times before opening src (read may bump atime).
+	saved, err := readSourceTimes(src)
+	if err != nil {
+		return err
 	}
 	in, err := os.Open(src)
 	if err != nil {
@@ -49,6 +54,7 @@ func copyFileExclusive(dst, src string) error {
 	}
 	out = nil
 	// Xattr before ACL so Darwin ACL APIs own com.apple.system.Security.
+	// Times last so prior metadata ops do not clobber atime/mtime.
 	if err := copyXattr(dst, src); err != nil {
 		return err
 	}
@@ -60,14 +66,8 @@ func copyFileExclusive(dst, src string) error {
 			return err
 		}
 	}
-	meta, err := os.Open(dst)
-	if err != nil {
+	if err := syncAndApplyTimes(dst, saved); err != nil {
 		return err
-	}
-	syncErr := SyncFile(meta)
-	_ = meta.Close()
-	if syncErr != nil {
-		return syncErr
 	}
 	cleanup = false
 	return nil
