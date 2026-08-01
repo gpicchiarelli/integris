@@ -604,8 +604,8 @@ func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
 			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	case "freebsd":
-		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:skipped")) {
-			t.Fatalf("expected NEG-FS-PATH skipped on freebsd: %q", resp.Payload)
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
+			t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd: %q", resp.Payload)
 		}
 	}
 	if err := rt.WaitChild(authority.RoleJournal); err != nil {
@@ -713,8 +713,8 @@ func TestRuntimeStartChildAllowRootsAudit(t *testing.T) {
 			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	case "freebsd":
-		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:skipped")) {
-			t.Fatalf("expected NEG-FS-PATH skipped on freebsd: %q", resp.Payload)
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
+			t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd: %q", resp.Payload)
 		}
 	}
 	if err := rt.WaitChild(authority.RoleAudit); err != nil {
@@ -803,8 +803,8 @@ func TestRuntimeRestartChildAllowRoots(t *testing.T) {
 				t.Fatalf("expected NEG-FS-PATH available after %s on %s: %q", label, runtime.GOOS, resp.Payload)
 			}
 		case "freebsd":
-			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:skipped")) {
-				t.Fatalf("expected NEG-FS-PATH skipped on freebsd after %s: %q", label, resp.Payload)
+			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
+				t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd after %s: %q", label, resp.Payload)
 			}
 		}
 	}

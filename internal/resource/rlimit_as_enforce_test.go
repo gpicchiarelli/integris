@@ -15,11 +15,13 @@ func TestASSaturationHarness(t *testing.T) {
 	if err := unix.Getrlimit(asLimitResource(), &before); err != nil {
 		t.Fatal(err)
 	}
-	// Soft ceiling well above typical Go test RSS but below a deliberate 1GiB mmap.
-	const soft = 256 << 20
-	const want = 1 << 30
+	// Soft ceiling must leave headroom for the Go runtime (a 256MiB ceiling
+	// OOMs the harness itself on CI). Keep it above typical test RSS but
+	// below a deliberate oversized anonymous mapping.
+	const soft = 1 << 30 // 1 GiB
+	const want = 4 << 30 // 4 GiB
 	err := resource.WithSoftAS(soft, func() error {
-		b, err := unix.Mmap(-1, 0, want, unix.PROT_READ|unix.PROT_WRITE, unix.MAP_ANON|unix.MAP_PRIVATE)
+		b, err := unix.Mmap(-1, 0, want, unix.PROT_NONE, unix.MAP_ANON|unix.MAP_PRIVATE)
 		if err == nil {
 			_ = unix.Munmap(b)
 			return errors.New("expected mmap failure under lowered address/data soft limit")

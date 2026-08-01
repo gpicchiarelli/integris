@@ -1,19 +1,15 @@
 {
   "evidence_id": "EVD-RESOURCE-001",
-  "source_revision": "3eefd3f06a26ec4c6a4ba171c466c374c697f26c",
-  "produced_at": "2026-08-01T20:08:13Z",
-  "source_revision": "f32786b0ad0e054f232b99a6d55bdd1216e631ef",
-  "produced_at": "2026-08-01T20:28:17Z",
+  "source_revision": "b2aae9724168b4fcbed7dc4f866a7e98959c558c",
+  "produced_at": "2026-08-01T21:02:29Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/resource/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t2.610s\n",
-      "stdout_sha256": "dcd297a02a817d417d0cb36419357c6b52dfc9c17e0909f3e8b5451adca066ec"
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t3.461s\n",
-      "stdout_sha256": "52a9de54e038c4f31bc7c675dd5996513aff058c138c4a19aad5d42831f5b519"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/resource\t2.976s\n",
+      "stdout_sha256": "82793fc2a8b3db613ebc35eac38ec0a191d605c9e2e0ab0d2e4f726ac2ac7d0f"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

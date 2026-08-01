@@ -99,16 +99,21 @@ func (f *FilePersist) AppendConfirmation(txid [16]byte, payload []byte) error {
 	if err != nil {
 		return err
 	}
-	defer file.Close()
 	var hdr [4]byte
 	binary.LittleEndian.PutUint32(hdr[:], 16)
 	if _, err := file.Write(hdr[:]); err != nil {
+		_ = file.Close()
 		return err
 	}
 	if _, err := file.Write(txid[:]); err != nil {
+		_ = file.Close()
 		return err
 	}
 	if err := platform.SyncFile(file); err != nil {
+		_ = file.Close()
+		return err
+	}
+	if err := file.Close(); err != nil {
 		return err
 	}
 	f.Confirms++

@@ -8,7 +8,7 @@ updates:
     open-pull-requests-limit: 10
     labels: [dependencies, go]
     cooldown:
-      default-days: 3
+      default-days: 7
     groups:
       golang-x:
         patterns:
@@ -21,7 +21,7 @@ updates:
     open-pull-requests-limit: 10
     labels: [dependencies, github-actions]
     cooldown:
-      default-days: 3
+      default-days: 7
     groups:
       github-actions:
         patterns:

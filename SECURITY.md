@@ -3,17 +3,27 @@
 ## Supported versions
 
 Integris has no production release. The `main` branch receives security fixes,
-but must not be deployed as a replication service.
+but must not be deployed as a replication service. See
+[docs/scope-and-claims.md](docs/scope-and-claims.md) and
+[docs/release-policy.md](docs/release-policy.md).
 
 ## Reporting a vulnerability
 
-Use GitHub's private vulnerability reporting for this repository. Do not open a
-public issue and do not include real secrets or data. Include affected revision,
-preconditions, impact, a minimal reproducer if safe, and suggested mitigations.
+Use [GitHub private vulnerability reporting](https://github.com/gpicchiarelli/integris/security/advisories/new)
+for this repository. Do not open a public issue and do not include real secrets
+or data. Include affected revision, preconditions, impact, a minimal
+reproducer if safe, and suggested mitigations.
 
 If private reporting is unavailable, contact the repository owner through a
-private channel listed on the GitHub organization profile. No project security
-email is invented here because an unmonitored address would create false trust.
+private channel listed on the GitHub profile. No project security email is
+invented here because an unmonitored address would create false trust.
+
+Related posture documents:
+
+- [docs/security-architecture.md](docs/security-architecture.md)
+- [docs/supply-chain.md](docs/supply-chain.md)
+- [docs/criticality-policy.md](docs/criticality-policy.md)
+- [GOVERNANCE.md](GOVERNANCE.md)
 
 ## Response targets
 

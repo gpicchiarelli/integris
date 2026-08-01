@@ -1,0 +1,5 @@
+# OSV-Scanner ignore list. Revisit when golang.org/x/crypto drops openpgp
+# from the advisory surface or when Integris gains an openpgp import.
+[[IgnoredVulns]]
+id = "GO-2026-5932"
+reason = "Advisory is scoped to golang.org/x/crypto/openpgp*; Integris imports only chacha20poly1305 (govulncheck reachable-symbol clean)."
