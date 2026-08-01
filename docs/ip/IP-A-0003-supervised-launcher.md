@@ -108,10 +108,12 @@ appear in release acceptance evidence as a runtime component.
 
 ### Crash stub
 
-`cmd/integris-crash-stub` is an engineering helper that runs
-`recovery.FilePublisher.Publish` with `KillAt` at an IP-S-0003 P-STAGE/P-PUBLISH
-label (SIGKILL). It is started via `launcher.RunEngineering` (absolute path, no
-shell, `EngineeringMode` required, no parent env inherit). Not a product daemon.
+`cmd/integris-crash-stub` is an engineering helper that runs either
+`recovery.FilePublisher.Publish` (`INTEGRIS_CRASH_MODE=publish`, default) or a
+seeded `journal.CrashSegment` append (`mode=journal`) with `KillAt` at an
+IP-S-0003 catalog label (SIGKILL). It is started via `launcher.RunEngineering`
+(absolute path, no shell, `EngineeringMode` required, no parent env inherit).
+Not a product daemon.
 
 ## Alternatives considered
 

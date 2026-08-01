@@ -35,9 +35,9 @@
 //     FailAt on FileSegment with Recover round-trip; recovery-side P-* labels are
 //     exercised via FilePersist FailAt during Recover (cleanup/quarantine/confirm);
 //     apply-side FilePublisher covers stage→sync→rename→dirsync FailAt with
-//     Observation→Recover; OS SIGKILL at those labels is exercised via
-//     cmd/integris-crash-stub (KillAt). Power-fail / unflushed-page simulation
-//     remains open.
+//     Observation→Recover; OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels is
+//     exercised via cmd/integris-crash-stub (KillAt; mode=journal|publish).
+//     Power-fail / unflushed-page simulation remains open.
 //
 // EVD-RECOVERY-001 / EVD-TXN-001 remain planned until evidence artifacts exist.
 package recovery

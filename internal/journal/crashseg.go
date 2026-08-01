@@ -14,11 +14,14 @@ const (
 	CrashJMetaPost   = "J-META-POST"
 )
 
-// CrashSegment wraps a Segment with FailAt fault injection at journal append
+// CrashSegment wraps a Segment with FailAt / KillAt injection at journal append
 // persistence boundaries (IP-S-0003 J-* catalog).
 type CrashSegment struct {
 	Inner  Segment
 	FailAt string
+	// KillAt, when set, SIGKILLs the current process at that catalog label
+	// (unix; takes precedence over FailAt). Used by integris-crash-stub.
+	KillAt string
 	// Dir is the journal parent directory; used for J-META-POST dirsync.
 	Dir  string
 	Hits []string
@@ -47,14 +50,32 @@ func (c *CrashSegment) ReadAt(p []byte, off int64) (int, error) {
 	return c.Inner.ReadAt(p, off)
 }
 
+func (c *CrashSegment) armed(label string) bool {
+	if c == nil {
+		return false
+	}
+	return (c.KillAt != "" && c.KillAt == label) || (c.FailAt != "" && c.FailAt == label)
+}
+
+// stopAt records a hit and returns KillAt (SIGKILL) or FailAt fault.
+// KillAt takes precedence when both match the same label.
+func (c *CrashSegment) stopAt(label string) error {
+	if !c.armed(label) {
+		return nil
+	}
+	c.Hits = append(c.Hits, label)
+	if c.KillAt != "" && c.KillAt == label {
+		return killSelfAt(label)
+	}
+	return injectedCrash{label}
+}
+
 // Append implements Segment with J-APPEND-PRE / J-APPEND-MID injection.
 func (c *CrashSegment) Append(p []byte) error {
-	switch c.FailAt {
-	case CrashJAppendPre:
-		c.Hits = append(c.Hits, CrashJAppendPre)
-		return injectedCrash{CrashJAppendPre}
-	case CrashJAppendMid:
-		c.Hits = append(c.Hits, CrashJAppendMid)
+	if err := c.stopAt(CrashJAppendPre); err != nil {
+		return err
+	}
+	if c.armed(CrashJAppendMid) {
 		n := len(p) / 2
 		if n < 1 && len(p) > 0 {
 			n = 1
@@ -64,24 +85,22 @@ func (c *CrashSegment) Append(p []byte) error {
 				return err
 			}
 		}
-		return injectedCrash{CrashJAppendMid}
-	default:
-		return c.Inner.Append(p)
+		return c.stopAt(CrashJAppendMid)
 	}
+	return c.Inner.Append(p)
 }
 
 // Sync implements Segment with J-APPEND-POST / J-META-POST injection.
 // POST fails after the inner file sync (record bytes durable) and before
 // directory sync. META fails after directory sync exposes the record.
 func (c *CrashSegment) Sync() error {
-	switch c.FailAt {
-	case CrashJAppendPost:
+	if c.armed(CrashJAppendPost) {
 		if err := c.Inner.Sync(); err != nil {
 			return err
 		}
-		c.Hits = append(c.Hits, CrashJAppendPost)
-		return injectedCrash{CrashJAppendPost}
-	case CrashJMetaPost:
+		return c.stopAt(CrashJAppendPost)
+	}
+	if c.armed(CrashJMetaPost) {
 		if err := c.Inner.Sync(); err != nil {
 			return err
 		}
@@ -96,9 +115,7 @@ func (c *CrashSegment) Sync() error {
 				return err
 			}
 		}
-		c.Hits = append(c.Hits, CrashJMetaPost)
-		return injectedCrash{CrashJMetaPost}
-	default:
-		return c.Inner.Sync()
+		return c.stopAt(CrashJMetaPost)
 	}
+	return c.Inner.Sync()
 }

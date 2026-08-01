@@ -66,6 +66,7 @@ is accepted.
 - Recovery-side P-* FilePersist FailAt×Recover (`P-STAGE-CREATE/SYNC`, `P-PUBLISH-RENAME/DIRSYNC`, `P-CONFIRM-PRE/POST`);
 - Apply-side `FilePublisher` (stage→sync→rename→dirsync FailAt + Observation→Recover);
 - OS SIGKILL harness via `integris-crash-stub` + `FilePublisher.KillAt` + `launcher.RunEngineering`;
+- OS SIGKILL harness for journal J-* via `CrashSegment.KillAt` + crash-stub `mode=journal`;
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;

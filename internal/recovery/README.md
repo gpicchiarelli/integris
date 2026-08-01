@@ -21,9 +21,10 @@ Journal append persistence labels `J-APPEND-PRE` / `J-APPEND-MID` /
 publication labels `P-STAGE-*` / `P-PUBLISH-*` / `P-CONFIRM-*` are exercised via
 `FilePersist` FailAt during `Recover` (cleanup / quarantine / confirm).
 Apply-side `FilePublisher` covers stage→sync→rename→dirsync FailAt and derives
-`FSObservation` for Recover. OS SIGKILL at P-STAGE/P-PUBLISH labels is exercised
-via `cmd/integris-crash-stub` (`KillAt` + `launcher.RunEngineering`). Power-fail /
-unflushed-page simulation remains open.
+`FSObservation` for Recover. OS SIGKILL at J-* and P-STAGE/P-PUBLISH labels is
+exercised via `cmd/integris-crash-stub` (`KillAt` + `launcher.RunEngineering`;
+`INTEGRIS_CRASH_MODE=journal|publish`). Power-fail / unflushed-page simulation
+remains open.
 
 Evidence IDs `EVD-RECOVERY-001` and `EVD-TXN-001` stay `planned` until
 independent review closes residual gaps. Campaign artifacts under

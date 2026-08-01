@@ -122,9 +122,10 @@ covers `P-STAGE-CREATE` / `P-STAGE-SYNC` / `P-PUBLISH-RENAME` /
 confirm side effects during Recover). Apply-side `FilePublisher` covers the
 stage→sync→rename→dirsync publication profile with the same P-STAGE/P-PUBLISH
 labels and derives `FSObservation` for Recover (not a shared PersistIO adapter).
-OS SIGKILL at those apply labels is exercised by `cmd/integris-crash-stub`
-(`FilePublisher.KillAt` + `launcher.RunEngineering`). Injected FailAt and SIGKILL
-are not power-fail / unflushed-page simulation.
+OS SIGKILL at J-* and apply P-STAGE/P-PUBLISH labels is exercised by
+`cmd/integris-crash-stub` (`CrashSegment.KillAt` / `FilePublisher.KillAt` +
+`launcher.RunEngineering`; modes `journal` and `publish`). Injected FailAt and
+SIGKILL are not power-fail / unflushed-page simulation.
 
 ### Failure behavior
 
