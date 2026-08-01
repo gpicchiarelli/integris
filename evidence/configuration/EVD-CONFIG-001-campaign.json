@@ -1,15 +1,15 @@
 {
   "evidence_id": "EVD-CONFIG-001",
-  "source_revision": "64b01dd55aae74b3250b2ca9d23a06666e9e155c",
-  "produced_at": "2026-08-01T18:41:58Z",
+  "source_revision": "b2aae9724168b4fcbed7dc4f866a7e98959c558c",
+  "produced_at": "2026-08-01T21:02:29Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/config/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/config\t0.246s\n",
-      "stdout_sha256": "cb72b4f3053c9d2de591887911f7d4add7c76116350b8dc54957e6d0189ebf8d"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/config\t0.349s\n",
+      "stdout_sha256": "066a3874ee0eacc5117c39452206a6383305a055fc75b2db85c3c7151687a23c"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
