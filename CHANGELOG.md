@@ -16,6 +16,7 @@ is accepted.
 - resource admission budgets and destructive-operation quarantine gates;
 - filesystem capability preflight (no silent loss) and FS quarantine moves;
 - Unix empirical capability probes and renameat exclusive quarantine;
+- machine-checkable process authority inventory and verify-config CLI;
 - transaction conformance tests mapped to TLA+ abstract flags;
 - `integris-evidence` campaign producer and initial `evidence/` artifacts;
 - CI short fuzz and weekly fuzz for path/codec/journal kernels;

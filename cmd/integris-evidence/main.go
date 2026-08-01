@@ -178,6 +178,19 @@ func run(root string) error {
 				"VER-FS-001 remains planned until review closes",
 			},
 		},
+		{
+			id:   "EVD-ARCH-001",
+			dir:  "evidence/platform/authority",
+			file: "EVD-ARCH-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/authority/", "-count=1"},
+			},
+			residual: []string{
+				"OS negative capability probes and descriptor inheritance tests pending M2",
+				"independent security review required for IC-1",
+				"VER-ARCH-001 remains planned until platform probes land",
+			},
+		},
 	}
 
 	for _, c := range campaigns {

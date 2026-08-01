@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "evidence": [
-    {"id": "EVD-ARCH-001", "verification": "VER-ARCH-001", "status": "planned", "location": "evidence/platform/authority/", "producer": "platform-test-harness", "reviewer_role": "security-reviewer"},
+    {"id": "EVD-ARCH-001", "verification": "VER-ARCH-001", "status": "planned", "location": "evidence/platform/authority/EVD-ARCH-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "security-reviewer"},
     {"id": "EVD-PATH-001", "verification": "VER-PATH-001", "status": "planned", "location": "evidence/path/EVD-PATH-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "security-reviewer"},
     {"id": "EVD-PROTO-001", "verification": "VER-PROTO-001", "status": "planned", "location": "evidence/protocol/", "producer": "protocol-conformance-suite", "reviewer_role": "cryptography-reviewer"},
     {"id": "EVD-JOURNAL-001", "verification": "VER-JOURNAL-001", "status": "produced", "location": "evidence/journal/EVD-JOURNAL-001-campaign.json", "producer": "integris-evidence", "reviewer_role": "assurance-owner"},
