@@ -12,17 +12,31 @@ import (
 
 func probeEngineering() []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
+	var out []Finding
 	abi, err := landlockABIVersion()
 	if err != nil {
-		return []Finding{{
+		out = append(out, Finding{
 			ID: "PROBE-LANDLOCK-ABI", Platform: plat, Control: "landlock",
 			Status: StatusUnavailable, Detail: err.Error(),
-		}}
+		})
+	} else {
+		out = append(out, Finding{
+			ID: "PROBE-LANDLOCK-ABI", Platform: plat, Control: "landlock",
+			Status: StatusAvailable, Detail: fmt.Sprintf("abi=%d", abi),
+		})
 	}
-	return []Finding{{
-		ID: "PROBE-LANDLOCK-ABI", Platform: plat, Control: "landlock",
-		Status: StatusAvailable, Detail: fmt.Sprintf("abi=%d", abi),
-	}}
+	if arch, ok := seccompAuditArch(); ok {
+		out = append(out, Finding{
+			ID: "PROBE-SECCOMP-ARCH", Platform: plat, Control: "seccomp_bpf",
+			Status: StatusAvailable, Detail: fmt.Sprintf("audit_arch=0x%x", arch),
+		})
+	} else {
+		out = append(out, Finding{
+			ID: "PROBE-SECCOMP-ARCH", Platform: plat, Control: "seccomp_bpf",
+			Status: StatusSkipped, Detail: "seccomp filter not defined for GOARCH",
+		})
+	}
+	return out
 }
 
 func applyEngineering() []Finding {
@@ -47,19 +61,29 @@ func applyEngineering() []Finding {
 			ID: "APPLY-LANDLOCK", Platform: plat, Control: "landlock",
 			Status: StatusUnavailable, Detail: err.Error(),
 		})
-		return out
-	}
-	if err := landlockDenyNewFS(abi); err != nil {
+	} else if err := landlockDenyNewFS(abi); err != nil {
 		out = append(out, Finding{
 			ID: "APPLY-LANDLOCK", Platform: plat, Control: "landlock",
 			Status: StatusUnavailable, Detail: fmt.Sprintf("abi=%d: %v", abi, err),
 		})
-		return out
+	} else {
+		out = append(out, Finding{
+			ID: "APPLY-LANDLOCK", Platform: plat, Control: "landlock",
+			Status: StatusAvailable, Detail: fmt.Sprintf("abi=%d empty ruleset (deny new FS opens)", abi),
+		})
 	}
-	out = append(out, Finding{
-		ID: "APPLY-LANDLOCK", Platform: plat, Control: "landlock",
-		Status: StatusAvailable, Detail: fmt.Sprintf("abi=%d empty ruleset (deny new FS opens)", abi),
-	})
+
+	if err := seccompDenyExecPtrace(); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-SECCOMP", Platform: plat, Control: "seccomp_bpf",
+			Status: StatusUnavailable, Detail: err.Error(),
+		})
+	} else {
+		out = append(out, Finding{
+			ID: "APPLY-SECCOMP", Platform: plat, Control: "seccomp_bpf",
+			Status: StatusAvailable, Detail: "deny execve/execveat/ptrace (KILL_PROCESS)",
+		})
+	}
 	return out
 }
 
@@ -128,4 +152,61 @@ func landlockHandledFS(abi int) uint64 {
 		access |= unix.LANDLOCK_ACCESS_FS_IOCTL_DEV
 	}
 	return access
+}
+
+func seccompAuditArch() (uint32, bool) {
+	switch runtime.GOARCH {
+	case "amd64":
+		return unix.AUDIT_ARCH_X86_64, true
+	case "arm64":
+		return unix.AUDIT_ARCH_AARCH64, true
+	default:
+		return 0, false
+	}
+}
+
+// seccompDenyExecPtrace installs a filter that kills execve/execveat/ptrace.
+// Other syscalls are allowed so the Go runtime can continue for a short stub.
+func seccompDenyExecPtrace() error {
+	arch, ok := seccompAuditArch()
+	if !ok {
+		return fmt.Errorf("unsupported GOARCH %s", runtime.GOARCH)
+	}
+	const (
+		offNR   = 0
+		offArch = 4
+	)
+	kill := unix.SECCOMP_RET_KILL_PROCESS
+	allow := unix.SECCOMP_RET_ALLOW
+	ldAbs := uint16(unix.BPF_LD | unix.BPF_W | unix.BPF_ABS)
+	jmpJEQ := uint16(unix.BPF_JMP | unix.BPF_JEQ | unix.BPF_K)
+	retK := uint16(unix.BPF_RET | unix.BPF_K)
+
+	filter := []unix.SockFilter{
+		{Code: ldAbs, K: offArch},
+		{Code: jmpJEQ, Jt: 1, Jf: 0, K: arch},
+		{Code: retK, K: kill},
+		{Code: ldAbs, K: offNR},
+		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_EXECVE)},
+		{Code: retK, K: kill},
+		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_EXECVEAT)},
+		{Code: retK, K: kill},
+		{Code: jmpJEQ, Jt: 0, Jf: 1, K: uint32(unix.SYS_PTRACE)},
+		{Code: retK, K: kill},
+		{Code: retK, K: allow},
+	}
+	prog := unix.SockFprog{
+		Len:    uint16(len(filter)),
+		Filter: &filter[0],
+	}
+	_, _, errno := unix.Syscall(
+		unix.SYS_PRCTL,
+		uintptr(unix.PR_SET_SECCOMP),
+		uintptr(unix.SECCOMP_MODE_FILTER),
+		uintptr(unsafe.Pointer(&prog)),
+	)
+	if errno != 0 {
+		return errno
+	}
+	return nil
 }

@@ -12,8 +12,14 @@ func TestProbeEngineering(t *testing.T) {
 	if len(r.Findings) == 0 {
 		t.Fatal("empty")
 	}
-	if runtime.GOOS == "linux" && r.Findings[0].ID != "PROBE-LANDLOCK-ABI" {
-		t.Fatalf("%+v", r.Findings)
+	if runtime.GOOS == "linux" {
+		ids := map[string]bool{}
+		for _, f := range r.Findings {
+			ids[f.ID] = true
+		}
+		if !ids["PROBE-LANDLOCK-ABI"] || !ids["PROBE-SECCOMP-ARCH"] {
+			t.Fatalf("%+v", r.Findings)
+		}
 	}
 }
 

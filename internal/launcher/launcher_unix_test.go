@@ -119,7 +119,7 @@ func TestLaunchStubIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(resp.Payload) != "ack:ping" {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:ping|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if err := h.Wait(); err != nil {

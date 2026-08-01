@@ -47,9 +47,8 @@ func Discover() Report {
 	return r
 }
 
-// NegativeBaseline returns role-oriented negative probes that an *unconfined*
-// process is expected to fail-open on (unexpected_allow or skipped). Used to
-// document the gap until OS-enforced children exist.
+// NegativeBaseline returns role-oriented negative probes. Unconfined processes
+// mark these skipped; confined children should run NegativeFSOpen instead.
 func NegativeBaseline() Report {
 	r := Report{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
 	probes := []struct {
@@ -65,7 +64,7 @@ func NegativeBaseline() Report {
 		r.Findings = append(r.Findings, Finding{
 			ID: p.id, Platform: runtime.GOOS + "/" + runtime.GOARCH,
 			Control: p.control, Status: StatusSkipped,
-			Detail: p.detail + "; skipped until confined child spawn exists",
+			Detail: p.detail + "; use confined child NegativeFSOpen for FS denial evidence",
 		})
 	}
 	sort.Slice(r.Findings, func(i, j int) bool { return r.Findings[i].ID < r.Findings[j].ID })

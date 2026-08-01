@@ -47,10 +47,9 @@ pending independent review, crypto suite, and platform probes.
 - native confinement adapters for all declared platforms;
 - destructive-operation quarantine and recovery harness.
 
-**Status (prelude):** sealed launch tokens, socketpair IPC, engineering child
-spawn with MAC key on fd 4, protocol session Driver, Linux Landlock /
-OpenBSD pledge apply in children, and `supervisor.Runtime`. Seccomp/Capsicum
-and session AEAD remain open.
+**Status (prelude):** engineering children apply Landlock+seccomp (Linux),
+pledge (OpenBSD), or Capsicum (FreeBSD); stub reports NEG-FS-OPEN; Runtime
+orchestrates spawn. Session AEAD, dedicated accounts, and IC-1 review remain open.
 
 Exit: red-team review, crash testing at every persistence point, platform
 evidence, and no open IC-1 defects.

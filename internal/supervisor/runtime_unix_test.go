@@ -76,7 +76,7 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if string(resp.Payload) != "ack:runtime" {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:runtime|NEG-FS:")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {

@@ -21,11 +21,12 @@ must distinguish kernel-enforced, service-manager-enforced, discretionary, and
 operational controls.
 
 Engineering scaffold: `internal/confine` probes and applies best-effort child
-confinement (`ApplyEngineering`: Linux Landlock deny-new-FS + `no_new_privs`;
-OpenBSD `pledge`/`unveil`). Unix socketpair IPC lives in
+confinement (`ApplyEngineering`: Linux Landlock deny-new-FS + `no_new_privs` +
+seccomp denylist for execve/execveat/ptrace; OpenBSD `pledge`/`unveil`; FreeBSD
+`cap_enter`). Role stubs report `NEG-FS-OPEN`. Unix socketpair IPC lives in
 `supervisor.OpenSocketFabric` / `OpenRuntime`. Engineering child spawn is gated
-by draft [IP-A-0003](ip/IP-A-0003-supervised-launcher.md). Seccomp, Capsicum,
-and release-mode launch remain open.
+by draft [IP-A-0003](ip/IP-A-0003-supervised-launcher.md). Dedicated accounts,
+cap_rights_limit allow-lists, and release-mode launch remain open.
 
 ## Primary references
 

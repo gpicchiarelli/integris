@@ -55,10 +55,12 @@ directory owned for the test/run.
 
 ### Explicit non-decisions (deferred)
 
-- Full platform confinement matrix (Capsicum, Landlock path allow-lists, Hardened
-  Runtime entitlements, seccomp-BPF). Engineering children call
-  `confine.ApplyEngineering` (Linux: `no_new_privs` + empty Landlock ruleset;
-  OpenBSD: `pledge("stdio unix")` + `unveil` lock).
+- Full platform confinement matrix (dedicated accounts, Hardened Runtime
+  entitlements, fine-grained Landlock path allow-lists, FreeBSD
+  `cap_rights_limit`). Engineering children call `confine.ApplyEngineering`
+  (Linux: `no_new_privs` + empty Landlock ruleset + seccomp exec/ptrace denylist;
+  OpenBSD: `pledge("stdio unix")` + `unveil` lock; FreeBSD: `cap_enter`).
+  Stubs report `NegativeFSOpen` over IPC.
 - Sealed MAC key transport (memfd/SCM_RIGHTS only; pipe fd is engineering-only).
 - Multi-child restart policy and supervisor crash recovery beyond
   `supervisor.Runtime` kill-on-Close.

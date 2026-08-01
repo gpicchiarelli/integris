@@ -14,7 +14,8 @@ import (
 	"github.com/gpicchiarelli/integris/internal/launcher"
 )
 
-// Engineering role stub: claim conferred fds, apply confinement, one IPC exchange.
+// Engineering role stub: claim conferred fds, apply confinement, negative FS
+// probe, one IPC exchange. Not a product daemon (IP-A-0003).
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintf(os.Stderr, "integris-role-stub: %v\n", err)
@@ -23,7 +24,6 @@ func main() {
 }
 
 func run() error {
-	// Wrap inherited fds before Landlock/pledge (no new path opens).
 	sock := os.NewFile(uintptr(launcher.IPCFileFD), "ipc")
 	if sock == nil {
 		return fmt.Errorf("missing ipc fd")
@@ -36,6 +36,7 @@ func run() error {
 	defer keyF.Close()
 
 	_ = confine.ApplyEngineering()
+	neg := confine.NegativeFSOpen()
 
 	if os.Getenv(launcher.EnvMode) != launcher.ModeEngineering {
 		return fmt.Errorf("refusing non-engineering launch mode")
@@ -72,7 +73,9 @@ func run() error {
 	if err != nil {
 		return err
 	}
-	reply, err := ch.Encode(ipc.TypeResponse, append([]byte("ack:"), frame.Payload...))
+	payload := append([]byte("ack:"), frame.Payload...)
+	payload = append(payload, []byte("|NEG-FS:"+string(neg.Status))...)
+	reply, err := ch.Encode(ipc.TypeResponse, payload)
 	if err != nil {
 		return err
 	}

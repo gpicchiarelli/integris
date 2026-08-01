@@ -191,10 +191,11 @@ func run(root string) error {
 				{"go", "test", "./internal/launcher/", "-count=1"},
 			},
 			residual: []string{
-				"engineering launch: Landlock/pledge in child; seccomp and Capsicum still open",
+				"engineering: Landlock+seccomp(exec/ptrace deny)+no_new_privs; Capsicum on FreeBSD; pledge on OpenBSD",
+				"NEG-FS-OPEN reported by role stub; broader role negative probes still incomplete",
 				"MAC key via pipe fd (not sealed memfd/SCM yet)",
 				"independent security review required for IC-1",
-				"VER-ARCH-001 remains planned until confined negative probes pass",
+				"VER-ARCH-001 remains planned until review closes",
 			},
 		},
 		{
