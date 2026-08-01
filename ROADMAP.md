@@ -54,6 +54,7 @@ NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET and role-semantic conferral
 (including complete inventory MustNot conferral probes for all nine roles; CapNetwork via NEG-ROLE-NET + conferral); Runtime
 orchestrates spawn (AllowRoots→stub), RestartChild, and RestartPair (KeyViaExtraFiles + stub initiate);
 Apply/Index/Journal/Audit path allow-roots (Index/Audit readonly write denial probed);
+hostile IPC refuse matrix; Apply/Index path allow-roots (Index readonly write denial probed);
 journal `CrashSegment` exercises J-APPEND-PRE/MID/POST + J-META-POST on FileSegment
 with Recover round-trip; recovery-side P-* PersistIO FailAt covers STAGE/PUBLISH/CONFIRM
 on FilePersist; apply-side `FilePublisher` covers stage→rename→dirsync FailAt with

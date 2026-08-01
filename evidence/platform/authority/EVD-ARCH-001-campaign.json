@@ -1,48 +1,48 @@
 {
   "evidence_id": "EVD-ARCH-001",
-  "source_revision": "cf8cc94fd47cccedcc96d5241a42946e21c17c50",
-  "produced_at": "2026-08-01T19:35:52Z",
+  "source_revision": "b6be471c0e7d6287134a1c82c103b55c032cce17",
+  "produced_at": "2026-08-01T19:57:41Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/authority/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.236s\n",
-      "stdout_sha256": "6c26ad559fcfccc7e714117c0a0689f8b57705c3e04c0951c15d51668b74c570"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.250s\n",
+      "stdout_sha256": "efc5c539e458ca872b8a5532dfc6f62a3b3e5d873a47b0be8d349c43a8ffcf2b"
     },
     {
       "command": "go test ./internal/supervisor/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t14.284s\n",
-      "stdout_sha256": "3065be88589f0dfa94c87a2d482ee9b5bfcee03454d5168cb8941ec8bab63c98"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t15.003s\n",
+      "stdout_sha256": "c076dc6f819902e97386a591bb8e2c81c238f403a32e8af7eea916f66450fce4"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.264s\n",
-      "stdout_sha256": "59188e83cd563f63eef4a110d482e21632430402fc6b058db76a98b467294928"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.342s\n",
+      "stdout_sha256": "6bbc9cc65d51670502626aa04e24d9a36de90ea948ba4cd4ad17eec04f277e98"
     },
     {
       "command": "go test ./internal/confine/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.251s\n",
-      "stdout_sha256": "e954688adae260d52253ec428ae8dc3e20b0d2425f947633e4d6d1ae8a75c935"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.266s\n",
+      "stdout_sha256": "ef4c52dd6c11a9f9333345c00c4f28e57eb237aadc9ade25f40def69f574b89e"
     },
     {
       "command": "go test ./internal/launcher/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t2.577s\n",
-      "stdout_sha256": "7ba484ac509607f35c384125346ff94fe50627be9fae49bb1263f713a4b41c39"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t3.063s\n",
+      "stdout_sha256": "638d6e0f23f5ce22da097727299f33a77546cd3047846a25a4b89237493dd999"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
     "session AEAD + mutual HMAC peer/archive-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
-    "engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index/Journal/Audit via Runtime.AllowRoots; role-net deny; Capsicum fd-only",
-    "NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET + role-semantic NEG-* covering complete inventory MustNot for all nine roles via role stub",
+    "engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index via Runtime.AllowRoots; role-net deny; Capsicum fd-only",
+    "NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET + role-semantic NEG-* covering complete inventory MustNot for all nine roles via role stub; hostile IPC refuse matrix (forged MAC/truncation/sequence/role/nonce)",
     "MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
-    "Journal/Audit path allow-roots landed; other non-archive roles / FreeBSD conferred directory FDs still open",
+    "broader path allow-lists beyond archive caps; FreeBSD conferred directory FDs still open",
     "Runtime.RestartChild + RestartPair (KeyViaExtraFiles dual-live); in-place peer FD rebind still open",
     "independent cryptography/security review required for IC-1",
     "VER-PROTO-001 / VER-ARCH-001 remain planned"

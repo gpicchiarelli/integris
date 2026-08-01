@@ -95,6 +95,7 @@ is accepted.
 - `resource.WithSoftCPU` process CPU-time saturation harness for EVD-RESOURCE (`RLIMIT_CPU` → SIGXCPU);
 - Darwin true-ENOSPC harness for EVD-RESOURCE (`hdiutil` 2MiB HFS+ image → `unix.ENOSPC`);
 - Restrict int64 `Rlimit` helpers to FreeBSD/DragonFly (OpenBSD/NetBSD use uint64 like Linux/Darwin);
+- Hostile IPC refuse matrix (`internal/ipc/hostile_test.go`) for IP-A-0002 / VER-ARCH engineering probes;
 - Darwin abrupt-detach power-fail harness for EVD-RECOVERY (`SyncFile` survive across `hdiutil` force-detach);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
 - Wire `TypeNegotiateAccept` body encodes selected version + suite (`EncodeNegotiateAccept` / `ConfirmAccept`);
