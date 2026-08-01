@@ -85,8 +85,9 @@ directory owned for the test/run.
 - Role-differentiated filesystem path allow-lists (engineering apply remains
   empty allow-list / deny-all ambient paths); per-FD object capabilities beyond
   FreeBSD conferred-fd rights; auth-role accept-loop denials.
-- Multi-child restart policy and supervisor crash recovery beyond
-  `supervisor.Runtime` kill-on-Close.
+- Dual-child crash recovery when both IPC ends are live role processes
+  (`RestartChild` + `SocketFabric.ReplacePair` cover supervisor-held peer end
+  restart after a single spawned child exits or is killed).
 - Windows process model.
 
 ### Role stub

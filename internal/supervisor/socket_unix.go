@@ -63,68 +63,100 @@ func OpenSocketFabric(p Plan, rootKey []byte, nonce [16]byte) (*SocketFabric, er
 		ends:  make(map[Endpoint]*SocketEndpoint, len(pairs)*2),
 	}
 	for _, pr := range pairs {
-		macKey, err := crypto.ChannelMACKey(rootKey, string(pr.lo), string(pr.hi))
-		if err != nil {
+		if err := fab.installPair(pr.lo, pr.hi, rootKey); err != nil {
 			fab.Close()
-			return nil, fail("key", err.Error())
-		}
-		fds, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
-		if err != nil {
-			fab.Close()
-			return nil, fail("socket", err.Error())
-		}
-		f0 := os.NewFile(uintptr(fds[0]), fmt.Sprintf("ipc:%s-%s:a", pr.lo, pr.hi))
-		f1 := os.NewFile(uintptr(fds[1]), fmt.Sprintf("ipc:%s-%s:b", pr.lo, pr.hi))
-		c0, err := net.FileConn(f0)
-		if err != nil {
-			_ = f0.Close()
-			_ = f1.Close()
-			fab.Close()
-			return nil, fail("socket", err.Error())
-		}
-		c1, err := net.FileConn(f1)
-		if err != nil {
-			_ = c0.Close()
-			_ = f0.Close()
-			_ = f1.Close()
-			fab.Close()
-			return nil, fail("socket", err.Error())
-		}
-		// FileConn duplicates the fd; close the originals to avoid leaks.
-		_ = f0.Close()
-		_ = f1.Close()
-		u0, ok0 := c0.(*net.UnixConn)
-		u1, ok1 := c1.(*net.UnixConn)
-		if !ok0 || !ok1 {
-			_ = c0.Close()
-			_ = c1.Close()
-			fab.Close()
-			return nil, fail("socket", "not unix conn")
-		}
-		left, err := ipc.NewAuthenticatedChannel(pr.lo, pr.hi, nonce, macKey)
-		if err != nil {
-			_ = u0.Close()
-			_ = u1.Close()
-			fab.Close()
-			return nil, fail("ipc", err.Error())
-		}
-		right, err := ipc.NewAuthenticatedChannel(pr.hi, pr.lo, nonce, macKey)
-		if err != nil {
-			_ = u0.Close()
-			_ = u1.Close()
-			fab.Close()
-			return nil, fail("ipc", err.Error())
-		}
-		l, r := left, right
-		// Retain conn only; File field nil (fd owned by UnixConn).
-		fab.ends[Endpoint{Local: pr.lo, Remote: pr.hi}] = &SocketEndpoint{
-			Local: pr.lo, Remote: pr.hi, Conn: u0, Chan: &l,
-		}
-		fab.ends[Endpoint{Local: pr.hi, Remote: pr.lo}] = &SocketEndpoint{
-			Local: pr.hi, Remote: pr.lo, Conn: u1, Chan: &r,
+			return nil, err
 		}
 	}
 	return fab, nil
+}
+
+// installPair creates a fresh socketpair and channel state for lo↔hi.
+func (f *SocketFabric) installPair(lo, hi authority.ProcessRole, rootKey []byte) error {
+	macKey, err := crypto.ChannelMACKey(rootKey, string(lo), string(hi))
+	if err != nil {
+		return fail("key", err.Error())
+	}
+	fds, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
+	if err != nil {
+		return fail("socket", err.Error())
+	}
+	f0 := os.NewFile(uintptr(fds[0]), fmt.Sprintf("ipc:%s-%s:a", lo, hi))
+	f1 := os.NewFile(uintptr(fds[1]), fmt.Sprintf("ipc:%s-%s:b", lo, hi))
+	c0, err := net.FileConn(f0)
+	if err != nil {
+		_ = f0.Close()
+		_ = f1.Close()
+		return fail("socket", err.Error())
+	}
+	c1, err := net.FileConn(f1)
+	if err != nil {
+		_ = c0.Close()
+		_ = f0.Close()
+		_ = f1.Close()
+		return fail("socket", err.Error())
+	}
+	_ = f0.Close()
+	_ = f1.Close()
+	u0, ok0 := c0.(*net.UnixConn)
+	u1, ok1 := c1.(*net.UnixConn)
+	if !ok0 || !ok1 {
+		_ = c0.Close()
+		_ = c1.Close()
+		return fail("socket", "not unix conn")
+	}
+	left, err := ipc.NewAuthenticatedChannel(lo, hi, f.Nonce, macKey)
+	if err != nil {
+		_ = u0.Close()
+		_ = u1.Close()
+		return fail("ipc", err.Error())
+	}
+	right, err := ipc.NewAuthenticatedChannel(hi, lo, f.Nonce, macKey)
+	if err != nil {
+		_ = u0.Close()
+		_ = u1.Close()
+		return fail("ipc", err.Error())
+	}
+	l, r := left, right
+	f.ends[Endpoint{Local: lo, Remote: hi}] = &SocketEndpoint{
+		Local: lo, Remote: hi, Conn: u0, Chan: &l,
+	}
+	f.ends[Endpoint{Local: hi, Remote: lo}] = &SocketEndpoint{
+		Local: hi, Remote: lo, Conn: u1, Chan: &r,
+	}
+	return nil
+}
+
+// ReplacePair closes any existing endpoints for the unordered role edge and
+// installs a fresh socketpair with new authenticated channel state. Required
+// before RestartChild after StartChild consumed the child-side connection.
+func (f *SocketFabric) ReplacePair(a, b authority.ProcessRole, rootKey []byte) error {
+	if f == nil || f.ends == nil {
+		return fail("fabric", "nil fabric")
+	}
+	pk, err := makePair(a, b)
+	if err != nil {
+		return err
+	}
+	for _, ep := range []*SocketEndpoint{
+		f.ends[Endpoint{Local: pk.Lo, Remote: pk.Hi}],
+		f.ends[Endpoint{Local: pk.Hi, Remote: pk.Lo}],
+	} {
+		if ep == nil {
+			continue
+		}
+		if ep.Conn != nil {
+			_ = ep.Conn.Close()
+			ep.Conn = nil
+		}
+		if ep.File != nil {
+			_ = ep.File.Close()
+			ep.File = nil
+		}
+	}
+	delete(f.ends, Endpoint{Local: pk.Lo, Remote: pk.Hi})
+	delete(f.ends, Endpoint{Local: pk.Hi, Remote: pk.Lo})
+	return f.installPair(pk.Lo, pk.Hi, rootKey)
 }
 
 // Endpoint returns the socket endpoint for local→remote.

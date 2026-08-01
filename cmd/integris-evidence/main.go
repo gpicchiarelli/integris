@@ -196,6 +196,7 @@ func run(root string) error {
 				"NEG-FS/FS-READ/EXEC/PTRACE/ROLE-NET + full role-semantic conferral NEG-* (net/parser/plan/audit/journal) via role stub",
 				"MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
 				"role-differentiated path allow-lists and per-FD object caps beyond conferred fds still open",
+				"Runtime.RestartChild covers supervisor-held peer edges; dual-live-child crash recovery still open",
 				"independent cryptography/security review required for IC-1",
 				"VER-PROTO-001 / VER-ARCH-001 remain planned",
 			},

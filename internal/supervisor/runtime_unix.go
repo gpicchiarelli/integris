@@ -149,6 +149,26 @@ func (r *Runtime) WaitChild(role authority.ProcessRole) error {
 	return err
 }
 
+// RestartChild kills any tracked instance of role, replaces the role↔peer
+// socketpair (StartChild consumes the child end), and starts a fresh child.
+// Engineering-only: both ends of a live dual-child edge are not recovered here.
+func (r *Runtime) RestartChild(ctx context.Context, role, peer authority.ProcessRole, executable string) error {
+	if r == nil || r.Fabric == nil {
+		return fail("runtime", "nil runtime")
+	}
+	if h, ok := r.Children[role]; ok {
+		if h != nil && h.Cmd != nil && h.Cmd.Process != nil {
+			_ = h.Cmd.Process.Kill()
+		}
+		_ = h.Wait()
+		delete(r.Children, role)
+	}
+	if err := r.Fabric.ReplacePair(role, peer, r.RootKey); err != nil {
+		return err
+	}
+	return r.StartChild(ctx, role, peer, executable)
+}
+
 // Close kills any tracked children and closes the fabric.
 func (r *Runtime) Close() error {
 	if r == nil {

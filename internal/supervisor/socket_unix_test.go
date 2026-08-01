@@ -35,3 +35,42 @@ func TestOpenSocketFabricDeliver(t *testing.T) {
 		t.Fatalf("%+v", frame)
 	}
 }
+
+func TestSocketFabricReplacePair(t *testing.T) {
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleNet,
+			Confer:   []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
+			IPCPeers: []authority.ProcessRole{authority.RoleParser},
+		},
+		{
+			Role:     authority.RoleParser,
+			Confer:   []authority.Capability{authority.CapBoundedMessageIPC},
+			IPCPeers: []authority.ProcessRole{authority.RoleNet},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := bytes.Repeat([]byte{0x34}, 32)
+	var nonce [16]byte
+	nonce[0] = 8
+	fab, err := supervisor.OpenSocketFabric(p, root, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer fab.Close()
+	if _, err := fab.Deliver(authority.RoleNet, authority.RoleParser, ipc.TypeRequest, []byte("before")); err != nil {
+		t.Fatal(err)
+	}
+	if err := fab.ReplacePair(authority.RoleParser, authority.RoleNet, root); err != nil {
+		t.Fatal(err)
+	}
+	frame, err := fab.Deliver(authority.RoleNet, authority.RoleParser, ipc.TypeRequest, []byte("after"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(frame.Payload) != "after" {
+		t.Fatalf("%+v", frame)
+	}
+}

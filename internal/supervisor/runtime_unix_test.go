@@ -111,6 +111,106 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 	}
 }
 
+func TestRuntimeRestartChildIPC(t *testing.T) {
+	root, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, root, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleNet,
+			Confer:   []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
+			IPCPeers: []authority.ProcessRole{authority.RoleParser},
+		},
+		{
+			Role:     authority.RoleParser,
+			Confer:   []authority.Capability{authority.CapBoundedMessageIPC},
+			IPCPeers: []authority.ProcessRole{authority.RoleNet},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x68}, 32)
+	var nonce [16]byte
+	nonce[2] = 5
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	if err := rt.StartChild(ctx, authority.RoleParser, authority.RoleNet, bin); err != nil {
+		t.Fatal(err)
+	}
+	parent, err := rt.Fabric.Endpoint(authority.RoleNet, authority.RoleParser)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("first"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err := ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:first|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	if err := rt.WaitChild(authority.RoleParser); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := rt.RestartChild(ctx, authority.RoleParser, authority.RoleNet, bin); err != nil {
+		t.Fatal(err)
+	}
+	parent, err = rt.Fabric.Endpoint(authority.RoleNet, authority.RoleParser)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, err = parent.Chan.Encode(ipc.TypeRequest, []byte("second"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.WriteFrame(parent.Conn, raw); err != nil {
+		t.Fatal(err)
+	}
+	respRaw, err = ipc.ReadFrame(parent.Conn, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err = parent.Chan.Decode(respRaw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:second|NEG-FS:")) {
+		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {
+		t.Fatalf("missing scm key after restart in %q", resp.Payload)
+	}
+	if err := rt.WaitChild(authority.RoleParser); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestRuntimeStartChildExtraFiles(t *testing.T) {
 	root, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {
