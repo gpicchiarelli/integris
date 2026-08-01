@@ -198,12 +198,25 @@ func run(root string) error {
 			file: "EVD-PROTO-001-campaign.json",
 			commands: [][]string{
 				{"go", "test", "./internal/session/", "-count=1"},
+				{"go", "test", "./internal/protocol/", "-count=1"},
 			},
 			residual: []string{
-				"cryptographic mutual auth pending IP-C",
-				"wire protocol frames pending IP-P",
+				"session AEAD / full suite pending superseding IP-C",
 				"independent cryptography review required",
-				"VER-PROTO-001 remains planned until crypto/wire land",
+				"VER-PROTO-001 remains planned until crypto review",
+			},
+		},
+		{
+			id:   "EVD-RELEASE-001",
+			dir:  "evidence/releases",
+			file: "EVD-RELEASE-001-campaign.json",
+			commands: [][]string{
+				{"go", "run", "./cmd/integris-release-digest", "-root", "."},
+			},
+			residual: []string{
+				"engineering manifest only — not an independent two-party rebuild",
+				"no SBOM/SLSA/signatures",
+				"VER-RELEASE-001 remains planned",
 			},
 		},
 	}

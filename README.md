@@ -22,12 +22,11 @@ targeted formal methods, adversarial testing, and attestable supply chains.
   cryptography specifications;
 - executable TLA+ models for the transaction and session state machines;
 - M1 reference kernels: path, codec, journal, plan, recovery, config, resource,
-  deletion, fsmodel, authority, observability, IPC prelude, and session
-  (`internal/`);
-- draft Integris Proposals under `docs/ip/` (IP-S-0001…0003, IP-F-0001,
-  IP-A-0002, IP-C-0001, IP-P-0001);
-- evidence campaign producer (`cmd/integris-evidence`), `integris-verify-config`,
-  and artifacts under `evidence/`;
+  deletion, fsmodel, authority, observability, IPC prelude, session, and
+  protocol (`internal/`);
+- evidence tooling (`integris-evidence`, `integris-verify-config`,
+  `integris-release-digest`) and artifacts under `evidence/`;
+- draft IPs under `docs/ip/` (IP-S/F/A/C/P series);
 - a restricted Go profile and platform confinement matrix;
 - review, change-control, release, vulnerability-response, and retirement rules;
 - pinned, least-privilege GitHub workflows and a reproducible-build contract.
@@ -61,6 +60,12 @@ Validate a configuration document without side effects:
 
 ```sh
 go run ./cmd/integris-verify-config -config path/to/config.json
+```
+
+Write an engineering input digest manifest (not a release acceptance):
+
+```sh
+make release-digest
 ```
 
 Go 1.26.5 is the pinned bootstrap toolchain. Milestone entrance/exit criteria

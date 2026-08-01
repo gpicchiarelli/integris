@@ -1,0 +1,52 @@
+{
+  "kind": "engineering-input-digest-manifest",
+  "produced_at": "2026-08-01T12:46:05Z",
+  "source_revision": "fcd55ae1b704e3f21c3b22938e87e838695c4f03",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "files": [
+    {
+      "path": "Makefile",
+      "sha256": "53d0b4c1457978855c15a1b83f8de56e89d9310f538da68a7fe4504e034cb5b5",
+      "bytes": 686
+    },
+    {
+      "path": "README.md",
+      "sha256": "450087fb6bfc7822d49cea4705da85e090a52842b6d94ffef9ea6b67c6fe96a0",
+      "bytes": 3674
+    },
+    {
+      "path": "ROADMAP.md",
+      "sha256": "b4d13da96c4a4dfce70f50c90bf8876fbc6e6c9c9136f1e4c50ba0ad24a6e327",
+      "bytes": 2697
+    },
+    {
+      "path": "assurance/evidence.json",
+      "sha256": "b007ed5b2d285fa8a5a12c421c4b2551385897f46816813216deee84a343b2b3",
+      "bytes": 2865
+    },
+    {
+      "path": "assurance/requirements.json",
+      "sha256": "37168c6f7b593253e8eb82dca50a9e710938361f4d5b1ff93fd8b900562c9ce6",
+      "bytes": 15177
+    },
+    {
+      "path": "go.mod",
+      "sha256": "9c7f749d093d610d62f26ba464625a26528c180643710c53bd9bf6756bbbdbb2",
+      "bytes": 86
+    },
+    {
+      "path": "go.sum",
+      "sha256": "59ff7906e3b7738fa8361e647f98c13c78417293ddb48f7c4f7ca8ead4531c63",
+      "bytes": 153
+    }
+  ],
+  "residual_gaps": [
+    "not an independent two-party rebuild",
+    "no SBOM/SLSA/signatures in this artifact",
+    "VER-RELEASE-001 remains planned"
+  ],
+  "extra": {
+    "producer": "integris-release-digest"
+  }
+}

@@ -1,23 +1,28 @@
 {
   "evidence_id": "EVD-PROTO-001",
-  "source_revision": "5130372ea746746c0e7b6f96d96dd3bd1a335af4",
-  "produced_at": "2026-08-01T12:42:33Z",
+  "source_revision": "fcd55ae1b704e3f21c3b22938e87e838695c4f03",
+  "produced_at": "2026-08-01T12:46:03Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/session/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.250s\n",
-      "stdout_sha256": "3d6225dbcf20ea5769cbd009d7ffd88e095e04c297ac25654baa18087309e600"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.360s\n",
+      "stdout_sha256": "cb3384335a09fa52d93c2d37055779e0f5ade011415074f2633cdfbedb6f35b2"
+    },
+    {
+      "command": "go test ./internal/protocol/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/protocol\t0.257s\n",
+      "stdout_sha256": "3f82a9ec16984ace5f4eb7b06e3721707d214ad444c232562b600d90a92bfc11"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
-    "cryptographic mutual auth pending IP-C",
-    "wire protocol frames pending IP-P",
+    "session AEAD / full suite pending superseding IP-C",
     "independent cryptography review required",
-    "VER-PROTO-001 remains planned until crypto/wire land"
+    "VER-PROTO-001 remains planned until crypto review"
   ],
   "extra": {
     "producer": "integris-evidence"

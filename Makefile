@@ -1,4 +1,4 @@
-.PHONY: all fmt fmt-check test vet assure trace-check evidence verify
+.PHONY: all fmt fmt-check test vet assure trace-check evidence release-digest verify
 
 all: verify
 
@@ -23,5 +23,8 @@ trace-check:
 
 evidence:
 	go run ./cmd/integris-evidence -root .
+
+release-digest:
+	go run ./cmd/integris-release-digest -root .
 
 verify: fmt-check test vet assure trace-check
