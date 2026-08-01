@@ -14,5 +14,6 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available in-process via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusAvailable, Detail: "launcher.CreateKeyFD uses sealed memfd (F_SEAL_WRITE|SHRINK|GROW|SEAL)"},
 		{ID: "DISC-SENDFILE", Platform: plat, Control: "sendfile", Status: StatusAvailable, Detail: "platform.SendFile uses sendfile(2) to a connected socket (socketpair harness; INT-IC4-0001)"},
+		{ID: "DISC-KQUEUE", Platform: plat, Control: "kqueue_vnode", Status: StatusUnavailable, Detail: "kqueue absent on Linux; epoll/inotify adapter not yet wired"},
 	}
 }

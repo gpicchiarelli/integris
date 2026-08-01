@@ -72,6 +72,8 @@ probed in `fsmodel.ProbeScratch`;
 Darwin abrupt-detach SyncFile-survive harness landed; unflushed-loss
 differential host-dependent; `platform.SendFile` sendfile→socket harness on
 Darwin/Linux/FreeBSD, OpenBSD unavailable);
+differential host-dependent; `platform.VNodeWatch` kqueue VNODE notify
+harness on Darwin/FreeBSD/OpenBSD);
 sealed MAC key FD (Linux memfd; anon-unlinked
 elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys

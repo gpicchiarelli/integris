@@ -177,6 +177,7 @@ func run(root string) error {
 			commands: [][]string{
 				{"go", "test", "./internal/fsmodel/", "-count=1"},
 				{"go", "test", "./internal/platform/", "-count=1", "-run", "SendFile"},
+				{"go", "test", "./internal/platform/", "-count=1", "-run", "VNode"},
 			},
 			residual: []string{
 				"CapCOW empirical via platform.CloneFile (Darwin clonefile / Linux FICLONE→LOSSLESS; copy→UNREPRESENTABLE)",
@@ -192,6 +193,7 @@ func run(root string) error {
 				"Sparse-aware CloneFile degraded copy (SEEK_DATA/SEEK_HOLE; Linux copy_file_range then io.Copy fallback)",
 				"Sparse-aware CloneFile degraded copy (SEEK_DATA/SEEK_HOLE; io.Copy fallback)",
 				"platform.SendFile sendfile(2) socketpair harness (Darwin/Linux/FreeBSD; OpenBSD unavailable)",
+				"platform.VNodeWatch kqueue EVFILT_VNODE harness (NOTE_WRITE/DELETE; Linux unavailable)",
 				"CapUnicode empirical (NFC/NFD é twin; APFS fold→WRAPPED; preserve→LOSSLESS)",
 				"FreeBSD/OpenBSD CI probe matrix not yet scheduled",
 				"independent technical review of evidence not recorded",

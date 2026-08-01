@@ -12,5 +12,6 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnknown, Detail: "launcher.CreateKeyFD uses anon-unlinked FD; no memfd on OpenBSD"},
 		{ID: "DISC-SENDFILE", Platform: plat, Control: "sendfile", Status: StatusUnavailable, Detail: "x/sys unix.Sendfile returns ENOSYS on OpenBSD; no platform.SendFile path"},
+		{ID: "DISC-KQUEUE", Platform: plat, Control: "kqueue_vnode", Status: StatusAvailable, Detail: "platform.VNodeWatch uses kqueue EVFILT_VNODE NOTE_WRITE/DELETE (INT-IC4-0001)"},
 	}
 }
