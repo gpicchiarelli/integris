@@ -13,8 +13,10 @@ permissions:
   contents: read
 
 concurrency:
+  # Do not cancel in-flight TLC runs: a cancelled default-branch run leaves the
+  # README Formal badge red until the next formal/** (or this workflow) push.
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   model-check:

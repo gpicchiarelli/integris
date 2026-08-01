@@ -6,6 +6,11 @@ is accepted.
 
 ## [Unreleased]
 
+### Fixed
+
+- Formal models workflow no longer cancels in-flight TLC runs, so a cancelled
+  default-branch run cannot leave the README Formal badge stuck on failing.
+
 ### Added
 
 - mdoc manual pages for all shipped tools plus overview/daemon pages
