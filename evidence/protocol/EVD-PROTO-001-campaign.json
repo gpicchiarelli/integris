@@ -1,0 +1,25 @@
+{
+  "evidence_id": "EVD-PROTO-001",
+  "source_revision": "4027b5f91a0eeb2802125855399b622d294715e2",
+  "produced_at": "2026-08-01T12:40:41Z",
+  "go_version": "go1.26.5",
+  "platform": "darwin/arm64",
+  "commands": [
+    {
+      "command": "go test ./internal/session/ -count=1",
+      "exit_code": 0,
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/session\t0.240s\n",
+      "stdout_sha256": "0a4c864f63fd0b867da3aad5570178f77fb493a185c299d8b02d4bfcf0bbfe97"
+    }
+  ],
+  "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
+  "residual_gaps": [
+    "cryptographic mutual auth pending IP-C",
+    "wire protocol frames pending IP-P",
+    "independent cryptography review required",
+    "VER-PROTO-001 remains planned until crypto/wire land"
+  ],
+  "extra": {
+    "producer": "integris-evidence"
+  }
+}

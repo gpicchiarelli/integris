@@ -191,6 +191,20 @@ func run(root string) error {
 				"VER-ARCH-001 remains planned until platform probes land",
 			},
 		},
+		{
+			id:   "EVD-PROTO-001",
+			dir:  "evidence/protocol",
+			file: "EVD-PROTO-001-campaign.json",
+			commands: [][]string{
+				{"go", "test", "./internal/session/", "-count=1"},
+			},
+			residual: []string{
+				"cryptographic mutual auth pending IP-C",
+				"wire protocol frames pending IP-P",
+				"independent cryptography review required",
+				"VER-PROTO-001 remains planned until crypto/wire land",
+			},
+		},
 	}
 
 	for _, c := range campaigns {

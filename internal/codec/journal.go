@@ -90,6 +90,9 @@ func EncodeRecord(f RecordFields) ([]byte, error) {
 	if recordLen > MaxRecordBytes {
 		return nil, limit("record_length", "exceeds MaxRecordBytes")
 	}
+	if err := admitRecordBytes(uint64(recordLen)); err != nil {
+		return nil, err
+	}
 
 	payloadDigest := SHA256(f.Payload)
 	out := make([]byte, recordLen)
@@ -176,7 +179,10 @@ func DecodeRecord(b []byte) (Record, int, error) {
 	if payloadLen < 0 || payloadLen > MaxPayloadBytes {
 		return zero, 0, limit("payload", "derived length out of bounds")
 	}
-	// Invariant: record_length == 152 + payload_len (already used to derive payloadLen).
+	// Admit full record size before allocating the payload copy (INT-IC3-0002).
+	if err := admitRecordBytes(uint64(recordLen)); err != nil {
+		return zero, 0, err
+	}
 
 	var payloadDigest Digest
 	copy(payloadDigest[:], b[44:76])

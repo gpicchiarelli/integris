@@ -22,9 +22,9 @@ targeted formal methods, adversarial testing, and attestable supply chains.
   cryptography specifications;
 - executable TLA+ models for the transaction and session state machines;
 - M1 reference kernels: path, codec, journal, plan, recovery, config, resource,
-  deletion, fsmodel, authority, observability, and bounded IPC prelude
+  deletion, fsmodel, authority, observability, IPC prelude, and session
   (`internal/`);
-- draft M1 Integris Proposals under `docs/ip/` (IP-S-0001…0003, IP-F-0001);
+- draft Integris Proposals under `docs/ip/` (IP-S-0001…0003, IP-F-0001, IP-A-0002);
 - evidence campaign producer (`cmd/integris-evidence`), `integris-verify-config`,
   and artifacts under `evidence/`;
 - a restricted Go profile and platform confinement matrix;
