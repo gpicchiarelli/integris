@@ -1,7 +1,7 @@
 <h1 align="center">Integris</h1>
 
 <p align="center">
-  <strong>High-integrity filesystem sync and backup for Unix servers.</strong>
+  <strong>A privilege-separated sync and backup daemon for Unix servers.</strong>
 </p>
 
 <p align="center">
@@ -30,13 +30,15 @@
 
 ![Integris high-integrity sync and backup laboratory](docs/assets/integris-hero.png)
 
-Integris is intended as a high-integrity sync and backup service: it replicates
-explicitly authorized filesystem archives between mutually authenticated nodes on
-macOS, FreeBSD, Linux, and OpenBSD. Protected properties are archive identity,
-containment, authenticity, integrity, deterministic planning, recoverability, and
-truthful completion — not ambient multi-writer sync or silent metadata loss.
+Integris is intended as a privilege-separated sync and backup daemon (`integrisd`):
+it replicates explicitly authorized filesystem archives between mutually authenticated
+nodes on macOS, FreeBSD, Linux, and OpenBSD. Operators configure archives, peers, and
+policy; the daemon plans, transfers, journals, and recovers under least authority.
+Protected properties are archive identity, containment, authenticity, integrity,
+deterministic planning, recoverability, and truthful completion — not ambient
+multi-writer sync or silent metadata loss.
 
-This repository is the engineering baseline for that service. It is designed around
+This repository is the engineering baseline for that daemon. It is designed around
 prior specification, privilege separation, capability-oriented security, an
 authenticated protocol, transactional application, verifiable persistence, targeted
 formal methods, adversarial testing, and attestable supply chains.
