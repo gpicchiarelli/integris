@@ -13,6 +13,29 @@ approver of an IC-1 change or release. IC-1 changes require explicit approval
 from a technical reviewer, security reviewer, and assurance owner. At least one
 approval must be independent of the author.
 
+## Current assignment (Sprint 0)
+
+Recorded 2026-08-01 for the private repository `gpicchiarelli/integris`.
+Assurance `owner` fields name the accountable person; `approver_roles` and
+evidence `reviewer_role` values remain governance role identifiers (not people).
+
+| Role | Assignee | Status |
+|---|---|---|
+| Maintainer | `gpicchiarelli` | Assigned |
+| Technical reviewer | — | **Unassigned** |
+| Security reviewer | — | **Unassigned** |
+| Assurance owner (independent IC-1 approval) | — | **Unassigned** |
+| Assurance record ownership (interim) | `gpicchiarelli` | Assigned as signed interim owner of assurance records |
+| Release manager | `gpicchiarelli` | Interim only; cannot solely approve a release |
+| Cryptography reviewer | — | **Unassigned** (required before protocol/crypto evidence acceptance) |
+
+**Residual M0 process gap:** no independent technical, security, or assurance
+approver exists. `gpicchiarelli` is the sole author and cannot satisfy ROADMAP
+M0 exit (“two independent approvers accept every IC-1 item”) or GOVERNANCE
+independence alone. Do not invent placeholder reviewer identities. Product-kernel
+merges remain gated until real independent reviewers are assigned. `CODEOWNERS`
+is intentionally absent until those people exist (see `docs/github-settings.md`).
+
 ## Decision process
 
 Durable technical decisions use an Integris Proposal (IP) in `docs/ip/`.

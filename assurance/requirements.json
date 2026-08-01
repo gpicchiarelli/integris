@@ -15,7 +15,7 @@
       "threats": ["THR-0005", "THR-0007"],
       "specifications": ["docs/security-architecture.md", "docs/platform-matrix.md"],
       "verifications": ["VER-ARCH-001"],
-      "owner": "architecture-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
     },
     {
@@ -31,7 +31,7 @@
       "threats": ["THR-0001", "THR-0002"],
       "specifications": ["docs/specifications/path-resolution.md"],
       "verifications": ["VER-PATH-001"],
-      "owner": "apply-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
     },
     {
@@ -47,7 +47,7 @@
       "threats": ["THR-0003", "THR-0004", "THR-0005", "THR-0007"],
       "specifications": ["docs/specifications/protocol.md", "docs/specifications/cryptography.md"],
       "verifications": ["VER-PROTO-001"],
-      "owner": "protocol-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "cryptography-reviewer", "assurance-owner"]
     },
     {
@@ -63,7 +63,7 @@
       "threats": ["THR-0006", "THR-0008"],
       "specifications": ["docs/specifications/journal.md"],
       "verifications": ["VER-JOURNAL-001"],
-      "owner": "journal-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
     },
     {
@@ -79,7 +79,7 @@
       "threats": ["THR-0003", "THR-0005", "THR-0007"],
       "specifications": ["docs/specifications/transaction.md", "docs/specifications/cryptography.md"],
       "verifications": ["VER-TXN-001"],
-      "owner": "transaction-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
     },
     {
@@ -95,7 +95,7 @@
       "threats": ["THR-0005", "THR-0006"],
       "specifications": ["docs/specifications/deletion.md"],
       "verifications": ["VER-DELETE-001"],
-      "owner": "apply-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
     },
     {
@@ -111,7 +111,7 @@
       "threats": ["THR-0005"],
       "specifications": ["docs/specifications/filesystem-model.md"],
       "verifications": ["VER-FS-001"],
-      "owner": "filesystem-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
     },
     {
@@ -127,7 +127,7 @@
       "threats": ["THR-0005"],
       "specifications": ["docs/go-profile.md", "docs/specifications/filesystem-model.md"],
       "verifications": ["VER-PLAN-001"],
-      "owner": "planner-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "assurance-owner"]
     },
     {
@@ -143,7 +143,7 @@
       "threats": ["THR-0004", "THR-0007"],
       "specifications": ["docs/specifications/configuration.md"],
       "verifications": ["VER-CONFIG-001"],
-      "owner": "operations-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer"]
     },
     {
@@ -159,7 +159,7 @@
       "threats": ["THR-0006"],
       "specifications": ["docs/go-profile.md", "docs/specifications/protocol.md", "docs/specifications/observability.md"],
       "verifications": ["VER-RESOURCE-001"],
-      "owner": "runtime-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer"]
     },
     {
@@ -175,7 +175,7 @@
       "threats": ["THR-0008"],
       "specifications": ["docs/specifications/transaction.md", "docs/specifications/journal.md"],
       "verifications": ["VER-RECOVERY-001"],
-      "owner": "recovery-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
     },
     {
@@ -191,7 +191,7 @@
       "threats": ["THR-0009"],
       "specifications": ["docs/release-policy.md", "docs/supply-chain.md"],
       "verifications": ["VER-RELEASE-001"],
-      "owner": "release-manager",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
     },
     {
@@ -207,7 +207,7 @@
       "threats": ["THR-0009"],
       "specifications": ["assurance/README.md", "docs/assurance-case.md"],
       "verifications": ["VER-ASSURANCE-001"],
-      "owner": "assurance-owner",
+      "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "assurance-owner"]
     }
   ]

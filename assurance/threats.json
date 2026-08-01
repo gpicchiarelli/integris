@@ -11,7 +11,7 @@
       "attack": "An operation embeds absolute, empty, dot, dot-dot, separator, reserved, or normalization-ambiguous components.",
       "controls": ["INT-IC1-0002"],
       "residual_risk": "Platform namespace semantics may contain unmodelled aliases.",
-      "owner": "security-owner"
+      "owner": "gpicchiarelli"
     },
     {
       "id": "THR-0002",
@@ -22,7 +22,7 @@
       "attack": "A local actor substitutes a symlink, hard link, object, or mount between validation and use.",
       "controls": ["INT-IC1-0002"],
       "residual_risk": "Kernel or filesystem bugs can violate post-open guarantees.",
-      "owner": "security-owner"
+      "owner": "gpicchiarelli"
     },
     {
       "id": "THR-0003",
@@ -33,7 +33,7 @@
       "attack": "A valid frame or authorization is replayed in another sequence, direction, session, role, transaction, or archive.",
       "controls": ["INT-IC1-0003", "INT-IC1-0004"],
       "residual_risk": "Catastrophic entropy failure can undermine unique sessions.",
-      "owner": "security-owner"
+      "owner": "gpicchiarelli"
     },
     {
       "id": "THR-0004",
@@ -44,7 +44,7 @@
       "attack": "A peer or rollback selects an older version, algorithm, schema, or minimum policy with weaker guarantees.",
       "controls": ["INT-IC1-0003", "INT-IC3-0001"],
       "residual_risk": "Compromise of signed local policy remains.",
-      "owner": "security-owner"
+      "owner": "gpicchiarelli"
     },
     {
       "id": "THR-0005",
@@ -55,7 +55,7 @@
       "attack": "An authenticated actor exploits parser/planner flaws or requests an operation outside its authorized intent.",
       "controls": ["INT-IC1-0001", "INT-IC1-0003", "INT-IC1-0004", "INT-IC1-0005", "INT-IC1-0006", "INT-IC2-0002"],
       "residual_risk": "Shared semantic flaws can affect independently isolated processes.",
-      "owner": "security-owner"
+      "owner": "gpicchiarelli"
     },
     {
       "id": "THR-0006",
@@ -66,7 +66,7 @@
       "attack": "Counts, lengths, queues, retries, sparse extents, or event volume exhaust memory, disk, CPU, or descriptors.",
       "controls": ["INT-IC2-0001", "INT-IC1-0005", "INT-IC3-0002"],
       "residual_risk": "Authorized workload can exceed provisioned capacity and require safe suspension.",
-      "owner": "security-owner"
+      "owner": "gpicchiarelli"
     },
     {
       "id": "THR-0007",
@@ -77,7 +77,7 @@
       "attack": "A compromised component obtains permanent keys or tricks an authority into signing the wrong context.",
       "controls": ["INT-IC1-0001", "INT-IC1-0003", "INT-IC1-0004", "INT-IC3-0001"],
       "residual_risk": "Endpoint compromise during authorized signing remains.",
-      "owner": "security-owner"
+      "owner": "gpicchiarelli"
     },
     {
       "id": "THR-0008",
@@ -88,7 +88,7 @@
       "attack": "An actor or failure removes, changes, reorders, forks, or restores older journal records.",
       "controls": ["INT-IC2-0001", "INT-IC2-0003"],
       "residual_risk": "Local rollback of both journal and external checkpoint needs an independent anchor design.",
-      "owner": "security-owner"
+      "owner": "gpicchiarelli"
     },
     {
       "id": "THR-0009",
@@ -99,7 +99,7 @@
       "attack": "A dependency, action, builder, signer, registry, or distribution point inserts unreviewed code or replaces evidence.",
       "controls": ["INT-IC3-0003", "INT-IC3-0004"],
       "residual_risk": "Common compromise of source, builders, and independent verifier remains possible.",
-      "owner": "supply-chain-owner"
+      "owner": "gpicchiarelli"
     }
   ]
 }

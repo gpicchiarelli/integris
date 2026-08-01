@@ -2,11 +2,13 @@
 
 all: verify
 
+# gofmt walks directories recursively; use ./cmd ./internal (not ./... — gofmt rejects that).
+# Covers path/codec/journal today and plan/recovery when added.
 fmt:
-	gofmt -w ./cmd
+	gofmt -w ./cmd ./internal
 
 fmt-check:
-	@test -z "$$(gofmt -l ./cmd)" || { echo "Go files require formatting"; gofmt -l ./cmd; exit 1; }
+	@test -z "$$(gofmt -l ./cmd ./internal)" || { echo "Go files require formatting"; gofmt -l ./cmd ./internal; exit 1; }
 
 test:
 	go test ./...

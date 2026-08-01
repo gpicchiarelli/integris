@@ -27,3 +27,27 @@ GitHub plan becomes available.
 GitHub Dependency Review is also unavailable in that configuration; the private
 fallback verifies the Go module graph and reachable vulnerabilities but does not
 claim equivalent dependency-diff or license-policy coverage.
+
+## Evidence snapshot (2026-08-01)
+
+Probed with `gh` as repository admin on private `gpicchiarelli/integris`.
+Values below are observations, not claims that controls are satisfied.
+
+| Control | Observed | Notes |
+|---|---|---|
+| Default branch | `main` | Confirmed via repo API |
+| Branch protection on `main` | **Not enabled** | `GET .../branches/main` → `protected: false` |
+| Branch protection rules API | **Unavailable** | `GET .../branches/main/protection` → HTTP 403 (“Upgrade to GitHub Pro or make this repository public”) |
+| Repository rulesets API | **Unavailable** | HTTP 403 (same plan limitation) |
+| Force-push / deletion blocks | **Not evidenced** | Cannot be confirmed without protection/rulesets |
+| Required PR reviews / status checks | **Not evidenced** | Same |
+| `CODEOWNERS` | Absent by design | No real independent owners yet; see `GOVERNANCE.md` |
+| Vulnerability / Dependabot alerts | **Disabled** | `GET .../vulnerability-alerts` → HTTP 404 |
+| Secret scanning | **Disabled** | Alerts API → HTTP 404 |
+| Actions | Enabled | `allowed_actions: all`, `sha_pinning_required: false` (weaker than required) |
+| Merge policy | Squash-only | `allow_squash_merge: true`; merge/rebase commits disabled; `delete_branch_on_merge: true` |
+
+**Residual hosting gap:** branch protection, required reviews, secret scanning,
+Dependabot alerts, Action pinning, and release environments are not in place (or
+not inspectable) on the current private/free plan. Enabling them is an external
+admin action and an M0 process blocker alongside independent reviewer assignment.

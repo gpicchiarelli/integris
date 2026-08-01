@@ -4,6 +4,7 @@
 /coverage.out
 *.test
 *.prof
+**/testdata/fuzz/
 
 # Model checker output
 /formal/**/states/
