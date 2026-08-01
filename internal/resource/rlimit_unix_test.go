@@ -210,12 +210,21 @@ func TestWithSoftNPROCRejectsZero(t *testing.T) {
 		t.Fatal("expected error for soft=0")
 	}
 }
+
 func TestWithSoftASRejectsZero(t *testing.T) {
 	if runtime.GOOS == "darwin" {
 		t.Skip("RLIMIT_AS not enforceable on Darwin")
+	}
 	if err := resource.WithSoftAS(0, func() error { return nil }); err == nil {
+		t.Fatal("expected error for soft=0")
+	}
+}
+
 func TestWithSoftASDarwinUnavailable(t *testing.T) {
 	if runtime.GOOS != "darwin" {
 		t.Skip("Darwin-only unenforceable RLIMIT_AS probe")
+	}
 	if err := resource.WithSoftAS(256<<20, func() error { return nil }); err == nil {
 		t.Fatal("expected RLIMIT_AS unavailable on Darwin")
+	}
+}
