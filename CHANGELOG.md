@@ -37,6 +37,7 @@ is accepted.
 - Darwin Seatbelt deny ambient path reads + `NEG-FS-READ` (parity with Landlock/unveil/Capsicum);
 - `supervisor.Runtime.RestartChild` with `SocketFabric.ReplacePair` for engineering child respawn;
 - Apply/Index path allow-roots (`ApplyEngineeringOpts` + `NEG-FS-PATH`; Seatbelt/Landlock/unveil);
+- Index readonly allow-root write denial (`NEG-FS-WRITE`) via supervised Runtime spawn;
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
 - `Runtime.StartPair`/`RestartPair` with stub initiate mode (KeyViaExtraFiles dual-live edges);
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;

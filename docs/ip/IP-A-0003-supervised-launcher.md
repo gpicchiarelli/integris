@@ -76,9 +76,10 @@ directory owned for the test/run.
   - FreeBSD: `cap_enter` (fd-only; path allow-lists require conferred directory FDs);
   - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
     archive roles may receive `(allow file-read*/file-write* (subpath …))`
-    allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root).
+    allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root;
+    `NEG-FS-WRITE` asserts create under root succeeds for Apply and is denied for Index).
   Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
-  `NEG-EXEC`, `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
+  `NEG-FS-WRITE`, `NEG-EXEC`, `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
   (`NEG-NET-ARCHIVE`, `NEG-PARSER-NET`, `NEG-PLAN-WRITE`, `NEG-AUDIT-DECIDE`,
   `NEG-JOURNAL-NET`) over IPC.
 - Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles` for
@@ -124,7 +125,7 @@ Unix-only for this revision (`//go:build unix`). Other platforms remain refused.
   socket, wait deadline; `CreateKeyFD` round-trip.
 - Integration: parent↔stub authenticated IPC over conferred socketpair fd; stub
   reports `|KEY:` transport and `|NEG-FS:`/`|NEG-FS-READ:`/`|NEG-FS-PATH:`/
-  `|NEG-EXEC:`/`|NEG-PTRACE:`/`|NEG-ROLE-NET:` statuses.
+  `|NEG-FS-WRITE:`/`|NEG-EXEC:`/`|NEG-PTRACE:`/`|NEG-ROLE-NET:` statuses.
 - Residual gaps recorded on EVD-ARCH-001 until confinement probes pass in-child
   and non-Linux sealed transport reaches parity.
 

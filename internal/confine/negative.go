@@ -108,6 +108,71 @@ func NegativeFSPath(role authority.ProcessRole, roots []string) Finding {
 	}
 }
 
+// NegativeFSPathWrite attempts create/write under a conferred allow-root.
+// ArchiveFSReadonly roles must be denied; ArchiveFSReadWrite must succeed.
+func NegativeFSPathWrite(role authority.ProcessRole, roots []string) Finding {
+	plat := runtime.GOOS + "/" + runtime.GOARCH
+	mode := RoleArchiveFSMode(role)
+	if mode == ArchiveFSNone || len(roots) == 0 {
+		return Finding{
+			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+			Status: StatusSkipped, Detail: "no archive allow-roots for role",
+		}
+	}
+	switch runtime.GOOS {
+	case "linux", "openbsd", "darwin":
+	case "freebsd":
+		return Finding{
+			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+			Status: StatusSkipped, Detail: "Capsicum is fd-only; path allow-lists N/A",
+		}
+	default:
+		return Finding{
+			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+			Status: StatusSkipped, Detail: "no path allow-list on this OS",
+		}
+	}
+	norm, err := NormalizeAllowRoots(roots)
+	if err != nil || len(norm) == 0 {
+		detail := "normalize failed"
+		if err != nil {
+			detail = err.Error()
+		}
+		return Finding{
+			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+			Status: StatusUnavailable, Detail: detail,
+		}
+	}
+	p := filepath.Join(norm[0], "integris-neg-fs-write")
+	f, err := os.OpenFile(p, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0o600)
+	if mode == ArchiveFSReadonly {
+		if err == nil {
+			_ = f.Close()
+			_ = os.Remove(p)
+			return Finding{
+				ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+				Status: StatusUnexpectedAllow, Detail: "create under readonly allow-root succeeded",
+			}
+		}
+		return Finding{
+			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+			Status: StatusDeniedExpected, Detail: err.Error(),
+		}
+	}
+	if err != nil {
+		return Finding{
+			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+			Status: StatusUnavailable, Detail: "create under readwrite allow-root failed: " + err.Error(),
+		}
+	}
+	_ = f.Close()
+	_ = os.Remove(p)
+	return Finding{
+		ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+		Status: StatusAvailable, Detail: "allow-root write ok mode=readwrite",
+	}
+}
+
 func archiveModeLabel(mode ArchiveFSMode) string {
 	switch mode {
 	case ArchiveFSReadonly:
@@ -130,6 +195,7 @@ func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions) []Fi
 		NegativeFSOpen(),
 		NegativeFSRead(),
 		NegativeFSPath(role, opts.AllowRoots),
+		NegativeFSPathWrite(role, opts.AllowRoots),
 		NegativeExec(),
 		NegativePtrace(),
 		NegativeRoleNet(role),
@@ -147,6 +213,8 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-FS-READ:")
 		case "NEG-FS-PATH":
 			b.WriteString("|NEG-FS-PATH:")
+		case "NEG-FS-WRITE":
+			b.WriteString("|NEG-FS-WRITE:")
 		case "NEG-EXEC":
 			b.WriteString("|NEG-EXEC:")
 		case "NEG-PTRACE":

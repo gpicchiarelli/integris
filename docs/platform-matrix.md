@@ -27,7 +27,7 @@ OpenBSD role-parameterized `pledge`/`unveil` allow-roots; FreeBSD
 `cap_rights_limit` then `cap_enter` (fd-only); Darwin Seatbelt with deny ambient
 path read/write except EvalSymlinks'd allow-roots, and `deny network*` unless
 net role). Role stubs report `NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
-`NEG-EXEC`, `NEG-PTRACE`, and `NEG-ROLE-NET`. Provisional
+`NEG-FS-WRITE`, `NEG-EXEC`, `NEG-PTRACE`, and `NEG-ROLE-NET`. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts and release-mode launch remain open.
 
