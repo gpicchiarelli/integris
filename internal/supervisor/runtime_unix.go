@@ -26,6 +26,8 @@ type Runtime struct {
 	// AllowRoots maps roles to absolute archive path allow-lists forwarded to
 	// launcher/stub ApplyEngineeringOpts (EvalSymlinks in child).
 	AllowRoots map[authority.ProcessRole][]string
+	// StubMode maps roles to launcher stub IPC mode (respond/initiate).
+	StubMode map[authority.ProcessRole]string
 }
 
 // OpenRuntime builds launch tokens and a socket fabric. It does not spawn.
@@ -72,6 +74,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 	}
 	confer, slotKinds := r.childInventory(role)
 	allowRoots := r.allowRootsFor(role)
+	stubMode := r.stubModeFor(role)
 
 	if r.KeyViaExtraFiles {
 		_ = ep.Conn.Close()
@@ -88,6 +91,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 			Confer:           confer,
 			SlotKinds:        slotKinds,
 			AllowRoots:       allowRoots,
+			StubMode:         stubMode,
 		})
 		_ = sock.Close()
 		if err != nil {
@@ -115,6 +119,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 		Confer:          confer,
 		SlotKinds:       slotKinds,
 		AllowRoots:      allowRoots,
+		StubMode:        stubMode,
 	})
 	_ = sock.Close()
 	if err != nil {
@@ -146,6 +151,16 @@ func (r *Runtime) allowRootsFor(role authority.ProcessRole) []string {
 	return append([]string{}, roots...)
 }
 
+func (r *Runtime) stubModeFor(role authority.ProcessRole) string {
+	if r == nil || r.StubMode == nil {
+		return launcher.StubModeRespond
+	}
+	if m := r.StubMode[role]; m != "" {
+		return m
+	}
+	return launcher.StubModeRespond
+}
+
 func (r *Runtime) childInventory(role authority.ProcessRole) ([]authority.Capability, []string) {
 	for _, c := range r.Launch.Children {
 		if c.Role == role {
@@ -168,7 +183,7 @@ func (r *Runtime) WaitChild(role authority.ProcessRole) error {
 
 // RestartChild kills any tracked instance of role, replaces the role↔peer
 // socketpair (StartChild consumes the child end), and starts a fresh child.
-// Engineering-only: both ends of a live dual-child edge are not recovered here.
+// For dual-live edges use RestartPair (KeyViaExtraFiles required).
 func (r *Runtime) RestartChild(ctx context.Context, role, peer authority.ProcessRole, executable string) error {
 	if r == nil || r.Fabric == nil {
 		return fail("runtime", "nil runtime")
@@ -184,6 +199,62 @@ func (r *Runtime) RestartChild(ctx context.Context, role, peer authority.Process
 		return err
 	}
 	return r.StartChild(ctx, role, peer, executable)
+}
+
+// StartPair launches both ends of an IPC edge as live children.
+// Requires KeyViaExtraFiles (SCM dual-spawn has no fabric end left for SendFD).
+// initiator uses StubModeInitiate; the peer responds. Responder is started first.
+func (r *Runtime) StartPair(ctx context.Context, a, b, initiator authority.ProcessRole, executable string) error {
+	if r == nil || r.Fabric == nil {
+		return fail("runtime", "nil runtime")
+	}
+	if !r.KeyViaExtraFiles {
+		return fail("runtime", "StartPair requires KeyViaExtraFiles (SCM dual-spawn unsupported)")
+	}
+	if initiator != a && initiator != b {
+		return fail("runtime", "initiator must be one endpoint of the pair")
+	}
+	responder := a
+	if initiator == a {
+		responder = b
+	}
+	if r.StubMode == nil {
+		r.StubMode = make(map[authority.ProcessRole]string)
+	}
+	r.StubMode[initiator] = launcher.StubModeInitiate
+	r.StubMode[responder] = launcher.StubModeRespond
+	if err := r.StartChild(ctx, responder, initiator, executable); err != nil {
+		return err
+	}
+	if err := r.StartChild(ctx, initiator, responder, executable); err != nil {
+		if h := r.Children[responder]; h != nil && h.Cmd != nil && h.Cmd.Process != nil {
+			_ = h.Cmd.Process.Kill()
+			_ = h.Wait()
+		}
+		delete(r.Children, responder)
+		return err
+	}
+	return nil
+}
+
+// RestartPair kills both ends of an edge, replaces the socketpair, and StartPair.
+func (r *Runtime) RestartPair(ctx context.Context, a, b, initiator authority.ProcessRole, executable string) error {
+	if r == nil || r.Fabric == nil {
+		return fail("runtime", "nil runtime")
+	}
+	for _, role := range []authority.ProcessRole{a, b} {
+		if h, ok := r.Children[role]; ok {
+			if h != nil && h.Cmd != nil && h.Cmd.Process != nil {
+				_ = h.Cmd.Process.Kill()
+			}
+			_ = h.Wait()
+			delete(r.Children, role)
+		}
+	}
+	if err := r.Fabric.ReplacePair(a, b, r.RootKey); err != nil {
+		return err
+	}
+	return r.StartPair(ctx, a, b, initiator, executable)
 }
 
 // Close kills any tracked children and closes the fabric.

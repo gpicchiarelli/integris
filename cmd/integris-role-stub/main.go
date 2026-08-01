@@ -3,6 +3,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 	"io"
@@ -87,6 +88,22 @@ func run() error {
 	if err != nil {
 		return err
 	}
+
+	stubMode := os.Getenv(launcher.EnvStubMode)
+	if stubMode == "" {
+		stubMode = launcher.StubModeRespond
+	}
+	switch stubMode {
+	case launcher.StubModeInitiate:
+		return initiate(sock, &ch, kt, negAck)
+	case launcher.StubModeRespond:
+		return respond(sock, &ch, kt, negAck)
+	default:
+		return fmt.Errorf("unknown stub mode %q", stubMode)
+	}
+}
+
+func respond(sock *os.File, ch *ipc.ChannelState, kt, negAck string) error {
 	raw, err := ipc.ReadFrame(sock, 0)
 	if err != nil {
 		return err
@@ -105,6 +122,33 @@ func run() error {
 		return err
 	}
 	return ipc.WriteFrame(sock, reply)
+}
+
+func initiate(sock *os.File, ch *ipc.ChannelState, kt, negAck string) error {
+	payload := []byte("pair")
+	payload = append(payload, []byte(negAck)...)
+	if kt != "" {
+		payload = append(payload, []byte("|KEY:"+kt)...)
+	}
+	raw, err := ch.Encode(ipc.TypeRequest, payload)
+	if err != nil {
+		return err
+	}
+	if err := ipc.WriteFrame(sock, raw); err != nil {
+		return err
+	}
+	respRaw, err := ipc.ReadFrame(sock, 0)
+	if err != nil {
+		return err
+	}
+	resp, err := ch.Decode(respRaw)
+	if err != nil {
+		return err
+	}
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:pair")) {
+		return fmt.Errorf("unexpected response %q", resp.Payload)
+	}
+	return nil
 }
 
 func splitAllowRoots(s string) []string {

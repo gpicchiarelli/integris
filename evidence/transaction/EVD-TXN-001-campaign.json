@@ -1,21 +1,21 @@
 {
   "evidence_id": "EVD-TXN-001",
-  "source_revision": "6c81e7ec150c8bef624bc57321bb4eb5b41e924a",
-  "produced_at": "2026-08-01T14:15:48Z",
+  "source_revision": "e201b642780099c01c9339d8efffec4d4f43ac09",
+  "produced_at": "2026-08-01T14:20:43Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/recovery/ -count=1 -run Conformance",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.256s\n",
-      "stdout_sha256": "85c1ba06293376df83d7bdbe3f1526eebc39d39a886abc83337022cab992e8cb"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/recovery\t0.246s\n",
+      "stdout_sha256": "55028e2e80de41429d59efa06d5fe9de792768daaa8eb2f53473238ddbceb9df"
     },
     {
       "command": "go test ./internal/e2e/ -count=1 -run PlanJournalRecover",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/e2e\t0.260s\n",
-      "stdout_sha256": "079c5ec4b773304d93197ea695cc45ef1b978fc2b83dc18a28ae8a08cd05b6f9"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/e2e\t0.299s\n",
+      "stdout_sha256": "da28b1c320dc21257eb74c0ddbcc04f145b1e5b10654c38c184c7c9a0fbbf4da"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",

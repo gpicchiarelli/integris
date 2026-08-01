@@ -45,6 +45,8 @@ profile defect.
   confer/slot inventory, and optional `INTEGRIS_ALLOW_ROOTS` (non-secret);
 - `supervisor.Runtime.AllowRoots` forwards absolute archive roots into
   `launcher.Start` for Apply/Index engineering probes;
+- `INTEGRIS_STUB_MODE=initiate|respond` for child↔child IPC (StartPair/RestartPair);
+- dual-live edges require `KeyViaExtraFiles` (SCM dual-spawn unsupported);
 - MAC key via `CreateKeyFD`, never via environment:
   - **default ABI:** ExtraFiles is socket-only (IPC on **fd 3**); parent sends the
     key FD with `SCM_RIGHTS` (`ipc.SendFD` on `Handle.KeyFD`) before the first
@@ -86,9 +88,8 @@ directory owned for the test/run.
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
 - Broader role path allow-lists beyond Apply/Index archive caps; pre-conferred
   directory FDs on FreeBSD Capsicum; auth-role accept-loop denials.
-- Dual-child crash recovery when both IPC ends are live role processes
-  (`RestartChild` + `SocketFabric.ReplacePair` cover supervisor-held peer end
-  restart after a single spawned child exits or is killed).
+- Dual-live crash recovery beyond kill-both `RestartPair` (in-place peer FD
+  rebind while one child survives; SCM dual-spawn still unsupported).
 - Windows process model.
 
 ### Role stub

@@ -19,7 +19,10 @@ const (
 	EnvConfer       = "INTEGRIS_CONFER"
 	EnvSlots        = "INTEGRIS_SLOTS"
 	EnvAllowRoots   = "INTEGRIS_ALLOW_ROOTS"
+	EnvStubMode     = "INTEGRIS_STUB_MODE"
 	ModeEngineering = "engineering"
+	StubModeRespond = "respond"
+	StubModeInitiate = "initiate"
 	// IPCFileFD is the child's inherited IPC socket (ExtraFiles[0] → fd 3).
 	IPCFileFD = 3
 	// KeyFileFD is the child's inherited sealed MAC-key FD when using the
@@ -60,7 +63,9 @@ type Request struct {
 	Confer      []authority.Capability
 	SlotKinds   []string
 	// AllowRoots are absolute archive path allow-list entries (EvalSymlinks in child).
-	AllowRoots  []string
+	AllowRoots []string
+	// StubMode selects role-stub IPC behavior (respond default, or initiate).
+	StubMode    string
 	WaitTimeout time.Duration
 	WorkDir     string
 }

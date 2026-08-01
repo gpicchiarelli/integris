@@ -51,7 +51,7 @@ pending independent review, crypto suite, and platform probes.
 pledge (OpenBSD), Capsicum+cap_rights_limit (FreeBSD), or Seatbelt sandbox_init
 (Darwin, cgo) with role-parameterized ambient network denial; stub reports
 NEG-FS/FS-READ/FS-PATH/EXEC/PTRACE/ROLE-NET and full role-semantic conferral NEG-*; Runtime
-orchestrates spawn (AllowRoots→stub) and RestartChild (ReplacePair); Apply/Index path allow-roots;
+orchestrates spawn (AllowRoots→stub), RestartChild, and RestartPair (KeyViaExtraFiles + stub initiate);
 sealed MAC key FD (Linux memfd; anon-unlinked
 elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys

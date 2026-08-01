@@ -73,6 +73,11 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 	if len(req.AllowRoots) > 0 {
 		env = append(env, EnvAllowRoots+"="+strings.Join(req.AllowRoots, ":"))
 	}
+	stubMode := req.StubMode
+	if stubMode == "" {
+		stubMode = StubModeRespond
+	}
+	env = append(env, EnvStubMode+"="+stubMode)
 	keyFD, transport, err := CreateKeyFD(req.MACKey)
 	if err != nil {
 		return nil, err

@@ -375,3 +375,63 @@ func TestRuntimeStartChildAllowRoots(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestRuntimeRestartPairIPC(t *testing.T) {
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleNet,
+			Confer:   []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
+			IPCPeers: []authority.ProcessRole{authority.RoleParser},
+		},
+		{
+			Role:     authority.RoleParser,
+			Confer:   []authority.Capability{authority.CapBoundedMessageIPC},
+			IPCPeers: []authority.ProcessRole{authority.RoleNet},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x6a}, 32)
+	var nonce [16]byte
+	nonce[2] = 7
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+	rt.KeyViaExtraFiles = true
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	if err := rt.StartPair(ctx, authority.RoleParser, authority.RoleNet, authority.RoleParser, bin); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.WaitChild(authority.RoleParser); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.WaitChild(authority.RoleNet); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := rt.RestartPair(ctx, authority.RoleParser, authority.RoleNet, authority.RoleParser, bin); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.WaitChild(authority.RoleParser); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.WaitChild(authority.RoleNet); err != nil {
+		t.Fatal(err)
+	}
+}
