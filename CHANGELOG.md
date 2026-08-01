@@ -42,6 +42,7 @@ is accepted.
 - Auth MustNot triad complete (`NEG-AUTH-CONTENTS`, `NEG-AUTH-PUB`);
 - Index MustNot probes (`NEG-INDEX-PUB`, `NEG-INDEX-DELETE`);
 - Apply MustNot probes (`NEG-APPLY-KEYS`, `NEG-APPLY-PATH`);
+- Parser MustNot triad complete (`NEG-PARSER-KEYS`, `NEG-PARSER-ARCHIVES`);
 - `supervisor.Runtime.AllowRoots` forwarded through `StartChild` for supervised spawn probes;
 - `Runtime.StartPair`/`RestartPair` with stub initiate mode (KeyViaExtraFiles dual-live edges);
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;

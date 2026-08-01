@@ -43,21 +43,60 @@ func TestNegativeRoleSemanticParserOK(t *testing.T) {
 		Confer:    []authority.Capability{authority.CapBoundedMessageIPC},
 		SlotKinds: []string{"ipc_endpoint"},
 	})
+	want := map[string]confine.Status{
+		"NEG-PARSER-NET":      confine.StatusDeniedExpected,
+		"NEG-PARSER-KEYS":     confine.StatusDeniedExpected,
+		"NEG-PARSER-ARCHIVES": confine.StatusDeniedExpected,
+	}
 	for _, f := range fs {
-		if f.ID == "NEG-PARSER-NET" && f.Status != confine.StatusDeniedExpected {
-			t.Fatalf("%+v", f)
+		if st, ok := want[f.ID]; ok && f.Status != st {
+			t.Fatalf("%s: %+v", f.ID, f)
 		}
 	}
 }
 
 func TestNegativeRoleSemanticParserBadCap(t *testing.T) {
-	fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
-		Role:   authority.RoleParser,
-		Confer: []authority.Capability{authority.CapBoundedMessageIPC, authority.CapNetworkSockets},
-	})
-	for _, f := range fs {
-		if f.ID == "NEG-PARSER-NET" && f.Status != confine.StatusUnexpectedAllow {
-			t.Fatalf("%+v", f)
+	cases := []struct {
+		id     string
+		confer []authority.Capability
+		slots  []string
+	}{
+		{
+			id: "NEG-PARSER-NET",
+			confer: []authority.Capability{
+				authority.CapBoundedMessageIPC, authority.CapNetworkSockets,
+			},
+		},
+		{
+			id: "NEG-PARSER-KEYS",
+			confer: []authority.Capability{
+				authority.CapBoundedMessageIPC, authority.CapPermanentKeys,
+			},
+		},
+		{
+			id: "NEG-PARSER-ARCHIVES",
+			confer: []authority.Capability{
+				authority.CapBoundedMessageIPC, authority.CapArchives,
+			},
+		},
+		{
+			id: "NEG-PARSER-ARCHIVES",
+			confer: []authority.Capability{
+				authority.CapBoundedMessageIPC,
+			},
+			slots: []string{"archive_root"},
+		},
+	}
+	for _, tc := range cases {
+		fs := confine.NegativeRoleSemantic(confine.RoleProbeInput{
+			Role:      authority.RoleParser,
+			Confer:    tc.confer,
+			SlotKinds: tc.slots,
+		})
+		for _, f := range fs {
+			if f.ID == tc.id && f.Status != confine.StatusUnexpectedAllow {
+				t.Fatalf("%s: %+v", tc.id, f)
+			}
 		}
 	}
 }

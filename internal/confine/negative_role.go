@@ -23,6 +23,8 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 	return []Finding{
 		negNetArchive(plat, in),
 		negParserNet(plat, in),
+		negParserKeys(plat, in),
+		negParserArchives(plat, in),
 		negAuthAccept(plat, in),
 		negAuthContents(plat, in),
 		negAuthPub(plat, in),
@@ -89,6 +91,65 @@ func negParserNet(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "parser lacks network_sockets in inventory and conferral"
+	return base
+}
+
+func negParserKeys(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-PARSER-KEYS", Platform: plat, Control: "permanent_keys",
+	}
+	if in.Role != authority.RoleParser {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-parser only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapPermanentKeys) ||
+		hasCap(in.Confer, authority.CapKeys) ||
+		hasCap(in.Confer, authority.CapLongTermKeys) ||
+		hasCap(in.Confer, authority.CapIdentityKeys) ||
+		hasCap(in.Confer, authority.CapIdentityHandle) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "parser role conferred permanent or identity key capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleParser, authority.CapPermanentKeys)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows permanent_keys for parser"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "parser lacks permanent_keys in inventory and conferral"
+	return base
+}
+
+func negParserArchives(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-PARSER-ARCHIVES", Platform: plat, Control: "archives",
+	}
+	if in.Role != authority.RoleParser {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-parser only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapArchives) ||
+		hasCap(in.Confer, authority.CapArchiveDescriptors) ||
+		hasCap(in.Confer, authority.CapArchiveRoots) ||
+		hasCap(in.Confer, authority.CapReadonlyArchiveRoot) ||
+		hasCap(in.Confer, authority.CapArchiveContents) ||
+		hasArchiveSlot(in.SlotKinds) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "parser role conferred archive capability or slot"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleParser, authority.CapArchives)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows archives for parser"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "parser lacks archives in inventory and conferral"
 	return base
 }
 

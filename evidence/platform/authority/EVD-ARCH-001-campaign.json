@@ -1,46 +1,46 @@
 {
   "evidence_id": "EVD-ARCH-001",
-  "source_revision": "7db4cad635e7086818fd4b33c7f8fe6c7d87be2d",
-  "produced_at": "2026-08-01T17:08:03Z",
+  "source_revision": "178e66649199c68cd6076d36ef1f7a8c6f4927f9",
+  "produced_at": "2026-08-01T17:10:22Z",
   "go_version": "go1.26.5",
   "platform": "darwin/arm64",
   "commands": [
     {
       "command": "go test ./internal/authority/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.256s\n",
-      "stdout_sha256": "50ffe9583655fa56089dc3bc500eb5695ba059a9d9c23b6aaddc9225f72f3a3e"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/authority\t0.345s\n",
+      "stdout_sha256": "5c75c962b2ccc5fe1e2e9cfb36074a3a194d308327c5ad4c32668ab7c271556c"
     },
     {
       "command": "go test ./internal/supervisor/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t8.496s\n",
-      "stdout_sha256": "47051ad1b13624b6e0a9a232d56d07930bc6ce562989db7e9e5a068ce9efa1ff"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/supervisor\t8.723s\n",
+      "stdout_sha256": "e2a59991146071b1a5a2b332f2982ba53997cb58d0673e1e88e618f065a8215a"
     },
     {
       "command": "go test ./internal/crypto/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.257s\n",
-      "stdout_sha256": "8f5849a7f6df055073d68ec13253c05884bb05ac0cc676953cca9bdbfc5a2dfe"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/crypto\t0.370s\n",
+      "stdout_sha256": "9b843955ff74827ba3379ff8d834392b54ff7e5273e49c72ce16c868b00fbc38"
     },
     {
       "command": "go test ./internal/confine/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.276s\n",
-      "stdout_sha256": "71c90095b0c69277ba17eb145154608d0bfaf85132f7a495eb84618bbf5b3356"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/confine\t0.261s\n",
+      "stdout_sha256": "01e04ac4cbfca0b598e07b270cdc3e7f1c084eb9c779650d4faec1ce03134bdf"
     },
     {
       "command": "go test ./internal/launcher/ -count=1",
       "exit_code": 0,
-      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t3.245s\n",
-      "stdout_sha256": "f384184d966dbf40246cf5514463337289b20e9d6a58f62ef704f9e7725a0ae5"
+      "stdout_tail": "ok  \tgithub.com/gpicchiarelli/integris/internal/launcher\t3.111s\n",
+      "stdout_sha256": "007773f0499464a2677f3a4403dfb6a4edfe649f83d626d32a9d9855b32c6926"
     }
   ],
   "self_digest_note": "sha256 of this JSON file after write; see sibling .sha256",
   "residual_gaps": [
     "session AEAD + mutual HMAC peer/archive-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
     "engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index via Runtime.AllowRoots; role-net deny; Capsicum fd-only",
-    "NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET + role-semantic NEG-* including auth/index/apply MustNot via role stub",
+    "NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET + role-semantic NEG-* including auth/index/apply/parser MustNot via role stub",
     "MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
     "broader path allow-lists beyond archive caps; FreeBSD conferred directory FDs still open",
     "Runtime.RestartChild + RestartPair (KeyViaExtraFiles dual-live); in-place peer FD rebind still open",
