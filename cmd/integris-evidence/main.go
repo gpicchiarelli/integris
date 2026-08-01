@@ -193,7 +193,7 @@ func run(root string) error {
 			residual: []string{
 				"session AEAD + mutual HMAC peer/archive-auth engineering-only (IP-C-0002); Noise/TLS/PQ deferred",
 				"engineering: Landlock+seccomp+no_new_privs; Capsicum+cap_rights; pledge",
-				"NEG-FS/EXEC/PTRACE reported by role stub; role-semantic NEG-* still skipped",
+				"NEG-FS/EXEC/PTRACE reported by role stub; NEG-NET-ARCHIVE/NEG-PARSER-NET conferral probes active; PLAN/AUDIT/JOURNAL role NEG-* deferred",
 				"MAC key via sealed memfd/anon-unlinked FD (default fd4) or optional SCM_RIGHTS",
 				"independent cryptography/security review required for IC-1",
 				"VER-PROTO-001 / VER-ARCH-001 remain planned",

@@ -48,7 +48,7 @@ func run() error {
 
 	_ = confine.LimitConferredFDs(sock, keyF)
 	_ = confine.ApplyEngineering()
-	negAck := confine.FormatNegativeAck(confine.NegativeEngineering())
+	negFindings := confine.NegativeEngineering()
 
 	if os.Getenv(launcher.EnvMode) != launcher.ModeEngineering {
 		return fmt.Errorf("refusing non-engineering launch mode")
@@ -58,6 +58,12 @@ func run() error {
 	if role == "" || peer == "" {
 		return fmt.Errorf("missing role/peer")
 	}
+	negFindings = append(negFindings, confine.NegativeRoleSemantic(confine.RoleProbeInput{
+		Role:      role,
+		Confer:    confine.ParseCapList(os.Getenv(launcher.EnvConfer)),
+		SlotKinds: confine.ParseSlotKindList(os.Getenv(launcher.EnvSlots)),
+	})...)
+	negAck := confine.FormatNegativeAck(negFindings)
 	nonceRaw, err := hex.DecodeString(os.Getenv(launcher.EnvNonce))
 	if err != nil || len(nonceRaw) != 16 {
 		return fmt.Errorf("bad nonce")

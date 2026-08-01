@@ -47,15 +47,13 @@ func Discover() Report {
 	return r
 }
 
-// NegativeBaseline returns role-oriented negative probes. Unconfined processes
-// mark these skipped; confined children should run NegativeEngineering instead.
+// NegativeBaseline returns role-oriented negative probes still deferred for
+// PLAN/AUDIT/JOURNAL. Net/parser conferral probes live in NegativeRoleSemantic.
 func NegativeBaseline() Report {
 	r := Report{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
 	probes := []struct {
 		id, control, detail string
 	}{
-		{"NEG-NET-ARCHIVE", "archive_descriptors", "net role must not open archive roots"},
-		{"NEG-PARSER-NET", "network_sockets", "parser role must not create sockets"},
 		{"NEG-PLAN-WRITE", "filesystem_writes", "plan role must not mutate archives"},
 		{"NEG-AUDIT-DECIDE", "operation_decisions", "audit role must not authorize"},
 		{"NEG-JOURNAL-NET", "network", "journal role must not hold network"},
@@ -64,7 +62,7 @@ func NegativeBaseline() Report {
 		r.Findings = append(r.Findings, Finding{
 			ID: p.id, Platform: runtime.GOOS + "/" + runtime.GOARCH,
 			Control: p.control, Status: StatusSkipped,
-			Detail: p.detail + "; use confined child NegativeEngineering for OS denial evidence",
+			Detail: p.detail + "; deferred until role-specific slot probes land",
 		})
 	}
 	sort.Slice(r.Findings, func(i, j int) bool { return r.Findings[i].ID < r.Findings[j].ID })

@@ -26,6 +26,15 @@ func TestMaterializeLaunchSealed(t *testing.T) {
 	if err := set.VerifyAll(root); err != nil {
 		t.Fatal(err)
 	}
+	for _, c := range set.Children {
+		if c.Role == authority.RoleNet {
+			for _, s := range c.Slots {
+				if s.Kind == supervisor.DescArchiveRoot {
+					t.Fatal("net must not hold archive_root")
+				}
+			}
+		}
+	}
 	var apply *supervisor.ChildLaunch
 	for i := range set.Children {
 		if set.Children[i].Role == authority.RoleApply {
@@ -47,9 +56,28 @@ func TestMaterializeLaunchSealed(t *testing.T) {
 			t.Fatalf("apply missing slot %s", want)
 		}
 	}
-	// Tamper seal.
 	apply.Seal[0] ^= 0xff
 	if err := apply.Verify(root, set.PlanDigest); err == nil {
 		t.Fatal("expected seal failure")
+	}
+}
+
+func TestValidateSlotsRejectsNetArchive(t *testing.T) {
+	err := supervisor.ValidateSlots(authority.RoleNet,
+		[]authority.Capability{authority.CapNetworkSockets},
+		[]supervisor.DescriptorSlot{{Kind: supervisor.DescArchiveRoot, Label: "bad"}},
+	)
+	if err == nil {
+		t.Fatal("expected rejection")
+	}
+}
+
+func TestValidateSlotsRejectsParserNetworkCap(t *testing.T) {
+	err := supervisor.ValidateSlots(authority.RoleParser,
+		[]authority.Capability{authority.CapBoundedMessageIPC, authority.CapNetworkSockets},
+		nil,
+	)
+	if err == nil {
+		t.Fatal("expected rejection")
 	}
 }

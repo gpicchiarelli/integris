@@ -30,6 +30,7 @@ is accepted.
 - wire protocol session Driver; MAC key conferred via pipe fd (not env);
 - Linux Landlock + seccomp exec/ptrace denylist + no_new_privs; OpenBSD pledge;
   FreeBSD Capsicum + cap_rights_limit; in-child NEG-FS/EXEC/PTRACE probes via role stub;
+- role-semantic NEG-NET-ARCHIVE / NEG-PARSER-NET conferral probes + ValidateSlots;
 - draft IP-C-0002 provisional ChaCha20-Poly1305 for sealed TypeData;
 - session crypto-suite allow-list + transcript-bound traffic key install;
 - provisional HMAC peer-auth proof over negotiation transcript (`AuthenticateProof`);

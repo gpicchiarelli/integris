@@ -66,6 +66,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 		_ = sock.Close()
 		return fail("key", err.Error())
 	}
+	confer, slotKinds := r.childInventory(role)
 
 	if r.KeyViaSCM {
 		parentEp, err := r.Fabric.Endpoint(peer, role)
@@ -84,6 +85,8 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 			Socket:          sock,
 			EngineeringMode: true,
 			KeyViaSCM:       true,
+			Confer:          confer,
+			SlotKinds:       slotKinds,
 		})
 		_ = sock.Close()
 		if err != nil {
@@ -114,6 +117,8 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 		MACKey:          macKey,
 		Socket:          sock,
 		EngineeringMode: true,
+		Confer:          confer,
+		SlotKinds:       slotKinds,
 	})
 	_ = sock.Close()
 	if err != nil {
@@ -121,6 +126,15 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 	}
 	r.Children[role] = h
 	return nil
+}
+
+func (r *Runtime) childInventory(role authority.ProcessRole) ([]authority.Capability, []string) {
+	for _, c := range r.Launch.Children {
+		if c.Role == role {
+			return append([]authority.Capability{}, c.Confer...), SlotKinds(c.Slots)
+		}
+	}
+	return nil, nil
 }
 
 // WaitChild waits for a started child.

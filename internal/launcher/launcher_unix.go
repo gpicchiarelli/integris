@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 )
@@ -58,6 +59,16 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 		EnvRole + "=" + string(req.Role),
 		EnvPeer + "=" + string(req.Peer),
 		EnvNonce + "=" + hex.EncodeToString(req.Nonce[:]),
+	}
+	if len(req.Confer) > 0 {
+		parts := make([]string, len(req.Confer))
+		for i, c := range req.Confer {
+			parts[i] = string(c)
+		}
+		env = append(env, EnvConfer+"="+strings.Join(parts, ","))
+	}
+	if len(req.SlotKinds) > 0 {
+		env = append(env, EnvSlots+"="+strings.Join(req.SlotKinds, ","))
 	}
 	keyFD, transport, err := CreateKeyFD(req.MACKey)
 	if err != nil {

@@ -69,6 +69,9 @@ func MaterializeLaunch(p Plan, rootKey []byte, nonce [16]byte) (LaunchSet, error
 	out := make([]ChildLaunch, 0, len(p.Children))
 	for _, c := range p.Children {
 		slots := defaultSlots(c.Role, c.IPCPeers)
+		if err := ValidateSlots(c.Role, c.Confer, slots); err != nil {
+			return zero, err
+		}
 		peers := make([]PeerKeyRef, 0, len(c.IPCPeers))
 		for _, peer := range c.IPCPeers {
 			macKey, err := crypto.ChannelMACKey(rootKey, string(c.Role), string(peer))

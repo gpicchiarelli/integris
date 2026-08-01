@@ -16,6 +16,8 @@ const (
 	EnvNonce        = "INTEGRIS_NONCE_HEX"
 	EnvMode         = "INTEGRIS_LAUNCH_MODE"
 	EnvKeyTransport = "INTEGRIS_KEY_TRANSPORT"
+	EnvConfer       = "INTEGRIS_CONFER"
+	EnvSlots        = "INTEGRIS_SLOTS"
 	ModeEngineering = "engineering"
 	// IPCFileFD is the child's inherited IPC socket (ExtraFiles[0] → fd 3).
 	IPCFileFD = 3
@@ -50,7 +52,10 @@ type Request struct {
 	EngineeringMode bool
 	// KeyViaSCM, when true, confers the MAC key FD via SCM_RIGHTS after start
 	// (ExtraFiles is socket-only). Caller must SendFD Handle.KeyFD then Close it.
-	KeyViaSCM   bool
+	KeyViaSCM bool
+	// Confer and SlotKinds are non-secret inventory labels for role-semantic probes.
+	Confer      []authority.Capability
+	SlotKinds   []string
 	WaitTimeout time.Duration
 	WorkDir     string
 }

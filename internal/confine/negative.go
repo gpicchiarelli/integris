@@ -35,7 +35,7 @@ func NegativeEngineering() []Finding {
 	return []Finding{NegativeFSOpen(), NegativeExec(), NegativePtrace()}
 }
 
-// FormatNegativeAck appends |NEG-FS:…|NEG-EXEC:…|NEG-PTRACE:… tokens for stub IPC.
+// FormatNegativeAck appends |NEG-*:status tokens for stub IPC.
 func FormatNegativeAck(findings []Finding) string {
 	var b strings.Builder
 	for _, f := range findings {
@@ -46,6 +46,10 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-EXEC:")
 		case "NEG-PTRACE":
 			b.WriteString("|NEG-PTRACE:")
+		case "NEG-NET-ARCHIVE":
+			b.WriteString("|NEG-NET-ARCHIVE:")
+		case "NEG-PARSER-NET":
+			b.WriteString("|NEG-PARSER-NET:")
 		default:
 			continue
 		}
