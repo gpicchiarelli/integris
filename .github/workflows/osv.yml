@@ -39,7 +39,7 @@ jobs:
         run: |
           go run github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.4.0 \
             --format sarif \
-            --output osv.sarif \
+            --output-file osv.sarif \
             --lockfile=go.mod
           go run github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.4.0 \
             --format table \

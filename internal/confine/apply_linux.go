@@ -244,8 +244,8 @@ func seccompDenyEngineering(denyNet bool) error {
 		offNR   = 0
 		offArch = 4
 	)
-	deny := unix.SECCOMP_RET_ERRNO | uint32(unix.EPERM)
-	allow := unix.SECCOMP_RET_ALLOW
+	deny := uint32(unix.SECCOMP_RET_ERRNO) | uint32(unix.EPERM)
+	allow := uint32(unix.SECCOMP_RET_ALLOW)
 	ldAbs := uint16(unix.BPF_LD | unix.BPF_W | unix.BPF_ABS)
 	jmpJEQ := uint16(unix.BPF_JMP | unix.BPF_JEQ | unix.BPF_K)
 	retK := uint16(unix.BPF_RET | unix.BPF_K)
