@@ -8,6 +8,7 @@ permissions:
 
 jobs:
   review:
+    if: github.event.repository.private == false
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -16,7 +17,31 @@ jobs:
         with:
           persist-credentials: false
       - name: Review dependency changes
-        uses: actions/dependency-review-action@2031cfc080254a8a887f58cffee85186f0e49e48 # v4.9.0
+        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
         with:
           fail-on-severity: moderate
           deny-licenses: GPL-2.0, GPL-3.0, AGPL-1.0, AGPL-3.0
+
+  private-review:
+    if: github.event.repository.private
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Go toolchain
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+          cache: false
+      - name: Verify module graph
+        run: |
+          go mod verify
+          go list -m all
+      - name: Scan reachable vulnerabilities
+        env:
+          GOTOOLCHAIN: go1.26.5
+          GOWORK: "off"
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.6.0 ./...
