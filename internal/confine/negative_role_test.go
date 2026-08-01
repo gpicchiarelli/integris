@@ -324,6 +324,47 @@ func TestNegativeRoleSemanticPlanAuditJournal(t *testing.T) {
 			},
 			want: confine.StatusUnexpectedAllow,
 		},
+		{
+			id: "NEG-JOURNAL-POLICY",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleJournal,
+				Confer: []authority.Capability{authority.CapJournalDescriptor, authority.CapAuthenticatedRecords},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-JOURNAL-POLICY",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleJournal,
+				Confer: []authority.Capability{authority.CapJournalDescriptor, authority.CapPolicyDecisions},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
+			id: "NEG-JOURNAL-MUTATE",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleJournal,
+				Confer: []authority.Capability{authority.CapJournalDescriptor, authority.CapAuthenticatedRecords},
+			},
+			want: confine.StatusDeniedExpected,
+		},
+		{
+			id: "NEG-JOURNAL-MUTATE",
+			in: confine.RoleProbeInput{
+				Role:   authority.RoleJournal,
+				Confer: []authority.Capability{authority.CapJournalDescriptor, authority.CapArchiveMutation},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
+		{
+			id: "NEG-JOURNAL-MUTATE",
+			in: confine.RoleProbeInput{
+				Role:      authority.RoleJournal,
+				Confer:    []authority.Capability{authority.CapJournalDescriptor},
+				SlotKinds: []string{"archive_root"},
+			},
+			want: confine.StatusUnexpectedAllow,
+		},
 	}
 	for _, tc := range cases {
 		fs := confine.NegativeRoleSemantic(tc.in)

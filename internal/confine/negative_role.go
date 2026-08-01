@@ -35,6 +35,8 @@ func NegativeRoleSemantic(in RoleProbeInput) []Finding {
 		negPlanWrite(plat, in),
 		negAuditDecide(plat, in),
 		negJournalNet(plat, in),
+		negJournalPolicy(plat, in),
+		negJournalMutate(plat, in),
 	}
 }
 
@@ -421,6 +423,64 @@ func negJournalNet(plat string, in RoleProbeInput) Finding {
 	}
 	base.Status = StatusDeniedExpected
 	base.Detail = "journal lacks network in inventory and conferral"
+	return base
+}
+
+func negJournalPolicy(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-JOURNAL-POLICY", Platform: plat, Control: "policy_decisions",
+	}
+	if in.Role != authority.RoleJournal {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-journal only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapPolicyDecisions) ||
+		hasCap(in.Confer, authority.CapOperationDecisions) ||
+		hasCap(in.Confer, authority.CapAuthorizationPolicy) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "journal role conferred policy or decision capability"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleJournal, authority.CapPolicyDecisions)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows policy_decisions for journal"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "journal lacks policy_decisions in inventory and conferral"
+	return base
+}
+
+func negJournalMutate(plat string, in RoleProbeInput) Finding {
+	base := Finding{
+		ID: "NEG-JOURNAL-MUTATE", Platform: plat, Control: "archive_mutation",
+	}
+	if in.Role != authority.RoleJournal {
+		base.Status = StatusSkipped
+		base.Detail = "probe applies to integrisd-journal only"
+		return base
+	}
+	if hasCap(in.Confer, authority.CapArchiveMutation) ||
+		hasCap(in.Confer, authority.CapArchives) ||
+		hasCap(in.Confer, authority.CapArchiveRoots) ||
+		hasCap(in.Confer, authority.CapArchiveDescriptors) ||
+		hasCap(in.Confer, authority.CapArchiveContents) ||
+		hasCap(in.Confer, authority.CapDeletion) ||
+		hasArchiveSlot(in.SlotKinds) {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "journal role conferred archive mutation capability or slot"
+		return base
+	}
+	ok, err := authority.Allows(authority.RoleJournal, authority.CapArchiveMutation)
+	if err != nil || ok {
+		base.Status = StatusUnexpectedAllow
+		base.Detail = "inventory allows archive_mutation for journal"
+		return base
+	}
+	base.Status = StatusDeniedExpected
+	base.Detail = "journal lacks archive_mutation in inventory and conferral"
 	return base
 }
 
