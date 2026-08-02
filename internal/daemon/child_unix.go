@@ -232,8 +232,9 @@ func closeAll(files ...*os.File) {
 // allow-root create denial via NEG-FS-WRITE (M5s; Index/Audit), archive
 // allow-root open via NEG-FS-PATH (M5t), archive-readwrite create via
 // NEG-FS-WRITE (M5t; Apply/Journal), Linux ambient capability clear via
-// APPLY-CAP-AMBIENT + NEG-CAP-AMBIENT (M5u; Skipped elsewhere), and Linux
-// PR_NO_NEW_PRIVS verify via APPLY-NO-NEW-PRIVS + NEG-NO-NEW-PRIVS (M5v).
+// APPLY-CAP-AMBIENT + NEG-CAP-AMBIENT (M5u; Skipped elsewhere), Linux
+// PR_NO_NEW_PRIVS verify via APPLY-NO-NEW-PRIVS + NEG-NO-NEW-PRIVS (M5v),
+// and Linux seccomp FILTER+TSYNC via APPLY-SECCOMP + NEG-SECCOMP (M5w).
 func (e ChildEnv) Confine() error {
 	// Capture before ApplyEngineering: OpenBSD unveil may return ENOENT for
 	// non-unveiled paths, indistinguishable from a missing probe target (M5r).
@@ -266,6 +267,10 @@ func (e ChildEnv) Confine() error {
 			return err
 		}
 		if err := confine.RequireNoNewPrivsSet(); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
+			return err
+		}
+		if err := confine.RequireSeccompFilter(); err != nil {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}

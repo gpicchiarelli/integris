@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M5v engineering increments)
+# Privilege-separated receive (M2a–M5w engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,7 +65,7 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M5v CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  (M3m–M5w CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
   ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt/Landlock/pledge StrictLaunch
   push, RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual
   documented on FreeBSD)
@@ -327,6 +327,9 @@ ExtraPeer chain (one extra peer per child):
   + `RequireCapAmbientEmpty`; `DISC-CAP-EMPTY` Unavailable (CapBnd residual)
 - **M5v:** Linux no_new_privs verify + Require — `PR_GET_NO_NEW_PRIVS` +
   `RequireNoNewPrivsSet`; CapBnd drop still needs `CAP_SETPCAP`
+- **M5w:** Linux seccomp TSYNC + Require — `SECCOMP_SET_MODE_FILTER` +
+  `SECCOMP_FILTER_FLAG_TSYNC` + `RequireSeccompFilter`; Landlock per-thread
+  residual unchanged
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

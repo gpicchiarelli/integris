@@ -121,8 +121,18 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 			ID: "APPLY-SECCOMP", Platform: plat, Control: "seccomp_bpf",
 			Status: StatusUnavailable, Detail: err.Error(),
 		})
+	} else if filter, err := seccompModeFilter(); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-SECCOMP", Platform: plat, Control: "seccomp_bpf",
+			Status: StatusUnavailable, Detail: "verify: " + err.Error(),
+		})
+	} else if !filter {
+		out = append(out, Finding{
+			ID: "APPLY-SECCOMP", Platform: plat, Control: "seccomp_bpf",
+			Status: StatusUnavailable, Detail: "PR_GET_SECCOMP not SECCOMP_MODE_FILTER after TSYNC",
+		})
 	} else {
-		detail := "deny execve/execveat/ptrace (ERRNO EPERM)"
+		detail := "SECCOMP_SET_MODE_FILTER+TSYNC; deny execve/execveat/ptrace (ERRNO EPERM)"
 		if denyNet {
 			detail += "; deny socket/connect/bind/listen/accept*"
 		}
@@ -251,9 +261,11 @@ func seccompAuditArch() (uint32, bool) {
 	}
 }
 
-// seccompDenyEngineering installs a filter that returns EPERM for
+// seccompDenyEngineering installs a process-wide filter that returns EPERM for
 // execve/execveat/ptrace (and optionally network syscalls) so in-child
 // negative probes can observe the denial without being killed.
+// Uses SECCOMP_FILTER_FLAG_TSYNC so all existing threads inherit the filter
+// (M5w); PR_SET_SECCOMP alone would confine only the calling thread.
 func seccompDenyEngineering(denyNet bool) error {
 	arch, ok := seccompAuditArch()
 	if !ok {
@@ -302,13 +314,22 @@ func seccompDenyEngineering(denyNet bool) error {
 		Filter: &filter[0],
 	}
 	_, _, errno := unix.Syscall(
-		unix.SYS_PRCTL,
-		uintptr(unix.PR_SET_SECCOMP),
-		uintptr(unix.SECCOMP_MODE_FILTER),
+		unix.SYS_SECCOMP,
+		uintptr(unix.SECCOMP_SET_MODE_FILTER),
+		uintptr(unix.SECCOMP_FILTER_FLAG_TSYNC),
 		uintptr(unsafe.Pointer(&prog)),
 	)
 	if errno != 0 {
 		return errno
 	}
 	return nil
+}
+
+// seccompModeFilter reports whether the process is in SECCOMP_MODE_FILTER.
+func seccompModeFilter() (bool, error) {
+	v, err := unix.PrctlRetInt(unix.PR_GET_SECCOMP, 0, 0, 0, 0)
+	if err != nil {
+		return false, err
+	}
+	return v == int(unix.SECCOMP_MODE_FILTER), nil
 }

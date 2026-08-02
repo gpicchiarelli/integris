@@ -296,6 +296,9 @@ is accepted.
   `NEG-CAP-AMBIENT` / `RequireCapAmbientEmpty`; `DISC-CAP-AMBIENT` Available; `DISC-CAP-EMPTY` Unavailable;
 - M5v Linux no_new_privs verify + Require: `PR_GET_NO_NEW_PRIVS`,
   `RequireNoNewPrivsSet`; `DISC-NO-NEW-PRIVS` Available; CapBnd residual;
+- M5w Linux seccomp TSYNC + Require: `SECCOMP_SET_MODE_FILTER` +
+  `SECCOMP_FILTER_FLAG_TSYNC`, `RequireSeccompFilter`; `DISC-SECCOMP`
+  Available; Landlock per-thread residual unchanged;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

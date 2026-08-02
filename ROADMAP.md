@@ -1114,6 +1114,18 @@ Exit: Linux ambient clear green; `docs/daemon-m2a.md`.
 
 Exit: Linux no_new_privs verify green; `docs/daemon-m2a.md`.
 
+## M5w — Linux seccomp TSYNC + Require (landed engineering)
+
+- `APPLY-SECCOMP` installs via `SECCOMP_SET_MODE_FILTER` +
+  `SECCOMP_FILTER_FLAG_TSYNC` (process-wide; not calling-thread-only
+  `PR_SET_SECCOMP`) and verifies `PR_GET_SECCOMP == SECCOMP_MODE_FILTER`;
+- `NegativeSeccompFilter` + release `RequireSeccompFilter` (Available or
+  Skipped); `DISC-SECCOMP` Available;
+- Landlock remains per-thread for threads created before restrict (residual);
+  not an IC-1 claim.
+
+Exit: Linux seccomp TSYNC verify green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

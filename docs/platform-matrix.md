@@ -30,7 +30,7 @@ operational controls.
 Engineering scaffold: `internal/confine` probes and applies best-effort child
 confinement (`ApplyEngineeringOpts(role, opts)`: Linux Landlock with optional
 path_beneath allow-roots for Apply/Index + `no_new_privs` + ambient
-capability clear (M5u) + seccomp denylist;
+capability clear (M5u) + seccomp denylist with TSYNC (M5w);
 OpenBSD role-parameterized `pledge`/`unveil` allow-roots; FreeBSD
 `cap_rights_limit` then `cap_enter` with conferred allow-root directory FDs
 for Apply/Index/Journal/Audit (M3c product claim); Darwin Seatbelt with deny
@@ -59,9 +59,12 @@ closed unless allow-root open succeeds (`RequireArchiveFSPathAvailable`, M5t)
 and ArchiveFSReadWrite roles unless allow-root create succeeds
 (`RequireArchiveFSWriteAvailable`, M5t). On Linux, release mode also fails
 closed unless ambient capabilities are cleared (`RequireCapAmbientEmpty`,
-M5u; `PR_CAP_AMBIENT_CLEAR_ALL`) and `PR_NO_NEW_PRIVS` is set
-(`RequireNoNewPrivsSet`, M5v). Full empty capability sets / CapBnd drop remain
-a dedicated-account / `CAP_SETPCAP` residual (`DISC-CAP-EMPTY` Unavailable).
+M5u; `PR_CAP_AMBIENT_CLEAR_ALL`), `PR_NO_NEW_PRIVS` is set
+(`RequireNoNewPrivsSet`, M5v), and seccomp is in FILTER mode after
+process-wide TSYNC install (`RequireSeccompFilter`, M5w). Full empty
+capability sets / CapBnd drop remain a dedicated-account / `CAP_SETPCAP`
+residual (`DISC-CAP-EMPTY` Unavailable). Landlock remains per-thread for
+threads created before `restrict_self` (residual).
 FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down

@@ -8,8 +8,8 @@ func discoverPlatform() []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	return []Finding{
 		{ID: "DISC-NO-NEW-PRIVS", Platform: plat, Control: "no_new_privs", Status: StatusAvailable, Detail: "ApplyEngineering sets PR_NO_NEW_PRIVS and verifies via PR_GET (M5v)"},
-		{ID: "DISC-LANDLOCK", Platform: plat, Control: "landlock", Status: StatusUnknown, Detail: "ABI probed via confine.ProbeEngineering; applied in child"},
-		{ID: "DISC-SECCOMP", Platform: plat, Control: "seccomp_bpf", Status: StatusUnknown, Detail: "exec/ptrace (+network for non-net roles) EPERM denylist applied in child via ApplyEngineering"},
+		{ID: "DISC-LANDLOCK", Platform: plat, Control: "landlock", Status: StatusUnknown, Detail: "ABI probed via confine.ProbeEngineering; applied in child (per-thread residual for threads created before restrict)"},
+		{ID: "DISC-SECCOMP", Platform: plat, Control: "seccomp_bpf", Status: StatusAvailable, Detail: "ApplyEngineering installs SECCOMP_SET_MODE_FILTER+TSYNC and verifies PR_GET_SECCOMP (M5w)"},
 		{ID: "DISC-CAP-AMBIENT", Platform: plat, Control: "ambient_capability_clear", Status: StatusAvailable, Detail: "ApplyEngineering clears ambient via PR_CAP_AMBIENT_CLEAR_ALL (M5u)"},
 		{ID: "DISC-CAP-EMPTY", Platform: plat, Control: "empty_capability_set", Status: StatusUnavailable, Detail: "full empty permitted/effective/bounding needs CAP_SETPCAP or dedicated account; ambient clear only (M5u residual)"},
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available in-process via OpenSocketFabric"},
