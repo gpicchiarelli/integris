@@ -54,19 +54,14 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 			return out
 		}
 	}
-	// Go runtime helpers and common devices; archive AllowRoots as above.
-	for _, p := range []struct{ path, perms string }{
-		{"/dev", "r"},
-		{"/tmp", "rwc"},
-		{"/etc", "r"},
-	} {
-		if err := unix.Unveil(p.path, p.perms); err != nil {
-			out = append(out, Finding{
-				ID: "APPLY-UNVEIL", Platform: plat, Control: "unveil",
-				Status: StatusUnavailable, Detail: fmt.Sprintf("%s: %v", p.path, err),
-			})
-			return out
-		}
+	// Device nodes only beyond AllowRoots; do not unveil /etc (breaks
+	// RequireAmbientFSReadDenied on /etc/hosts) or /tmp (ambient write surface).
+	if err := unix.Unveil("/dev", "r"); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-UNVEIL", Platform: plat, Control: "unveil",
+			Status: StatusUnavailable, Detail: "/dev: " + err.Error(),
+		})
+		return out
 	}
 	if err := unix.UnveilBlock(); err != nil {
 		out = append(out, Finding{
