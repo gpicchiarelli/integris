@@ -1,8 +1,10 @@
 package confine_test
 
 import (
+	"runtime"
 	"testing"
 
+	"github.com/gpicchiarelli/integris/internal/authority"
 	"github.com/gpicchiarelli/integris/internal/confine"
 )
 
@@ -31,5 +33,21 @@ func TestRequireAmbientRoleNetFinding(t *testing.T) {
 	wrong := confine.Finding{ID: "NEG-FS-READ", Status: confine.StatusDeniedExpected}
 	if err := confine.RequireAmbientRoleNetFinding(wrong); err == nil {
 		t.Fatal("expected wrong-id refusal")
+	}
+}
+
+func TestRequireAmbientRoleNetDeniedFreeBSDNoop(t *testing.T) {
+	if runtime.GOOS != "freebsd" {
+		t.Skip("M3s residual: RequireAmbientRoleNetDenied is FreeBSD no-op only")
+	}
+	if err := confine.RequireAmbientRoleNetDenied(authority.RoleApply); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRequireAmbientRoleNetDeniedNetworkRoleSkipped(t *testing.T) {
+	// CapNetwork holder → NEG-ROLE-NET Skipped without needing ApplyEngineering.
+	if err := confine.RequireAmbientRoleNetDenied(authority.RoleNet); err != nil {
+		t.Fatal(err)
 	}
 }

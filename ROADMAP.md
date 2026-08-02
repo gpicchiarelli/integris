@@ -499,8 +499,8 @@ Exit: supervised CapEnter RestartOne first cut green; `docs/daemon-m2a.md`.
 - jail `ip4=disable` was evaluated and rejected for product use: it conflicts
   with conferred archive FD rights-limit / StrictLaunch receive;
 - FreeBSD `TestM3sCapEnterLeavesAmbientAFINET` + `PROBE-JAIL-NOIP` Unavailable
-  residual; `RequireAmbientRoleNetFinding` retained for a future compatible
-  deny; not an IC-1 claim.
+  residual; `RequireAmbientRoleNetDenied` no-ops on FreeBSD (wired for
+  Linux/Darwin/OpenBSD in M4d); not an IC-1 claim.
 
 Exit: FreeBSD ambient-socket residual explicit; `docs/daemon-m2a.md`.
 
@@ -608,6 +608,20 @@ Exit: supervised CapEnter peer deny/admit green; `docs/daemon-m2a.md`.
   deny; Linux/FreeBSD sealed path unchanged; not an IC-1 claim.
 
 Exit: Darwin/OpenBSD key FD residual explicit; `docs/daemon-m2a.md`.
+
+## M4d — Release ambient ROLE-NET deny (non-FreeBSD) (landed engineering)
+
+- release-mode `ChildEnv.Confine` calls `RequireAmbientRoleNetDenied`
+  (`NEG-ROLE-NET` DeniedExpected or Skipped) on Linux/Darwin/OpenBSD after
+  apply (seccomp/Seatbelt/pledge already deny ambient AF_INET for non-net
+  roles);
+- FreeBSD remains a no-op (M3s residual: CapEnter leaves sockets; jail
+  ip-disable still conflicts with allow-root CapRightsLimit);
+- unit `TestRequireAmbientRoleNetFinding` / Linux|OpenBSD apply subprocess /
+  Darwin Seatbelt / FreeBSD CapEnter residual noop; not an IC-1 claim.
+
+Exit: non-FreeBSD release ambient ROLE-NET deny post-condition green;
+`docs/daemon-m2a.md`.
 
 ## M1 — Executable reference kernels (in progress)
 
