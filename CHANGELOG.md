@@ -139,6 +139,9 @@ is accepted.
 - M3u FreeBSD StrictLaunch CapEnter parser-down RestartOne: kill parser after
   first push; net+auth + listen survive; parser→plan→index→apply→journal→audit
   respawn under M3m–M3q fail-closed confine; second push succeeds;
+- M3v FreeBSD StrictLaunch CapEnter auth-primary RestartOne: kill auth after
+  first push; net + full data plane + listen survive; auth respawns with
+  primary peer rebind under M3m–M3q fail-closed confine; second push succeeds;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

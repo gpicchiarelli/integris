@@ -524,6 +524,17 @@ Exit: FreeBSD sealed key FD green; `docs/daemon-m2a.md`.
 
 Exit: supervised CapEnter parser-down RestartOne green; `docs/daemon-m2a.md`.
 
+## M3v — FreeBSD StrictLaunch CapEnter auth-primary RestartOne (landed engineering)
+
+- FreeBSD `TestM3vStrictLaunchCapEnterRestartOneAuthPrimary`: StrictLaunch
+  persistent serve under CapEnter; kill auth after first push; net and full
+  data plane PIDs + listen addr survive; auth respawns with primary peer
+  rebind under M3m–M3q fail-closed confine; second push succeeds (M2z path
+  under CapEnter);
+- not an IC-1 claim.
+
+Exit: supervised CapEnter auth-primary RestartOne green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
