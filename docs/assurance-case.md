@@ -17,8 +17,8 @@ This is an engineering claim, not a certification or product-readiness claim.
 | C1 Scope is bounded | Claims, non-claims, boundaries, and assumptions are explicit | `docs/scope-and-claims.md` |
 | C2 Risks drive requirements | Hazards and threats link to mitigating requirements | `assurance/hazards.json`, `assurance/threats.json` |
 | C3 Requirements are verifiable | Every requirement links to specifications, methods, evidence, owner, and approver | generated `docs/traceability.md` |
-| C4 Authority is minimized | Processes and descriptors have explicit authority and denied capabilities | `docs/security-architecture.md` |
-| C5 Core behavior is precise | Protocol, path, journal, transaction, configuration, and filesystem semantics are specified | `docs/specifications/` |
+| C4 Authority is minimized | Processes and descriptors have explicit authority and denied capabilities; logical components map into those roles without widening them | `docs/security-architecture.md`, `docs/specifications/daemon-architecture.md` |
+| C5 Core behavior is precise | Protocol (INT-PROTO-0001), path, journal, transaction, configuration, and filesystem semantics are specified | `docs/specifications/`, esp. `replication-protocol.md` |
 | C6 Critical invariants are modelled | Session and transaction models state checkable safety properties | `formal/` |
 | C7 Implementation is constrained | Restricted Go profile and verification plan prohibit common integrity failures | `docs/go-profile.md`, `docs/verification-plan.md` |
 | C8 Release claims are evidence-gated | Stable release requires platform, recovery, provenance, signature, and reproducibility evidence | `docs/release-policy.md` |

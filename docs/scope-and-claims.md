@@ -12,9 +12,12 @@ between mutually authenticated nodes on macOS, FreeBSD, Linux, and OpenBSD.
 The protected properties are archive identity, containment, authenticity,
 integrity, deterministic planning, recoverability, and truthful completion.
 
-The current repository is the engineering system for that future product. Its
-executable code validates assurance records; it does not access or replicate
-user archives.
+The current repository is the engineering system for that future product. Most
+executable code validates assurance records and reference kernels. The local
+CLI increment `integris sync` (`internal/localsync`) may read a caller-supplied
+source directory and write a caller-supplied destination directory; it is not
+the privilege-separated daemon, does not perform network replication, and does
+not widen the product claims below.
 
 ## Declared claims
 

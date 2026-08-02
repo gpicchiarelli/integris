@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
-	"strings"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 	"github.com/gpicchiarelli/integris/internal/confine"
@@ -31,13 +29,20 @@ func run() error {
 	if sock == nil {
 		return fmt.Errorf("missing ipc fd")
 	}
-	defer sock.Close()
+	defer func() { _ = sock.Close() }()
 
 	kt := os.Getenv(launcher.EnvKeyTransport)
-	var keyF *os.File
+	var keyF, keyCh *os.File
+	hold := false
 	if kt == string(launcher.KeyTransportSCMRights) {
-		f, err := ipc.RecvFDFile(sock)
+		// M2l: keys arrive on the dedicated key-channel socket (fd4), not IPC.
+		keyCh = os.NewFile(uintptr(launcher.KeyChannelFDSCM), "key-channel")
+		if keyCh == nil {
+			return fmt.Errorf("missing key channel fd")
+		}
+		f, err := ipc.RecvFDFile(keyCh)
 		if err != nil {
+			_ = keyCh.Close()
 			return fmt.Errorf("recv key fd: %w", err)
 		}
 		keyF = f
@@ -49,8 +54,10 @@ func run() error {
 	}
 	defer keyF.Close()
 
-	if os.Getenv(launcher.EnvMode) != launcher.ModeEngineering {
-		return fmt.Errorf("refusing non-engineering launch mode")
+	switch os.Getenv(launcher.EnvMode) {
+	case launcher.ModeEngineering, launcher.ModeRelease:
+	default:
+		return fmt.Errorf("refusing unknown launch mode")
 	}
 	role := authority.ProcessRole(os.Getenv(launcher.EnvRole))
 	peer := authority.ProcessRole(os.Getenv(launcher.EnvPeer))
@@ -63,8 +70,8 @@ func run() error {
 	if rawRoots := os.Getenv(launcher.EnvAllowRoots); rawRoots != "" {
 		opts.AllowRoots = splitAllowRoots(rawRoots)
 	}
-	rootFDs := claimAllowRootFDs(os.Getenv(launcher.EnvAllowRootFDs))
-	defer closeAllowRootFDs(rootFDs)
+	rootFDs := launcher.ClaimAllowRootFDs(os.Getenv(launcher.EnvAllowRootFDs))
+	defer launcher.CloseAllowRootFDs(rootFDs)
 	opts.AllowRootFDs = rootFDs
 	_ = confine.LimitAllowRootFDs(confine.RoleArchiveFSMode(role), rootFDs...)
 	_ = confine.ApplyEngineeringOpts(role, opts)
@@ -100,13 +107,67 @@ func run() error {
 		stubMode = launcher.StubModeRespond
 	}
 	switch stubMode {
+	case launcher.StubModeHoldInitiate, launcher.StubModeHoldRespond:
+		hold = true
+	}
+	if !hold && keyCh != nil {
+		_ = keyCh.Close()
+		keyCh = nil
+	}
+	if keyCh != nil {
+		defer keyCh.Close()
+	}
+
+	switch stubMode {
 	case launcher.StubModeInitiate:
 		return initiate(sock, &ch, kt, negAck)
 	case launcher.StubModeRespond:
 		return respond(sock, &ch, kt, negAck)
+	case launcher.StubModeHoldInitiate:
+		return holdExchange(true, &sock, role, peer, nonce, macKey, keyCh, kt, negAck)
+	case launcher.StubModeHoldRespond:
+		return holdExchange(false, &sock, role, peer, nonce, macKey, keyCh, kt, negAck)
 	default:
 		return fmt.Errorf("unknown stub mode %q", stubMode)
 	}
+}
+
+// holdExchange: first IPC exchange, RecvPeerFDFile, second exchange (M2n).
+func holdExchange(asInitiator bool, sock **os.File, role, peer authority.ProcessRole, nonce [16]byte, macKey []byte, keyCh *os.File, kt, negAck string) error {
+	if keyCh == nil {
+		return fmt.Errorf("hold mode requires key channel")
+	}
+	ch, err := ipc.NewAuthenticatedChannel(role, peer, nonce, macKey)
+	if err != nil {
+		return err
+	}
+	if asInitiator {
+		if err := initiate(*sock, &ch, kt, negAck); err != nil {
+			return err
+		}
+	} else {
+		if err := respond(*sock, &ch, kt, negAck); err != nil {
+			return err
+		}
+	}
+	// Signal parent over the key channel (no filesystem; Seatbelt-safe).
+	if _, err := keyCh.Write(ipc.StubReadyMagic); err != nil {
+		return fmt.Errorf("stub ready: %w", err)
+	}
+	newSock, err := ipc.RecvPeerFDFile(keyCh)
+	if err != nil {
+		return fmt.Errorf("recv peer fd: %w", err)
+	}
+	_ = (*sock).Close()
+	*sock = newSock
+	ch2, err := ipc.NewAuthenticatedChannel(role, peer, nonce, macKey)
+	if err != nil {
+		return err
+	}
+	if asInitiator {
+		return initiate(*sock, &ch2, kt, negAck+"|REBIND")
+	}
+	return respond(*sock, &ch2, kt, negAck+"|REBIND")
 }
 
 func respond(sock *os.File, ch *ipc.ChannelState, kt, negAck string) error {
@@ -173,35 +234,4 @@ func splitAllowRoots(s string) []string {
 		}
 	}
 	return out
-}
-
-func claimAllowRootFDs(raw string) []*os.File {
-	if raw == "" {
-		return nil
-	}
-	parts := strings.Split(raw, ",")
-	out := make([]*os.File, 0, len(parts))
-	for _, p := range parts {
-		p = strings.TrimSpace(p)
-		if p == "" {
-			continue
-		}
-		fd, err := strconv.Atoi(p)
-		if err != nil || fd < 0 {
-			continue
-		}
-		f := os.NewFile(uintptr(fd), "allow-root-"+p)
-		if f != nil {
-			out = append(out, f)
-		}
-	}
-	return out
-}
-
-func closeAllowRootFDs(files []*os.File) {
-	for _, f := range files {
-		if f != nil {
-			_ = f.Close()
-		}
-	}
 }

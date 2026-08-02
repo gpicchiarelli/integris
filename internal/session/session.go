@@ -28,8 +28,12 @@ const (
 // LocalAllowed is the local negotiation allow-list (matches TLA+ LocalAllowed).
 var LocalAllowed = []Version{2, 3}
 
-// MaxMessages bounds AcceptNext (matches TLA+ MaxMessages).
+// MaxMessages is the TLA+ model-check bound for AcceptNext (formal/session).
+// Product sessions use DefaultMaxAccept unless MaxAccept is set.
 const MaxMessages = 3
+
+// DefaultMaxAccept is the engineering default for ACTIVE TypeData accepts.
+const DefaultMaxAccept uint64 = 1 << 20
 
 // State mirrors Session.tla States.
 type State string
@@ -57,8 +61,11 @@ type Session struct {
 	AuthR2I           bool // responder→initiator proof accepted
 	ArchiveAuthorized bool
 	ReceiveSequence   uint64
-	ReplayAccepted    bool
-	ProductMutation   bool
+	// MaxAccept bounds AcceptNext; zero means DefaultMaxAccept. Tests that
+	// mirror Session.tla set MaxAccept = MaxMessages.
+	MaxAccept       uint64
+	ReplayAccepted  bool
+	ProductMutation bool
 	// Events is an optional sink for redacted session lifecycle events.
 	// Emission failures never fail session transitions.
 	Events observability.Sink
@@ -286,8 +293,12 @@ func (s *Session) AcceptNext() error {
 	if s.State != StateActive {
 		return fail("state", "AcceptNext requires ACTIVE")
 	}
-	if s.ReceiveSequence >= MaxMessages {
-		return fail("limit", fmt.Sprintf("receive sequence at MaxMessages=%d", MaxMessages))
+	limit := s.MaxAccept
+	if limit == 0 {
+		limit = DefaultMaxAccept
+	}
+	if s.ReceiveSequence >= limit {
+		return fail("limit", fmt.Sprintf("receive sequence at MaxAccept=%d", limit))
 	}
 	s.ReceiveSequence++
 	s.ProductMutation = true

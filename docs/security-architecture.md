@@ -3,6 +3,12 @@
 Status: **Normative architecture baseline**
 Decision: [IP-A-0001](ip/IP-A-0001-privilege-separation.md)
 
+Logical components, lifecycle, concurrency, and acyclic dependency rules are
+defined in
+[specifications/daemon-architecture.md](specifications/daemon-architecture.md)
+(INT-ARCH-0001). This document remains the normative **process authority map**;
+INT-ARCH-0001 places components into these roles and MUST NOT widen them.
+
 ## Processes and authority
 
 | Process | May hold | Must not hold |

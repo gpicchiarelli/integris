@@ -47,7 +47,51 @@ formal methods, adversarial testing, and attestable supply chains.
 > **Not a usable sync or backup daemon — not certified.** Integris makes no SIL,
 > safety-critical, or standards-conformance claim. Product kernels under `internal/`
 > are reference implementations gated by draft IPs and incomplete IC-1 evidence —
-> not a release.
+> not a release. The local CLI
+> [`integris sync`](docs/localsync.md) is a first vertical engineering increment
+> (unidirectional directory sync only); it is not authenticated replication and
+> not `integrisd`.
+
+## Local sync increment
+
+Unidirectional local sync (source → destination) with explicit plan/apply
+separation and content-hash verification:
+
+```sh
+go run ./cmd/integris sync -source ./A -destination ./B
+go run ./cmd/integris sync -source ./A -destination ./B -json
+```
+
+Journaled crash resume is on by default (`destination/.integris/local.jrn`).
+Details, limits, and exit codes: [docs/localsync.md](docs/localsync.md).
+
+Authenticated remote push with chunked/resumable transfer (PSK engineering
+preview):
+
+```sh
+go run ./cmd/integris serve -destination ./B -key "$HEX32" -addr 127.0.0.1:9100 -once
+go run ./cmd/integris push -source ./A -addr 127.0.0.1:9100 -key "$HEX32"
+go run ./cmd/integris push -source ./A -addr 127.0.0.1:9100 -key "$HEX32" -chunk-size 65536
+```
+
+See [docs/remotesync.md](docs/remotesync.md).
+
+Privilege-separated receive (M2a–M3q engineering preview — full eight-role
+receive chain under the supervisor; PSK or per-peer keyring held by
+`integrisd-auth`; parser/plan/index/journal/audit/net/apply as separate OS
+processes; optional `-strict-launch` for fail-closed confinement):
+
+```sh
+go run ./cmd/integrisd serve -destination ./B -key "$HEX32" -addr 127.0.0.1:9100
+go run ./cmd/integrisd serve -destination ./B -key "$HEX32" -addr 127.0.0.1:9100 -once
+go run ./cmd/integris push -source ./A -addr 127.0.0.1:9100 -key "$HEX32"
+go run ./cmd/integrisd serve -destination ./B \
+  -peer-key alice=./alice.key -addr 127.0.0.1:9100
+go run ./cmd/integris push -source ./A -addr 127.0.0.1:9100 \
+  -keyfile ./alice.key -peer alice
+```
+
+See [docs/daemon-m2a.md](docs/daemon-m2a.md).
 
 ## What is here
 
@@ -59,6 +103,7 @@ formal methods, adversarial testing, and attestable supply chains.
 - M1 reference kernels: path, codec, journal, plan, recovery, config, resource,
   deletion, fsmodel, authority, observability, IPC prelude, session, and
   protocol (`internal/`);
+- first executable vertical slice: `internal/localsync` + `cmd/integris sync`;
 - evidence tooling (`integris-evidence`, `integris-verify-config`,
   `integris-release-digest`) and artifacts under `evidence/`;
 - draft IPs under `docs/ip/` (IP-S/F/A/C/P series);

@@ -226,6 +226,7 @@ func NegativeEngineering(role authority.ProcessRole) []Finding {
 // NegativeEngineeringOpts includes path allow-list probes for archive roles.
 func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	return []Finding{
+		NegativeCapMode(), // M3k: FreeBSD cap_getmode; skipped elsewhere
 		NegativeFSOpen(),
 		NegativeFSRead(),
 		NegativeFSPath(role, opts),
@@ -241,6 +242,8 @@ func FormatNegativeAck(findings []Finding) string {
 	var b strings.Builder
 	for _, f := range findings {
 		switch f.ID {
+		case "NEG-CAP-MODE":
+			b.WriteString("|NEG-CAP-MODE:")
 		case "NEG-FS-OPEN":
 			b.WriteString("|NEG-FS:")
 		case "NEG-FS-READ":

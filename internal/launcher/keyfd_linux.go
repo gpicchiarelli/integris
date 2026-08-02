@@ -11,8 +11,9 @@ import (
 // CreateKeyFD writes key into a sealed memfd and returns a readable *os.File
 // positioned at offset 0 for ExtraFiles conferral.
 func CreateKeyFD(key []byte) (*os.File, KeyTransport, error) {
-	if len(key) < 16 || len(key) > 256 {
-		return nil, "", fail("key", "MAC key length out of range")
+	// 16..256: MAC keys. Up to 8KiB: M2i peer keyring blobs on RootKey FD.
+	if len(key) < 16 || len(key) > 8<<10 {
+		return nil, "", fail("key", "key material length out of range")
 	}
 	fd, err := unix.MemfdCreate("integris-mac-key", unix.MFD_CLOEXEC|unix.MFD_ALLOW_SEALING)
 	if err != nil {

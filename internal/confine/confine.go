@@ -54,6 +54,94 @@ func NegativeBaseline() Report {
 	return Report{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
 }
 
+// RequireApplyAvailable fails closed when any APPLY-* control did not apply.
+// Used by M2k release-shaped launch (Unavailable or Skipped both refuse).
+func (r Report) RequireApplyAvailable() error {
+	var sawApply bool
+	for _, f := range r.Findings {
+		if len(f.ID) < 6 || f.ID[:6] != "APPLY-" {
+			continue
+		}
+		sawApply = true
+		switch f.Status {
+		case StatusUnavailable, StatusSkipped:
+			return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+		}
+	}
+	if !sawApply {
+		return &Error{Code: "confine", Message: "no APPLY-* findings"}
+	}
+	return nil
+}
+
+// RequireCapModeAvailable fails closed when FreeBSD capability mode is not
+// confirmed after apply (M3m). Skipped on non-FreeBSD (cap_getmode absent).
+func RequireCapModeAvailable() error {
+	return RequireCapModeFinding(NegativeCapMode())
+}
+
+// RequireCapModeFinding is the testable core of RequireCapModeAvailable.
+func RequireCapModeFinding(f Finding) error {
+	if f.ID != "NEG-CAP-MODE" {
+		return &Error{Code: "confine", Message: "expected NEG-CAP-MODE finding"}
+	}
+	switch f.Status {
+	case StatusAvailable, StatusSkipped:
+		return nil
+	default:
+		return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+	}
+}
+
+// RequireAllowRootLimitFinding fails closed when FreeBSD allow-root
+// cap_rights_limit did not apply (M3n). Available or Skipped (no FDs /
+// non-FreeBSD) succeed; Unavailable and other statuses refuse.
+func RequireAllowRootLimitFinding(f Finding) error {
+	if f.ID != "APPLY-CAP-ALLOW-ROOTS" {
+		return &Error{Code: "confine", Message: "expected APPLY-CAP-ALLOW-ROOTS finding"}
+	}
+	switch f.Status {
+	case StatusAvailable, StatusSkipped:
+		return nil
+	default:
+		return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+	}
+}
+
+// RequireConferredLimitFinding fails closed when FreeBSD conferred IPC/key
+// cap_rights_limit did not apply (M3o). Available or Skipped (non-FreeBSD)
+// succeed; Unavailable and other statuses refuse.
+func RequireConferredLimitFinding(f Finding) error {
+	if f.ID != "APPLY-CAP-RIGHTS" {
+		return &Error{Code: "confine", Message: "expected APPLY-CAP-RIGHTS finding"}
+	}
+	switch f.Status {
+	case StatusAvailable, StatusSkipped:
+		return nil
+	default:
+		return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+	}
+}
+
+// RequireAmbientFSReadDenied fails closed when ambient path open is still
+// allowed after apply (M3q). DeniedExpected or Skipped succeed.
+func RequireAmbientFSReadDenied() error {
+	return RequireAmbientFSReadFinding(NegativeFSRead())
+}
+
+// RequireAmbientFSReadFinding is the testable core of RequireAmbientFSReadDenied.
+func RequireAmbientFSReadFinding(f Finding) error {
+	if f.ID != "NEG-FS-READ" {
+		return &Error{Code: "confine", Message: "expected NEG-FS-READ finding"}
+	}
+	switch f.Status {
+	case StatusDeniedExpected, StatusSkipped:
+		return nil
+	default:
+		return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+	}
+}
+
 // HasUnexpectedAllow reports whether any finding is unexpected_allow.
 func (r Report) HasUnexpectedAllow() bool {
 	for _, f := range r.Findings {

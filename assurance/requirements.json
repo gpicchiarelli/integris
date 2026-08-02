@@ -13,7 +13,11 @@
       "final_conditions": ["Authority inventory matches the role allow-list", "Negative capability probes fail as specified"],
       "hazards": ["HAZ-0001", "HAZ-0007", "HAZ-0008"],
       "threats": ["THR-0005", "THR-0007"],
-      "specifications": ["docs/security-architecture.md", "docs/platform-matrix.md"],
+      "specifications": [
+        "docs/security-architecture.md",
+        "docs/platform-matrix.md",
+        "docs/specifications/daemon-architecture.md"
+      ],
       "verifications": ["VER-ARCH-001"],
       "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
@@ -45,7 +49,11 @@
       "final_conditions": ["Every active message is bound to the authenticated session, direction, type, archive, and sequence", "Any failure closes the session without product mutation"],
       "hazards": ["HAZ-0003", "HAZ-0005", "HAZ-0008"],
       "threats": ["THR-0003", "THR-0004", "THR-0005", "THR-0007"],
-      "specifications": ["docs/specifications/protocol.md", "docs/specifications/cryptography.md"],
+      "specifications": [
+        "docs/specifications/protocol.md",
+        "docs/specifications/replication-protocol.md",
+        "docs/specifications/cryptography.md"
+      ],
       "verifications": ["VER-PROTO-001"],
       "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "cryptography-reviewer", "assurance-owner"]
@@ -77,7 +85,11 @@
       "final_conditions": ["Only the exactly authorized plan can enter publication", "Mismatch has no archive mutation effect"],
       "hazards": ["HAZ-0001", "HAZ-0002", "HAZ-0003", "HAZ-0005", "HAZ-0007"],
       "threats": ["THR-0003", "THR-0005", "THR-0007"],
-      "specifications": ["docs/specifications/transaction.md", "docs/specifications/cryptography.md"],
+      "specifications": [
+        "docs/specifications/transaction.md",
+        "docs/specifications/replication-protocol.md",
+        "docs/specifications/cryptography.md"
+      ],
       "verifications": ["VER-TXN-001"],
       "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]
@@ -173,7 +185,11 @@
       "final_conditions": ["State is stable or explicitly quarantined/irrecoverable", "Repeated recovery has no additional effect"],
       "hazards": ["HAZ-0001", "HAZ-0002", "HAZ-0006"],
       "threats": ["THR-0008"],
-      "specifications": ["docs/specifications/transaction.md", "docs/specifications/journal.md"],
+      "specifications": [
+        "docs/specifications/transaction.md",
+        "docs/specifications/journal.md",
+        "docs/specifications/replication-protocol.md"
+      ],
       "verifications": ["VER-RECOVERY-001"],
       "owner": "gpicchiarelli",
       "approver_roles": ["technical-reviewer", "security-reviewer", "assurance-owner"]

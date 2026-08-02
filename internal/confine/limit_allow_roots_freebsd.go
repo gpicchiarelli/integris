@@ -11,7 +11,7 @@ import (
 
 // LimitAllowRootFDs applies Capsicum directory rights for conferred archive
 // roots before CapEnter. Readonly roles get lookup/read/stat; read-write also
-// gets create/write/unlinkat.
+// gets create/write/unlinkat plus mkdirat/renameat/fsync/fchmod for staging (M3e).
 func LimitAllowRootFDs(mode ArchiveFSMode, files ...*os.File) Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	if mode == ArchiveFSNone || len(files) == 0 {
@@ -29,8 +29,12 @@ func LimitAllowRootFDs(mode ArchiveFSMode, files ...*os.File) Finding {
 	}
 	detail := "CAP_LOOKUP|READ|SEEK|FSTAT|FSTATAT"
 	if mode == ArchiveFSReadWrite {
-		rightsList = append(rightsList, unix.CAP_CREATE, unix.CAP_WRITE, unix.CAP_UNLINKAT)
-		detail += "|CREATE|WRITE|UNLINKAT"
+		rightsList = append(rightsList,
+			unix.CAP_CREATE, unix.CAP_WRITE, unix.CAP_UNLINKAT,
+			unix.CAP_MKDIRAT, unix.CAP_RENAMEAT_SOURCE, unix.CAP_RENAMEAT_TARGET,
+			unix.CAP_FSYNC, unix.CAP_FCHMOD, unix.CAP_FCHMODAT, unix.CAP_FTRUNCATE,
+		)
+		detail += "|CREATE|WRITE|UNLINKAT|MKDIRAT|RENAMEAT|FSYNC|FCHMOD|FTRUNCATE"
 	}
 	rights, err := unix.CapRightsInit(rightsList)
 	if err != nil {

@@ -100,6 +100,101 @@ func TestSendRecvFDFile(t *testing.T) {
 	}
 }
 
+func TestSendRecvPeerFDFile(t *testing.T) {
+	fds, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	parent := os.NewFile(uintptr(fds[0]), "parent")
+	child := os.NewFile(uintptr(fds[1]), "child")
+	defer parent.Close()
+	defer child.Close()
+
+	peerFds, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	peer := os.NewFile(uintptr(peerFds[0]), "peer")
+	defer peer.Close()
+	_ = os.NewFile(uintptr(peerFds[1]), "peer-other").Close()
+
+	done := make(chan error, 1)
+	go func() {
+		f, err := ipc.RecvPeerFDFile(child)
+		if err != nil {
+			done <- err
+			return
+		}
+		_ = f.Close()
+		done <- nil
+	}()
+	if err := ipc.SendPeerFDFile(parent, peer); err != nil {
+		t.Fatal(err)
+	}
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestSendRecvPrimaryPeerFDFileDemux(t *testing.T) {
+	fds, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	parent := os.NewFile(uintptr(fds[0]), "parent")
+	child := os.NewFile(uintptr(fds[1]), "child")
+	defer parent.Close()
+	defer child.Close()
+
+	mkPeer := func() *os.File {
+		t.Helper()
+		p, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		_ = os.NewFile(uintptr(p[1]), "peer-other").Close()
+		return os.NewFile(uintptr(p[0]), "peer")
+	}
+	extra := mkPeer()
+	defer extra.Close()
+	primary := mkPeer()
+	defer primary.Close()
+
+	done := make(chan error, 1)
+	go func() {
+		f1, k1, err := ipc.RecvRebindFDFile(child)
+		if err != nil {
+			done <- err
+			return
+		}
+		_ = f1.Close()
+		if k1 != ipc.RebindExtra {
+			done <- fmt.Errorf("want RebindExtra got %v", k1)
+			return
+		}
+		f2, k2, err := ipc.RecvRebindFDFile(child)
+		if err != nil {
+			done <- err
+			return
+		}
+		_ = f2.Close()
+		if k2 != ipc.RebindPrimary {
+			done <- fmt.Errorf("want RebindPrimary got %v", k2)
+			return
+		}
+		done <- nil
+	}()
+	if err := ipc.SendPeerFDFile(parent, extra); err != nil {
+		t.Fatal(err)
+	}
+	if err := ipc.SendPrimaryPeerFDFile(parent, primary); err != nil {
+		t.Fatal(err)
+	}
+	if err := <-done; err != nil {
+		t.Fatal(err)
+	}
+}
+
 func mustUnixPair(t *testing.T) (*net.UnixConn, *net.UnixConn) {
 	t.Helper()
 	fds, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
