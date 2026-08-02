@@ -76,8 +76,9 @@ profile defect.
   `INTEGRIS_LAUNCH_MODE=release` for fail-closed child confinement checks
   (`integrisd -strict-launch`, including FreeBSD CapMode M3m, Capsicum
   rights-limit M3n/M3o, ambient FS-read deny M3q, CapEnter RestartOne
-  first cut M3r, FreeBSD ambient AF_INET residual documented M3s, and FreeBSD
-  sealed MAC key FD M3t); it is not a product
+  first cut M3r, FreeBSD ambient AF_INET residual documented M3s, FreeBSD
+  sealed MAC key FD M3t, and FreeBSD CapEnter parser-down RestartOne M3u);
+  it is not a product
   IC-1 release claim.
 
 No `/bin/sh`, no interpolated command lines, no `PATH` search for the executable
@@ -133,7 +134,8 @@ directory owned for the test/run.
   mode landed in M3q; FreeBSD StrictLaunch CapEnter RestartOne first cut
   landed in M3r; FreeBSD ambient AF_INET residual documented in M3s — CapEnter
   does not deny sockets; jail ip-disable rejected with allow-root CapRightsLimit;
-  FreeBSD sealed MAC key FD landed in M3t).
+  FreeBSD sealed MAC key FD landed in M3t; FreeBSD StrictLaunch CapEnter
+  parser-down RestartOne landed in M3u).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

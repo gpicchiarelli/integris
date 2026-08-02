@@ -136,6 +136,9 @@ is accepted.
 - M3t FreeBSD sealed MAC key FD: `CreateKeyFD` via `shm_open2(SHM_ANON)` +
   `F_ADD_SEALS` (`memfd-sealed`); `DISC-KEY-FD` Available; Darwin/OpenBSD
   remain anon-unlinked residual;
+- M3u FreeBSD StrictLaunch CapEnter parser-down RestartOne: kill parser after
+  first push; net+auth + listen survive; parser→plan→index→apply→journal→audit
+  respawn under M3m–M3q fail-closed confine; second push succeeds;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

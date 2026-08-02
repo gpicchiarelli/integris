@@ -514,6 +514,16 @@ Exit: FreeBSD ambient-socket residual explicit; `docs/daemon-m2a.md`.
 
 Exit: FreeBSD sealed key FD green; `docs/daemon-m2a.md`.
 
+## M3u — FreeBSD StrictLaunch CapEnter parser-down RestartOne (landed engineering)
+
+- FreeBSD `TestM3uStrictLaunchCapEnterRestartOneParserDown`: StrictLaunch
+  persistent serve under CapEnter; kill parser after first push; net+auth PIDs
+  and listen addr survive; parser→plan→index→apply→journal→audit respawn with
+  M3m–M3q fail-closed confine; second push succeeds (M2v path under CapEnter);
+- not an IC-1 claim.
+
+Exit: supervised CapEnter parser-down RestartOne green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
