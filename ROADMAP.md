@@ -1146,6 +1146,16 @@ Exit: Linux dumpable clear green; `docs/daemon-m2a.md`.
 
 Exit: FreeBSD CapRightsGet verify green; `docs/daemon-m2a.md`.
 
+## M5z — Linux RLIMIT_CORE=0 + Require (landed engineering)
+
+- `APPLY-RLIMIT-CORE` sets soft=hard=0 and verifies via `getrlimit`;
+- `NegativeRlimitCore` + release `RequireRlimitCoreZero` (Available or
+  Skipped); `DISC-RLIMIT-CORE` Available; complements M5x dumpable;
+- `DISC-LANDLOCK` Available (ABI + apply + FS Requires; per-thread residual
+  for threads created before `restrict_self` unchanged); not an IC-1 claim.
+
+Exit: Linux RLIMIT_CORE zero green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

@@ -92,6 +92,30 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 		})
 	}
 
+	// Disable core dumps via RLIMIT_CORE=0 (M5z): process-wide; complements
+	// dumpable clear. Does not claim to stop all privileged/pipe coredump paths.
+	if err := unix.Setrlimit(unix.RLIMIT_CORE, &unix.Rlimit{Cur: 0, Max: 0}); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-RLIMIT-CORE", Platform: plat, Control: "rlimit_core",
+			Status: StatusUnavailable, Detail: err.Error(),
+		})
+	} else if zero, err := rlimitCoreZero(); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-RLIMIT-CORE", Platform: plat, Control: "rlimit_core",
+			Status: StatusUnavailable, Detail: "verify: " + err.Error(),
+		})
+	} else if !zero {
+		out = append(out, Finding{
+			ID: "APPLY-RLIMIT-CORE", Platform: plat, Control: "rlimit_core",
+			Status: StatusUnavailable, Detail: "RLIMIT_CORE left soft or hard non-zero",
+		})
+	} else {
+		out = append(out, Finding{
+			ID: "APPLY-RLIMIT-CORE", Platform: plat, Control: "rlimit_core",
+			Status: StatusAvailable, Detail: "RLIMIT_CORE soft=hard=0; getrlimit verified",
+		})
+	}
+
 	// Clear ambient capability set (M5u). Does not empty permitted/effective/
 	// bounding sets — dedicated account residual remains for full empty caps.
 	if err := unix.Prctl(unix.PR_CAP_AMBIENT, unix.PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0); err != nil {

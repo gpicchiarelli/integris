@@ -120,7 +120,7 @@ profile defect.
   unique probe + readonly Require M5s, and archive allow-root path/write
   Available Require M5t, and Linux ambient capability clear M5u, and Linux
   no_new_privs verify Require M5v, and Linux seccomp TSYNC Require M5w, and
-  Linux dumpable clear Require M5x, and FreeBSD CapRightsGet verify M5y); it is
+  Linux dumpable clear Require M5x, and   FreeBSD CapRightsGet verify M5y, and Linux RLIMIT_CORE=0 Require M5z); it is
   not a
   product
   IC-1 release claim.
@@ -137,8 +137,9 @@ directory owned for the test/run.
   call `confine.ApplyEngineeringOpts(role, opts)`:
   - Linux: `no_new_privs` + Landlock (empty or path_beneath allow-roots for
     Apply/Index/Journal/Audit) + seccomp exec/ptrace denylist via
-    `SECCOMP_SET_MODE_FILTER`+TSYNC (M5w) + `PR_SET_DUMPABLE(0)` (M5x);
-    roles without `network_sockets` also deny socket/connect/bind/listen/accept*;
+    `SECCOMP_SET_MODE_FILTER`+TSYNC (M5w) + `PR_SET_DUMPABLE(0)` (M5x) +
+    `RLIMIT_CORE` soft=hard=0 (M5z); roles without `network_sockets` also deny
+    socket/connect/bind/listen/accept*;
   - OpenBSD: role-parameterized `pledge` + `unveil` of allow-roots then lock;
   - FreeBSD: `cap_enter` after `LimitConferredFDs` + `LimitAllowRootFDs` on
     conferred archive directory FDs with `CapRightsGet` want+absent verify
@@ -230,7 +231,8 @@ directory owned for the test/run.
   archive allow-root path/write Available Require landed in M5t; Linux
   ambient capability clear landed in M5u; Linux no_new_privs verify Require
   landed in M5v; Linux seccomp TSYNC Require landed in M5w; Linux dumpable
-  clear Require landed in M5x; FreeBSD CapRightsGet verify landed in M5y).
+  clear Require landed in M5x; FreeBSD CapRightsGet verify landed in M5y;
+  Linux RLIMIT_CORE=0 Require landed in M5z).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
