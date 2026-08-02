@@ -15,9 +15,8 @@ import (
 
 // FreeBSD sys/jail.h constants for jail_set(2).
 const (
-	jailCreate     = 0x01
-	jailAttach     = 0x04
-	jailSysDisable = 0 // JAIL_SYS_DISABLE — ip4/ip6 enum value
+	jailCreate = 0x01
+	jailAttach = 0x04
 )
 
 func probeEngineering() []Finding {
@@ -33,7 +32,7 @@ func probeEngineering() []Finding {
 		},
 		{
 			ID: "PROBE-JAIL-NOIP", Platform: plat, Control: "jail_set_ip_disable",
-			Status: StatusAvailable, Detail: "jail_set CREATE|ATTACH path=/ ip4/ip6=JAIL_SYS_DISABLE for !network roles",
+			Status: StatusAvailable, Detail: "jail_set CREATE|ATTACH path=/ enforce_statfs=0 (default no-IP) for !network roles",
 		},
 	}
 }
@@ -94,9 +93,9 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 
 // attachNoIPJail creates a non-persistent jail with IPv4/IPv6 disabled and
 // attaches the current process (M3s). CapEnter alone does not deny AF_INET
-// socket(); jail ip4/ip6=JAIL_SYS_DISABLE does. Caller must only invoke for
-// roles that must not hold CapNetworkSockets (RequireApplyAvailable refuses
-// Skipped).
+// socket(); FreeBSD's default jail create (no ip4/ip6 params) does. Caller
+// must only invoke for roles that must not hold CapNetworkSockets
+// (RequireApplyAvailable refuses Skipped).
 func attachNoIPJail() Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	name := fmt.Sprintf("integris-%d", os.Getpid())
@@ -110,42 +109,36 @@ func attachNoIPJail() Finding {
 	return Finding{
 		ID: "APPLY-JAIL", Platform: plat, Control: "jail_set_ip_disable",
 		Status: StatusAvailable,
-		Detail: "jid=" + strconv.Itoa(jid) + " ip4=disable ip6=disable",
+		Detail: "jid=" + strconv.Itoa(jid) + " default no-IP enforce_statfs=0",
 	}
 }
 
 // jailSetAttachNoIP calls jail_set(JAIL_CREATE|JAIL_ATTACH) with path=/, a
-// unique name, and ip4/ip6 set to JAIL_SYS_DISABLE (int, not the jail(8)
-// string form — raw jail_set expects sizeof(int) enum values).
+// unique name, and enforce_statfs=0. Omitting ip4/ip6 leaves FreeBSD's create
+// default (PR_IP4|PR_IP4_USER with no addresses), which denies AF_INET.
+// enforce_statfs=0 is required so conferred archive directory FDs under /tmp
+// keep working (default 2 only allows the jail root).
 func jailSetAttachNoIP(name string) (int, error) {
 	pathKey := append([]byte("path"), 0)
 	pathVal := append([]byte("/"), 0)
 	nameKey := append([]byte("name"), 0)
 	nameVal := append([]byte(name), 0)
-	ip4Key := append([]byte("ip4"), 0)
-	ip6Key := append([]byte("ip6"), 0)
-	ip4Val := int32(jailSysDisable)
-	ip6Val := int32(jailSysDisable)
+	statfsKey := append([]byte("enforce_statfs"), 0)
+	statfsVal := int32(0)
 
-	iov := make([]unix.Iovec, 8)
-	keep := []any{pathKey, pathVal, nameKey, nameVal, ip4Key, ip6Key, &ip4Val, &ip6Val}
-
+	iov := make([]unix.Iovec, 6)
+	keep := []any{pathKey, pathVal, nameKey, nameVal, statfsKey, &statfsVal}
 	setStr := func(i int, b []byte) {
 		iov[i].Base = &b[0]
 		iov[i].SetLen(len(b))
-	}
-	setInt := func(i int, p *int32) {
-		iov[i].Base = (*byte)(unsafe.Pointer(p))
-		iov[i].SetLen(int(unsafe.Sizeof(*p)))
 	}
 	setStr(0, pathKey)
 	setStr(1, pathVal)
 	setStr(2, nameKey)
 	setStr(3, nameVal)
-	setStr(4, ip4Key)
-	setInt(5, &ip4Val)
-	setStr(6, ip6Key)
-	setInt(7, &ip6Val)
+	setStr(4, statfsKey)
+	iov[5].Base = (*byte)(unsafe.Pointer(&statfsVal)) // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
+	iov[5].SetLen(int(unsafe.Sizeof(statfsVal)))      // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
 
 	r1, _, errno := unix.Syscall( // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
 		unix.SYS_JAIL_SET,
