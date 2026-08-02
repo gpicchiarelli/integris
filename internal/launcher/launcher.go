@@ -21,17 +21,49 @@ const (
 	EnvAllowRoots    = "INTEGRIS_ALLOW_ROOTS"
 	EnvAllowRootFDs  = "INTEGRIS_ALLOW_ROOT_FDS"
 	EnvStubMode      = "INTEGRIS_STUB_MODE"
+	EnvListenAddr    = "INTEGRIS_LISTEN_ADDR"
+	EnvOnce          = "INTEGRIS_ONCE"
+	EnvReadyPath     = "INTEGRIS_READY_PATH"
+	EnvHasRootKey    = "INTEGRIS_HAS_ROOT_KEY"
+	EnvExtraPeer     = "INTEGRIS_EXTRA_PEER"
 	ModeEngineering  = "engineering"
+	ModeRelease      = "release" // M2k strict launch; not a product IC-1 claim
 	StubModeRespond  = "respond"
 	StubModeInitiate = "initiate"
+	// Hold modes (M2n): one IPC exchange, then RecvPeerFDFile on the key
+	// channel, swap IPC, second exchange. Used with Runtime.RestartOne.
+	StubModeHoldRespond  = "hold-respond"
+	StubModeHoldInitiate = "hold-initiate"
 	// IPCFileFD is the child's inherited IPC socket (ExtraFiles[0] → fd 3).
 	IPCFileFD = 3
 	// KeyFileFD is the child's inherited sealed MAC-key FD when using the
 	// legacy ExtraFiles path (ExtraFiles[1] → fd 4).
 	KeyFileFD = 4
-	// Allow-root directory FDs (FreeBSD Capsicum) follow the socket, and the
-	// legacy key FD when KeyViaExtraFiles is set: ExtraFiles[i] → fd 3+i.
+	// RootKeyFileFD is the optional push-root key FD when KeyViaExtraFiles and
+	// Request.RootKey are set (ExtraFiles[2] → fd 5).
+	RootKeyFileFD = 5
+	// KeyChannelFDSCM is a dedicated socketpair end for SCM_RIGHTS key FDs (M2l).
+	// Layout: fd3=primary IPC, fd4=key channel, [fd5=extra IPC], then allow-roots.
+	KeyChannelFDSCM = 4
+	// ExtraPeerSocketFDSCM is the ExtraPeer IPC socket when keys use SCM_RIGHTS.
+	ExtraPeerSocketFDSCM = 5
+	// Allow-root directory FDs (FreeBSD Capsicum) follow the socket, key, and
+	// optional root key: ExtraFiles[i] → fd 3+i.
 )
+
+// ExtraPeerSocketFD is the inherited FD for ExtraSocket when KeyViaExtraFiles.
+// Layout: fd3=primary sock, fd4=primary key, [fd5=root key], then extra sock/key.
+func ExtraPeerSocketFD(hasRootKey bool) int {
+	if hasRootKey {
+		return 6
+	}
+	return 5
+}
+
+// ExtraPeerKeyFD is the inherited FD for ExtraMACKey (adjacent to ExtraPeerSocketFD).
+func ExtraPeerKeyFD(hasRootKey bool) int {
+	return ExtraPeerSocketFD(hasRootKey) + 1
+}
 
 // Error is a typed launcher failure.
 type Error struct {
@@ -58,8 +90,9 @@ type ExecRequest struct {
 	EngineeringMode bool
 }
 
-// Request describes one child start. Destructive defaults: EngineeringMode must
-// be explicit; release mode is refused by this IP revision.
+// Request describes one child start. Exactly one of EngineeringMode or
+// ReleaseMode must be set (M2k). ReleaseMode is a fail-closed engineering
+// preview of release-shaped launch — not an IC-1 production claim.
 type Request struct {
 	Executable      string
 	Role            authority.ProcessRole
@@ -68,6 +101,9 @@ type Request struct {
 	MACKey          []byte
 	Socket          *os.File
 	EngineeringMode bool
+	// ReleaseMode selects INTEGRIS_LAUNCH_MODE=release with stricter child
+	// confinement checks. Mutually exclusive with EngineeringMode.
+	ReleaseMode bool
 	// KeyViaExtraFiles selects the legacy ExtraFiles fd4 key path.
 	// Default (false) confers the MAC key via SCM_RIGHTS after start
 	// (ExtraFiles is socket-only); caller must SendFD Handle.KeyFD then Close it.
@@ -81,4 +117,17 @@ type Request struct {
 	StubMode    string
 	WaitTimeout time.Duration
 	WorkDir     string
+	// RootKey is an optional sealed push PSK conferred to a child (typically
+	// integrisd-auth) via ExtraFiles when KeyViaExtraFiles. Never in the environment.
+	RootKey []byte
+	// ExtraPeer / ExtraSocket / ExtraMACKey confer a second IPC endpoint
+	// (M2c: net↔apply while primary peer is auth). With KeyViaExtraFiles=false
+	// (M2l default for integrisd), sockets are ExtraFiles and MAC keys use SCM.
+	ExtraPeer   authority.ProcessRole
+	ExtraSocket *os.File
+	ExtraMACKey []byte
+	// ListenAddr / Once / ReadyPath are non-secret net-role listen controls.
+	ListenAddr string
+	Once       bool
+	ReadyPath  string
 }

@@ -8,6 +8,7 @@
 - Supersedes:
 - Requirements: INT-IC2-0003, INT-IC1-0004
 - Anchors: `docs/specifications/transaction.md`, `docs/specifications/journal.md`,
+  `docs/specifications/replication-protocol.md`,
   `formal/transaction/Transaction.tla`
 - Depends on: IP-F-0001 (journal prefix), IP-S-0002 (plan digest binding)
 - Unlocks: `internal/recovery`, VER-RECOVERY-001, EVD-RECOVERY-001

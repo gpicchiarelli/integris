@@ -1,0 +1,63 @@
+.\" Copyright (c) 2026 Integris contributors
+.\" SPDX-License-Identifier: BSD-3-Clause
+.Dd August 1, 2026
+.Dt INTEGRIS 1
+.Os
+.Sh NAME
+.Nm integris
+.Nd local engineering CLI for Integris sync increments
+.Sh SYNOPSIS
+.Nm
+.Cm sync
+.Fl source Ar dir
+.Fl destination Ar dir
+.Op Fl json
+.Op Fl plan-only
+.Op Fl no-journal
+.Op Fl journal Ar path
+.Sh DESCRIPTION
+.Nm
+provides operator-facing engineering commands.
+.Bl -tag -width serve
+.It Cm sync
+Unidirectional local directory synchronization with staged publication,
+SHA-256 verification, and journaled crash resume under
+.Pa destination/.integris/ .
+See
+.Pa docs/localsync.md .
+.It Cm serve / Cm push
+Authenticated TCP push using provisional session auth and AEAD (shared root
+key), with chunked file transfer and mid-file resume under
+.Pa destination/.integris/recv-partial/ .
+Optional
+.Fl chunk-size
+on
+.Cm push
+overrides the default 256 KiB chunk.
+Optional
+.Fl peer
+selects a named peer when the receiver uses an M2i PSK allow-list.
+See
+.Pa docs/remotesync.md
+and
+.Pa docs/daemon-m2a.md .
+.El
+.Pp
+It is not the privilege-separated daemon
+.Xr integrisd 8 .
+.Sh EXIT STATUS
+.Bl -tag -width Ds
+.It 0
+Success.
+.It 1
+Sync or runtime failure.
+.It 2
+Invalid usage or arguments.
+.It 3
+Unsafe path.
+.It 4
+Unsupported filesystem object.
+.El
+.Sh SEE ALSO
+.Xr integris 7 ,
+.Xr integrisd 8

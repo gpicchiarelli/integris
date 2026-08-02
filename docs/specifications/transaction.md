@@ -2,6 +2,9 @@
 
 Status: **Pre-implementation normative state model**
 Formal model: `formal/transaction/Transaction.tla`
+Protocol contract: [replication-protocol.md](replication-protocol.md) (INT-PROTO-0001)
+covers the full replication cycle, atomicity, crash catalogue, and invariants
+that this state model implements.
 
 ## Normal states
 

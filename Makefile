@@ -17,6 +17,7 @@ INSTALL_DATA    ?= $(INSTALL) -m 0644
 
 # Product CLIs (all targets). Unix stubs are optional extras.
 BIN_COMMON = \
+	integris \
 	integris-assure \
 	integris-evidence \
 	integris-release-digest \
@@ -27,6 +28,7 @@ BIN_UNIX = \
 	integris-crash-stub
 
 MAN1 = \
+	integris.1 \
 	integris-assure.1 \
 	integris-evidence.1 \
 	integris-release-digest.1 \

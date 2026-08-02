@@ -27,14 +27,23 @@ is
 .It fd 3
 Inherited IPC socket (always).
 .It fd 4
-Legacy MAC-key file descriptor when key transport is not SCM_RIGHTS.
+Key-channel socket when
+.Ev INTEGRIS_KEY_TRANSPORT
+is
+.Li scm-rights
+.Pq M2l ;
+legacy MAC-key file descriptor when using ExtraFiles key conferral.
 .El
 .Pp
 When
 .Ev INTEGRIS_KEY_TRANSPORT
 is
 .Li scm-rights ,
-the MAC-key descriptor is received over the IPC socket instead of fd 4.
+the MAC-key descriptor is received over the key-channel socket
+.Pq fd 4
+via
+.Li SCM_RIGHTS ,
+not over the IPC socket.
 .Sh ENVIRONMENT
 .Bl -tag -width "INTEGRIS_KEY_TRANSPORT"
 .It Ev INTEGRIS_LAUNCH_MODE
@@ -60,8 +69,12 @@ Comma-separated slot kinds for semantic probes.
 Colon-separated filesystem allow-roots for confinement adapters.
 .It Ev INTEGRIS_STUB_MODE
 .Li respond
-(default) or
-.Li initiate .
+(default),
+.Li initiate ,
+.Li hold-respond ,
+or
+.Li hold-initiate
+.Pq M2n peer-FD rebind hold .
 .El
 .Sh EXIT STATUS
 .Bl -tag -width Ds -compact

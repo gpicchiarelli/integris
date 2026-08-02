@@ -7,7 +7,8 @@
 - Created: 2026-08-01
 - Supersedes:
 - Requirements: INT-IC1-0003, INT-IC3-0002
-- Anchors: `docs/specifications/protocol.md`, `formal/session/Session.tla`,
+- Anchors: `docs/specifications/protocol.md`,
+  `docs/specifications/replication-protocol.md`, `formal/session/Session.tla`,
   `internal/session`
 - Depends on: IP-C-0001 (hashing); IP-C-0002 (provisional session AEAD / suites)
 - Unlocks: interoperable network frame codec (`internal/protocol`)
@@ -53,7 +54,7 @@ Header size before body: `8+2+2+2+4+16+8 = 42` bytes.
 | Limit | Value |
 |---|---|
 | Max body length | 1 MiB |
-| Max frames per session | implementation policy ≥ Session.MaxMessages for control plane |
+| Max frames per session | product default `session.DefaultMaxAccept`; TLA+ model uses `MaxMessages=3` |
 | Max concurrent sessions | configuration (`session` resource limits) |
 
 ### Message type allow-list (initial)

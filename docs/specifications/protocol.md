@@ -3,6 +3,14 @@
 Status: **Pre-implementation, version 0; not interoperable**
 Criticality: IC-1/IC-2
 
+**Normative expansion:** [replication-protocol.md](replication-protocol.md)
+(INT-PROTO-0001) is the authoritative behavioural contract for session,
+handshake, replication cycle, atomicity, recovery, conflicts, integrity,
+journal obligations, retry/timeout policy, invariants, failure matrix, and
+threat analysis. This file remains the concise wire/session baseline; on
+conflict of detail, INT-PROTO-0001 prevails for semantics, and accepted IP-P /
+IP-C documents prevail for frozen bit layouts.
+
 ## Frame
 
 Every binary frame is canonical and self-delimiting:
@@ -21,6 +29,12 @@ rejected. No decoder structure directly triggers filesystem activity.
 ## Session sequence
 
 `NEW → NEGOTIATING → PEER_AUTHENTICATED → ARCHIVE_AUTHORIZED → ACTIVE → CLOSING → CLOSED`
+
+INT-PROTO-0001 expands intermediate authentication/resume states
+(`NEGOTIATED`, `PEER_AUTHENTICATING`, `ARCHIVE_AUTHORIZING`, `ACTIVATING`,
+`RESUMING`) while preserving this observable spine. Formal model
+`Session.tla` abstracts negotiation as `NEGOTIATED` and omits `CLOSING` /
+`RESUMING`.
 
 Any authentication, sequence, canonicalization, quota, downgrade, archive,
 timeout, or peer-role failure enters `FAILED`, erases session secrets, closes

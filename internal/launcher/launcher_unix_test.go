@@ -19,12 +19,26 @@ import (
 	"github.com/gpicchiarelli/integris/internal/supervisor"
 )
 
-func TestRefuseReleaseMode(t *testing.T) {
+func TestRefuseUnsetMode(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	_, err := launcher.Start(ctx, launcher.Request{
 		Executable: "/bin/true", Role: authority.RoleParser, Peer: authority.RoleNet,
 		MACKey: bytes.Repeat([]byte{1}, 16), Socket: os.Stdin,
+	})
+	var e *launcher.Error
+	if !errors.As(err, &e) || e.Code != "mode" {
+		t.Fatalf("got %v", err)
+	}
+}
+
+func TestRefuseBothModes(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	_, err := launcher.Start(ctx, launcher.Request{
+		Executable: "/bin/true", Role: authority.RoleParser, Peer: authority.RoleNet,
+		MACKey: bytes.Repeat([]byte{1}, 16), Socket: os.Stdin,
+		EngineeringMode: true, ReleaseMode: true,
 	})
 	var e *launcher.Error
 	if !errors.As(err, &e) || e.Code != "mode" {
@@ -100,19 +114,21 @@ func TestLaunchStubIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if h.KeyFD == nil {
-		t.Fatal("expected KeyFD for default SCM path")
+	if h.KeyFD == nil || h.KeyChannel == nil {
+		t.Fatal("expected KeyFD and KeyChannel for default SCM path")
 	}
+	if err := ipc.SendFDFile(h.KeyChannel, h.KeyFD); err != nil {
+		t.Fatal(err)
+	}
+	_ = h.KeyFD.Close()
+	h.KeyFD = nil
+	_ = h.KeyChannel.Close()
+	h.KeyChannel = nil
 
 	parent, err := fab.Endpoint(authority.RoleNet, authority.RoleParser)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := ipc.SendFD(parent.Conn, h.KeyFD); err != nil {
-		t.Fatal(err)
-	}
-	_ = h.KeyFD.Close()
-	h.KeyFD = nil
 
 	raw, err := parent.Chan.Encode(ipc.TypeRequest, []byte("ping"))
 	if err != nil {
@@ -129,10 +145,10 @@ func TestLaunchStubIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:ping|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:ping|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
-	for _, tok := range []string{"|NEG-EXEC:", "|NEG-PTRACE:"} {
+	for _, tok := range []string{"|NEG-CAP-MODE:", "|NEG-FS:", "|NEG-EXEC:", "|NEG-PTRACE:"} {
 		if !bytes.Contains(resp.Payload, []byte(tok)) {
 			t.Fatalf("missing %s in %q", tok, resp.Payload)
 		}
@@ -262,8 +278,11 @@ func TestLaunchStubIPCViaExtraFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:extra|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:extra|")) {
 		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:")) || !bytes.Contains(resp.Payload, []byte("|NEG-FS:")) {
+		t.Fatalf("missing NEG-CAP-MODE/NEG-FS in %q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
 		!bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportMemfd)) {

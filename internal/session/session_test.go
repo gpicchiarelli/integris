@@ -72,6 +72,7 @@ func TestRejectReplay(t *testing.T) {
 
 func TestAcceptNextCap(t *testing.T) {
 	s := session.New([]session.Version{3})
+	s.MaxAccept = session.MaxMessages // TLA+ model bound
 	_ = s.Negotiate()
 	_ = s.Authenticate()
 	_ = s.AuthorizeArchive()

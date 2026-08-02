@@ -1,0 +1,10 @@
+title = "Integris gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Engineering test fixtures may contain synthetic key material"
+paths = [
+  '''internal/remotesync/remotesync_test.go''',
+]

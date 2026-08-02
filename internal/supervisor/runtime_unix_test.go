@@ -78,7 +78,7 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:runtime|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:runtime|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	for _, tok := range []string{"|NEG-EXEC:", "|NEG-PTRACE:", "|NEG-PARSER-NET:", "|NEG-PARSER-KEYS:", "|NEG-PARSER-ARCHIVES:", "|NEG-ROLE-NET:"} {
@@ -100,6 +100,9 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:skipped")) {
+			t.Fatalf("expected NEG-CAP-MODE skipped on %s: %q", runtime.GOOS, resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
 			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
@@ -113,6 +116,9 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 			t.Fatalf("expected NEG-ROLE-NET denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:available")) {
+			t.Fatalf("expected NEG-CAP-MODE available on freebsd: %q", resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
 			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
@@ -188,7 +194,7 @@ func TestRuntimeRestartChildIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:first|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:first|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {
@@ -217,7 +223,7 @@ func TestRuntimeRestartChildIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:second|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:second|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportSCMRights)) {
@@ -290,7 +296,7 @@ func TestRuntimeStartChildExtraFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:runtime-extra|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:runtime-extra|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
@@ -371,7 +377,7 @@ func TestRuntimeStartChildAllowRoots(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:allow-roots|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:allow-roots|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-APPLY-KEYS:denied_as_expected")) {
@@ -382,6 +388,9 @@ func TestRuntimeStartChildAllowRoots(t *testing.T) {
 	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:skipped")) {
+			t.Fatalf("expected NEG-CAP-MODE skipped on %s: %q", runtime.GOOS, resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 			t.Fatalf("expected NEG-FS-PATH available on %s: %q", runtime.GOOS, resp.Payload)
 		}
@@ -392,6 +401,12 @@ func TestRuntimeStartChildAllowRoots(t *testing.T) {
 			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:available")) {
+			t.Fatalf("expected NEG-CAP-MODE available on freebsd: %q", resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected ambient NEG-FS-READ denial on freebsd: %q", resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 			t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd: %q", resp.Payload)
 		}
@@ -476,7 +491,7 @@ func TestRuntimeStartChildAllowRootsIndex(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:index-roots|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:index-roots|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-INDEX-PUB:denied_as_expected")) {
@@ -487,6 +502,9 @@ func TestRuntimeStartChildAllowRootsIndex(t *testing.T) {
 	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:skipped")) {
+			t.Fatalf("expected NEG-CAP-MODE skipped on %s: %q", runtime.GOOS, resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 			t.Fatalf("expected NEG-FS-PATH available on %s: %q", runtime.GOOS, resp.Payload)
 		}
@@ -497,6 +515,12 @@ func TestRuntimeStartChildAllowRootsIndex(t *testing.T) {
 			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:available")) {
+			t.Fatalf("expected NEG-CAP-MODE available on freebsd: %q", resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected ambient NEG-FS-READ denial on freebsd: %q", resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 			t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd: %q", resp.Payload)
 		}
@@ -580,7 +604,7 @@ func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:journal-roots|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:journal-roots|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-JOURNAL-NET:denied_as_expected")) {
@@ -594,6 +618,9 @@ func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
 	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:skipped")) {
+			t.Fatalf("expected NEG-CAP-MODE skipped on %s: %q", runtime.GOOS, resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 			t.Fatalf("expected NEG-FS-PATH available on %s: %q", runtime.GOOS, resp.Payload)
 		}
@@ -604,8 +631,17 @@ func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
 			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:available")) {
+			t.Fatalf("expected NEG-CAP-MODE available on freebsd: %q", resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected ambient NEG-FS-READ denial on freebsd: %q", resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 			t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd: %q", resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-WRITE:available")) {
+			t.Fatalf("expected NEG-FS-WRITE available for journal on freebsd: %q", resp.Payload)
 		}
 	}
 	if err := rt.WaitChild(authority.RoleJournal); err != nil {
@@ -689,7 +725,7 @@ func TestRuntimeStartChildAllowRootsAudit(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:audit-roots|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:audit-roots|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-AUDIT-DECIDE:denied_as_expected")) {
@@ -703,6 +739,9 @@ func TestRuntimeStartChildAllowRootsAudit(t *testing.T) {
 	}
 	switch runtime.GOOS {
 	case "darwin", "linux", "openbsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:skipped")) {
+			t.Fatalf("expected NEG-CAP-MODE skipped on %s: %q", runtime.GOOS, resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 			t.Fatalf("expected NEG-FS-PATH available on %s: %q", runtime.GOOS, resp.Payload)
 		}
@@ -713,8 +752,17 @@ func TestRuntimeStartChildAllowRootsAudit(t *testing.T) {
 			t.Fatalf("expected ambient NEG-FS-READ denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	case "freebsd":
+		if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:available")) {
+			t.Fatalf("expected NEG-CAP-MODE available on freebsd: %q", resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+			t.Fatalf("expected ambient NEG-FS-READ denial on freebsd: %q", resp.Payload)
+		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 			t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd: %q", resp.Payload)
+		}
+		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-WRITE:denied_as_expected")) {
+			t.Fatalf("expected NEG-FS-WRITE denial for audit on freebsd: %q", resp.Payload)
 		}
 	}
 	if err := rt.WaitChild(authority.RoleAudit); err != nil {
@@ -793,16 +841,25 @@ func TestRuntimeRestartChildAllowRoots(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		prefix := []byte("ack:" + label + "|NEG-FS:")
+		prefix := []byte("ack:" + label + "|")
 		if !bytes.HasPrefix(resp.Payload, prefix) {
 			t.Fatalf("%q", resp.Payload)
 		}
 		switch runtime.GOOS {
 		case "darwin", "linux", "openbsd":
+			if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:skipped")) {
+				t.Fatalf("expected NEG-CAP-MODE skipped after %s on %s: %q", label, runtime.GOOS, resp.Payload)
+			}
 			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 				t.Fatalf("expected NEG-FS-PATH available after %s on %s: %q", label, runtime.GOOS, resp.Payload)
 			}
 		case "freebsd":
+			if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:available")) {
+				t.Fatalf("expected NEG-CAP-MODE available after %s on freebsd: %q", label, resp.Payload)
+			}
+			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-READ:denied_as_expected")) {
+				t.Fatalf("expected ambient NEG-FS-READ denial after %s on freebsd: %q", label, resp.Payload)
+			}
 			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 				t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd after %s: %q", label, resp.Payload)
 			}
@@ -885,7 +942,7 @@ func TestRuntimeStartChildAuthAccept(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:auth|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:auth|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-AUTH-ACCEPT:denied_as_expected")) {
@@ -971,7 +1028,7 @@ func TestRuntimeStartChildJournalMustNot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:journal|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:journal|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-JOURNAL-NET:denied_as_expected")) {
@@ -1053,7 +1110,7 @@ func TestRuntimeStartChildAuditMustNot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:audit|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:audit|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-AUDIT-DECIDE:denied_as_expected")) {
@@ -1131,7 +1188,7 @@ func TestRuntimeStartChildNetMustNot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:net|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:net|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-NET-ARCHIVE:denied_as_expected")) {
@@ -1211,7 +1268,7 @@ func TestRuntimeStartChildPlanMustNot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:plan|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:plan|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-PLAN-WRITE:denied_as_expected")) {
@@ -1293,7 +1350,7 @@ func TestRuntimeStartChildSupervisorMustNot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:supervisor|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:supervisor|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|NEG-SUP-PARSER:denied_as_expected")) {
@@ -1311,6 +1368,7 @@ func TestRuntimeStartChildSupervisorMustNot(t *testing.T) {
 }
 
 func TestRuntimeRestartPairIPC(t *testing.T) {
+	// M2m: dual-live StartPair/RestartPair on default SCM key-channel path.
 	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
 	if err != nil {
 		t.Fatal(err)
@@ -1345,7 +1403,9 @@ func TestRuntimeRestartPairIPC(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer rt.Close()
-	rt.KeyViaExtraFiles = true
+	if rt.KeyViaExtraFiles {
+		t.Fatal("expected default SCM path (KeyViaExtraFiles=false)")
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
@@ -1360,6 +1420,130 @@ func TestRuntimeRestartPairIPC(t *testing.T) {
 	}
 
 	if err := rt.RestartPair(ctx, authority.RoleParser, authority.RoleNet, authority.RoleParser, bin); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.WaitChild(authority.RoleParser); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.WaitChild(authority.RoleNet); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRuntimeRestartOneIPC(t *testing.T) {
+	// M2n: kill one dual-live child; rebind peer FD into survivor; PID unchanged.
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleNet,
+			Confer:   []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
+			IPCPeers: []authority.ProcessRole{authority.RoleParser},
+		},
+		{
+			Role:     authority.RoleParser,
+			Confer:   []authority.Capability{authority.CapBoundedMessageIPC},
+			IPCPeers: []authority.ProcessRole{authority.RoleNet},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x6c}, 32)
+	var nonce [16]byte
+	nonce[2] = 9
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+	rt.PairHold = true
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	if err := rt.StartPair(ctx, authority.RoleParser, authority.RoleNet, authority.RoleParser, bin); err != nil {
+		t.Fatal(err)
+	}
+	live, ok := rt.Child(authority.RoleNet)
+	if !ok || live == nil || live.Cmd == nil || live.Cmd.Process == nil {
+		t.Fatal("missing live net child")
+	}
+	livePID := live.Cmd.Process.Pid
+
+	if err := rt.WaitPairHoldReady([]authority.ProcessRole{
+		authority.RoleParser, authority.RoleNet,
+	}, 10*time.Second); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := rt.RestartOne(ctx, authority.RoleParser, authority.RoleNet, authority.RoleParser, bin); err != nil {
+		t.Fatal(err)
+	}
+	liveAfter, ok := rt.Child(authority.RoleNet)
+	if !ok || liveAfter == nil || liveAfter.Cmd == nil || liveAfter.Cmd.Process == nil {
+		t.Fatal("missing live net child after RestartOne")
+	}
+	if liveAfter.Cmd.Process.Pid != livePID {
+		t.Fatalf("live PID changed: got %d want %d", liveAfter.Cmd.Process.Pid, livePID)
+	}
+	if err := rt.WaitChild(authority.RoleParser); err != nil {
+		t.Fatal(err)
+	}
+	if err := rt.WaitChild(authority.RoleNet); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestRuntimeRestartPairExtraFiles(t *testing.T) {
+	// Legacy KeyViaExtraFiles dual-live path remains supported.
+	modRoot, err := filepath.Abs(filepath.Join("..", ".."))
+	if err != nil {
+		t.Fatal(err)
+	}
+	bin := filepath.Join(t.TempDir(), "integris-role-stub")
+	ctxBuild, cancelBuild := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancelBuild()
+	if err := launcher.BuildGoPackage(ctxBuild, modRoot, "./cmd/integris-role-stub", bin); err != nil {
+		t.Fatal(err)
+	}
+
+	p, err := supervisor.BuildPlan([]supervisor.ChildSpec{
+		{
+			Role:     authority.RoleNet,
+			Confer:   []authority.Capability{authority.CapNetworkSockets, authority.CapEncryptedFrames},
+			IPCPeers: []authority.ProcessRole{authority.RoleParser},
+		},
+		{
+			Role:     authority.RoleParser,
+			Confer:   []authority.Capability{authority.CapBoundedMessageIPC},
+			IPCPeers: []authority.ProcessRole{authority.RoleNet},
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	key := bytes.Repeat([]byte{0x6b}, 32)
+	var nonce [16]byte
+	nonce[2] = 8
+	rt, err := supervisor.OpenRuntime(p, key, nonce)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rt.Close()
+	rt.KeyViaExtraFiles = true
+
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	if err := rt.StartPair(ctx, authority.RoleParser, authority.RoleNet, authority.RoleParser, bin); err != nil {
 		t.Fatal(err)
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {

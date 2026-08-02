@@ -10,9 +10,123 @@ is accepted.
 
 - Formal models workflow no longer cancels in-flight TLC runs, so a cancelled
   default-branch run cannot leave the README Formal badge stuck on failing.
+- `integrisd-auth` once-mode no longer exits immediately after sealing the
+  session FD to net (SCM_RIGHTS race that could drop the handoff mid-push).
 
 ### Added
 
+- first executable vertical slice: unidirectional local sync
+  (`internal/localsync`, `cmd/integris sync`) with deterministic scan/plan,
+  staged publish, SHA-256 verify, structured JSON result, and docs in
+  `docs/localsync.md`;
+- M1b local journal + crash resume: IP-F-0001 segment under
+  `destination/.integris/`, plan snapshot, per-op progress, recovery records,
+  and resume tests;
+- M1c authenticated remote push: `internal/remotesync` + `integris push|serve`
+  over IP-P with provisional mutual auth/AEAD (PSK), staging into localsync;
+  session `DefaultMaxAccept` for ACTIVE data plane (model bound unchanged);
+- M1d chunked remote transfer + mid-file resume: `FileBegin`/`Ack`/`Chunk`/`End`,
+  default 256 KiB chunks (`integris push -chunk-size`), durable partials under
+  `destination/.integris/recv-partial/`, stage under `recv-stage/`;
+  `ResolveRoots` allows source trees under `destination/.integris/`;
+- M2a privilege-separated receive: `cmd/integrisd` + `internal/daemon` split
+  `integrisd-net` / `integrisd-apply` over INTIPC with sealed push-root FD to net
+  and destination allow-roots to apply; docs in `docs/daemon-m2a.md`;
+- M2b supervised restart + persistent serve: multi-push accept loops,
+  `-max-restarts` pair recovery, ready republish, `Server.Status`;
+- M2c auth role: `integrisd-auth` holds push PSK and runs AcceptHandshake;
+  sealed session returned to net over IPC+SCM_RIGHTS; net ExtraPeer to apply;
+  `AuthNetApplyPlan` for auth-without-parser mode;
+- M2d parser role: `integrisd-parser` on the receive data plane between net and
+  apply (`AuthParserNetApplyPlan`); validates app messages over INTIPC; no PSK
+  and no archive roots in parser;
+- M2e audit role: `integrisd-audit` redacted event sink (`AuthParserNetApplyAuditPlan`);
+  apply emits best-effort commit events over INTIPC; sink at `.integris/audit.events`;
+- M2f journal role: `integrisd-journal` owns `local.jrn` (`AuthParserNetApplyJournalAuditPlan`);
+  apply uses `localsync.JournalSession` over INTIPC; audit relays via journal ExtraPeer;
+- M2g plan role: `integrisd-plan` between parser and apply
+  (`AuthParserNetPlanApplyJournalAuditPlan`); canonicalizes manifests and binds
+  the file stream without archive FS access;
+- M2h index role: `integrisd-index` between plan and apply
+  (`AuthParserNetPlanIndexApplyJournalAuditPlan` default for `integrisd serve`);
+  readonly destination Scan at commit; apply skips dest Scan via DestManifest;
+- M2i peer PSK allow-list: `integrisd serve -peer-key ID=PATH` + `integris push -peer ID`;
+  `INTPEER1` keyring in auth; peer prologue + peer-bound MAC;
+- M2j peer admit/deny audit: with `-peer-key`, auth ExtraPeer→audit emits
+  `auth.peer.admit` / `auth.peer.deny` (opaque peer digest) to `.integris/audit.events`;
+- M2k strict launch: `integrisd serve -strict-launch` / `ServeOptions.StrictLaunch`
+  requires full role chain, sets `INTEGRIS_LAUNCH_MODE=release`, fails closed if
+  confinement APPLY-* is unavailable or skipped;
+- M2l SCM-only key conferral: default ExtraFiles is sockets + dedicated key
+  channel (fd4); MAC/root/extra keys via `SCM_RIGHTS` on `Handle.KeyChannel`;
+  `KeyViaExtraFiles` remains opt-in;
+- M2m SCM dual-live: `StartPair` / `RestartPair` work on the default key-channel
+  path (no longer require `KeyViaExtraFiles`); ExtraFiles dual-live still tested;
+- M2n in-place peer FD rebind: `Runtime.RestartOne` + `ipc.SendPeerFDFile`
+  (`PeerFDMagic`) into a surviving dual-live child; stub hold modes;
+- M2o daemon RestartOne: M2a (`DisableAuth`) apply exit rebinds into surviving
+  net (listen PID/addr unchanged);
+- M2p ExtraPeer RestartOne: M2c (`DisableParser`) apply exit rebinds net’s
+  ExtraPeer→apply socket; auth + listen survive;
+- M2q parser ExtraPeer RestartOne: M2d apply exit rebinds parser→apply; parser
+  + net + auth survive; `ServeParserBridgeDyn`;
+- M2r M2g plan ExtraPeer restart: apply death respawns apply+journal+audit and
+  rebinds plan→apply; plan/parser/net/auth survive; `ServePlanBridgeDyn`;
+- M2s M2h index ExtraPeer restart: apply death respawns apply+journal+audit and
+  rebinds index→apply; index+upstream survive; `ServeIndexBridgeDyn`;
+- M2t M2d parser restart: parser death respawns parser+apply and rebinds net
+  ExtraPeer→parser; auth+net survive;
+- M2u M2g parser-downstream restart: parser/plan death respawns
+  parser→plan→apply→journal→audit and rebinds net ExtraPeer→parser; auth+net
+  survive;
+- M2v M2h parser-downstream restart: parser/plan/index death respawns
+  parser→plan→index→apply→journal→audit and rebinds net ExtraPeer→parser;
+  auth+net survive;
+- M2w M2c auth primary RestartOne: auth death respawns auth and rebinds net
+  primary→auth via `PrimaryPeerFDMagic` demux; net+apply+listen survive;
+- M2x/M2y/M2z auth primary RestartOne on M2d/M2g/M2h (shared PSK); same demux;
+- M3a M2j auth ExtraPeer RestartOne: with peer keyring, auth death also rebinds
+  audit ExtraPeer→auth (`ServeAuditSinkExtraDyn`); audit PID survives;
+- M3b M2j audit→auth ExtraPeer RestartOne: apply/audit subtree respawn rebinds
+  surviving auth ExtraPeer→audit; auth PID survives;
+- M3c FreeBSD allow-root FD product claim: `ClaimChild`/`Confine` adopt
+  conferred directory FDs + `LimitAllowRootFDs`; Journal/Audit FreeBSD
+  `NEG-FS-WRITE` parity with Apply/Index;
+- M3d index `ScanAt` via openat on conferred allow-root FD; `runIndex` wires
+  `AllowRootFDs[0]` into `ServeIndexBridge*`;
+- M3e apply staging via openat on conferred allow-root FD (`recv-stage` /
+  `recv-partial`); `runApply` wires `AllowRootFDs[0]` into `ServeApplyIPC*`;
+  commit/`localsync.Sync` publish remains ambient;
+- M3f journal reopen via openat on conferred allow-root FD
+  (`OpenFileJournalAt` / `OpenFileSegmentAt`); `runJournal` wires
+  `AllowRootFDs[0]` into `ServeJournalIPC`;
+- M3g apply publish via openat: `ApplyAt` + `Sync` `SourceFD`/`DestFD`
+  (ScanAt/ApplyAt/plan snapshot); commit wires stage+dest FDs; stage wipe
+  via unlinkat;
+- M3h audit sink openat bootstrap (`OpenAuditSinkAt` / `.integris/audit.events`);
+  `runAudit` wires `AllowRootFDs[0]`; archive allow-root stays readonly;
+- M3i CapEnter receive openat chain proof (stage→ScanAt→journaled publish→audit
+  sink); unix + FreeBSD CapEnter tests;
+- M3j RestartOne exit-channel drain: `flushExitPending` after cascade waits;
+  `armWatcher` suppresses superseded-handle exits;
+- M3k FreeBSD CapEnter stub probe `NEG-CAP-MODE` (`cap_getmode`); supervised
+  role-stub asserts capability mode after apply;
+- M3l journal ambient bootstrap via openat (`BootstrapJournalAt`); `runJournal`
+  wires `AllowRootFDs[0]` before CapEnter;
+- M3m product CapEnter self-check fail-closed: release-mode `Confine` requires
+  FreeBSD capability mode via `RequireCapModeAvailable` / `cap_getmode`;
+- M3n product allow-root Capsicum rights fail-closed: release-mode `Confine`
+  requires `APPLY-CAP-ALLOW-ROOTS` Available or Skipped
+  (`RequireAllowRootLimitFinding`);
+- M3o product conferred Capsicum rights fail-closed: `ClaimChild` stores
+  `LimitConferredFDs`; release-mode `Confine` requires `APPLY-CAP-RIGHTS`
+  Available or Skipped (`RequireConferredLimitFinding`);
+- M3p FreeBSD supervised CapEnter push first cut: StrictLaunch Once product
+  push under CapEnter; archive-role stub AllowRoots assert
+  `|NEG-CAP-MODE:available`;
+- M3q product ambient FS-read deny fail-closed: release-mode `Confine`
+  requires `NEG-FS-READ` DeniedExpected (`RequireAmbientFSReadDenied`);
+  FreeBSD AllowRoots stubs assert ambient deny beside openat path allow;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

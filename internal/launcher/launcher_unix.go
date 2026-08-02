@@ -23,6 +23,12 @@ type Handle struct {
 	// KeyFD is non-nil when using the default SCM_RIGHTS path. Caller must
 	// confer it with ipc.SendFD (or SendFDFile) then Close it.
 	KeyFD *os.File
+	// KeyChannel is the parent end of a dedicated socketpair for SCM key
+	// conferral (M2l). Caller SendFDFile(KeyChannel, KeyFD/…) then Close.
+	KeyChannel *os.File
+	// RootKeyFD / ExtraKeyFD are conferred via KeyChannel after start (M2l).
+	RootKeyFD  *os.File
+	ExtraKeyFD *os.File
 }
 
 // Start validates req and starts the child. The caller owns waiting via Wait.
@@ -30,8 +36,9 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 	if ctx == nil {
 		return nil, fail("context", "nil context")
 	}
-	if !req.EngineeringMode {
-		return nil, fail("mode", "release launch refused; EngineeringMode required (IP-A-0003)")
+	mode, err := launchMode(req.EngineeringMode, req.ReleaseMode)
+	if err != nil {
+		return nil, err
 	}
 	if req.Executable == "" || !filepath.IsAbs(req.Executable) {
 		return nil, fail("path", "executable must be an absolute path")
@@ -57,7 +64,7 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 		work = dir
 	}
 	env := []string{
-		EnvMode + "=" + ModeEngineering,
+		EnvMode + "=" + mode,
 		EnvRole + "=" + string(req.Role),
 		EnvPeer + "=" + string(req.Peer),
 		EnvNonce + "=" + hex.EncodeToString(req.Nonce[:]),
@@ -80,13 +87,56 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 		stubMode = StubModeRespond
 	}
 	env = append(env, EnvStubMode+"="+stubMode)
+	if req.ListenAddr != "" {
+		env = append(env, EnvListenAddr+"="+req.ListenAddr)
+	}
+	if req.Once {
+		env = append(env, EnvOnce+"=1")
+	}
+	if req.ReadyPath != "" {
+		env = append(env, EnvReadyPath+"="+req.ReadyPath)
+	}
 	keyFD, transport, err := CreateKeyFD(req.MACKey)
 	if err != nil {
 		return nil, err
 	}
+	var pushRootFD *os.File
+	if len(req.RootKey) > 0 {
+		pushRootFD, _, err = CreateKeyFD(req.RootKey)
+		if err != nil {
+			_ = keyFD.Close()
+			return nil, err
+		}
+		env = append(env, EnvHasRootKey+"=1")
+	}
+	var extraKeyFD *os.File
+	if req.ExtraPeer != "" {
+		if req.ExtraSocket == nil || len(req.ExtraMACKey) < 16 {
+			_ = keyFD.Close()
+			if pushRootFD != nil {
+				_ = pushRootFD.Close()
+			}
+			return nil, fail("peer", "ExtraPeer requires socket and MAC key")
+		}
+		extraKeyFD, _, err = CreateKeyFD(req.ExtraMACKey)
+		if err != nil {
+			_ = keyFD.Close()
+			if pushRootFD != nil {
+				_ = pushRootFD.Close()
+			}
+			return nil, err
+		}
+		env = append(env, EnvExtraPeer+"="+string(req.ExtraPeer))
+	}
 	rootFiles, _, err := openAllowRootDirs(req.AllowRoots)
 	if err != nil {
 		_ = keyFD.Close()
+		if pushRootFD != nil {
+			_ = pushRootFD.Close()
+		}
+		if extraKeyFD != nil {
+			_ = extraKeyFD.Close()
+		}
 		return nil, err
 	}
 	defer closeFiles(rootFiles)
@@ -96,35 +146,85 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 	h := &Handle{Cmd: cmd, Role: req.Role}
 	if req.KeyViaExtraFiles {
 		env = append(env, EnvKeyTransport+"="+string(transport))
-		extras := make([]*os.File, 0, 2+len(rootFiles))
+		extras := make([]*os.File, 0, 5+len(rootFiles))
 		extras = append(extras, req.Socket, keyFD)
+		extraIdx := 2
+		if pushRootFD != nil {
+			extras = append(extras, pushRootFD)
+			extraIdx++
+		}
+		if extraKeyFD != nil {
+			extras = append(extras, req.ExtraSocket, extraKeyFD)
+			extraIdx += 2
+		}
 		extras = append(extras, rootFiles...)
-		if fdEnv := allowRootFDEnv(2, len(rootFiles)); fdEnv != "" {
+		if fdEnv := allowRootFDEnv(extraIdx, len(rootFiles)); fdEnv != "" {
 			env = append(env, EnvAllowRootFDs+"="+fdEnv)
 		}
 		cmd.Env = env // intentional: do not inherit parent env; no MAC key in env
 		cmd.ExtraFiles = extras
 		if err := cmd.Start(); err != nil {
 			_ = keyFD.Close()
+			if pushRootFD != nil {
+				_ = pushRootFD.Close()
+			}
+			if extraKeyFD != nil {
+				_ = extraKeyFD.Close()
+			}
 			return nil, fail("start", err.Error())
 		}
 		_ = keyFD.Close() // child holds the dup'd FD
+		if pushRootFD != nil {
+			_ = pushRootFD.Close()
+		}
+		if extraKeyFD != nil {
+			_ = extraKeyFD.Close()
+		}
 		return h, nil
 	}
+	// M2l SCM path: ExtraFiles = IPC sock(s) + key-channel child end; keys via SCM.
 	env = append(env, EnvKeyTransport+"="+string(KeyTransportSCMRights))
-	extras := make([]*os.File, 0, 1+len(rootFiles))
-	extras = append(extras, req.Socket)
+	keyChParent, keyChChild, err := unixSocketpair()
+	if err != nil {
+		_ = keyFD.Close()
+		if pushRootFD != nil {
+			_ = pushRootFD.Close()
+		}
+		if extraKeyFD != nil {
+			_ = extraKeyFD.Close()
+		}
+		return nil, fail("socket", err.Error())
+	}
+	extras := make([]*os.File, 0, 3+len(rootFiles))
+	extras = append(extras, req.Socket, keyChChild)
+	sockCount := 2
+	if req.ExtraPeer != "" {
+		extras = append(extras, req.ExtraSocket)
+		sockCount++
+	}
 	extras = append(extras, rootFiles...)
-	if fdEnv := allowRootFDEnv(1, len(rootFiles)); fdEnv != "" {
+	if fdEnv := allowRootFDEnv(sockCount, len(rootFiles)); fdEnv != "" {
 		env = append(env, EnvAllowRootFDs+"="+fdEnv)
 	}
 	cmd.Env = env
 	cmd.ExtraFiles = extras
 	if err := cmd.Start(); err != nil {
 		_ = keyFD.Close()
+		_ = keyChParent.Close()
+		_ = keyChChild.Close()
+		if pushRootFD != nil {
+			_ = pushRootFD.Close()
+		}
+		if extraKeyFD != nil {
+			_ = extraKeyFD.Close()
+		}
 		return nil, fail("start", err.Error())
 	}
+	_ = keyChChild.Close() // child holds the dup
 	h.KeyFD = keyFD
+	h.KeyChannel = keyChParent
+	h.RootKeyFD = pushRootFD
+	h.ExtraKeyFD = extraKeyFD
 	return h, nil
 }
 
@@ -202,4 +302,38 @@ func BuildGoPackage(ctx context.Context, moduleRoot, pkg, out string) error {
 		return fail("build", fmt.Sprintf("%v: %s", err, outb))
 	}
 	return nil
+}
+
+func launchMode(engineering, release bool) (string, error) {
+	switch {
+	case engineering && release:
+		return "", fail("mode", "EngineeringMode and ReleaseMode are mutually exclusive")
+	case engineering:
+		return ModeEngineering, nil
+	case release:
+		return ModeRelease, nil
+	default:
+		return "", fail("mode", "EngineeringMode or ReleaseMode required (IP-A-0003)")
+	}
+}
+
+func unixSocketpair() (parent, child *os.File, err error) {
+	fds, err := syscall.Socketpair(syscall.AF_UNIX, syscall.SOCK_STREAM, 0)
+	if err != nil {
+		return nil, nil, err
+	}
+	parent = os.NewFile(uintptr(fds[0]), "integris-keych-parent")
+	child = os.NewFile(uintptr(fds[1]), "integris-keych-child")
+	if parent == nil || child == nil {
+		if parent != nil {
+			_ = parent.Close()
+		}
+		if child != nil {
+			_ = child.Close()
+		}
+		_ = syscall.Close(fds[0])
+		_ = syscall.Close(fds[1])
+		return nil, nil, fail("socket", "NewFile failed")
+	}
+	return parent, child, nil
 }

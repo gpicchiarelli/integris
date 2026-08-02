@@ -15,10 +15,12 @@ therefore exercise catastrophic authority.
 
 ## Decision
 
-Adopt the process and authority map in `docs/security-architecture.md`. Enforce
-boundaries with native OS primitives, explicit descriptor delegation, bounded
-authenticated IPC, dedicated identities, and monotonic authority reduction.
-Package separation alone is insufficient.
+Adopt the process and authority map in `docs/security-architecture.md`. Logical
+component placement is defined by
+`docs/specifications/daemon-architecture.md` (INT-ARCH-0001) and MUST NOT widen
+process authority. Enforce boundaries with native OS primitives, explicit
+descriptor delegation, bounded authenticated IPC, dedicated identities, and
+monotonic authority reduction. Package separation alone is insufficient.
 
 ## Alternatives
 

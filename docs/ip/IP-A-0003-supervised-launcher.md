@@ -54,18 +54,28 @@ profile defect.
 - `RestartChild` reuses `Runtime.AllowRoots` for the respawned role (same
   path allow-list as the initial `StartChild`);
 - `INTEGRIS_STUB_MODE=initiate|respond` for child↔child IPC (StartPair/RestartPair);
-- dual-live edges require `KeyViaExtraFiles` (SCM dual-spawn unsupported);
+- dual-live edges use default SCM key-channel conferral (M2m); each child has its
+  own `Handle.KeyChannel` so fabric peer ends are not needed for SendFD;
+- `RestartOne` (M2n): kill one dual-live end, `ReplacePair`, respawn, confer the
+  new peer IPC FD to the survivor via `SendPeerFDFile` (`PeerFDMagic`) on the
+  still-open key channel; stub `hold-initiate`/`hold-respond` + `RDY1` sync;
 - MAC key via `CreateKeyFD`, never via environment:
-  - **default ABI:** ExtraFiles is socket-only (IPC on **fd 3**); parent sends the
-    key FD with `SCM_RIGHTS` (`ipc.SendFD` on `Handle.KeyFD`) before the first
-    authenticated frame;
+  - **default ABI (M2l/M2m):** ExtraFiles = IPC on **fd 3**, dedicated key-channel
+    socket on **fd 4**, optional ExtraPeer IPC on **fd 5**, then allow-roots;
+    parent confers MAC (and optional root/extra MAC) with `SCM_RIGHTS` via
+    `ipc.SendFDFile(Handle.KeyChannel, Handle.KeyFD/…)` before the first
+    authenticated frame; `StartPair` / `RestartPair` use this path by default;
   - **legacy opt-in** (`KeyViaExtraFiles`): key on **fd 4** (`ExtraFiles[1]`);
   - **Linux:** sealed `memfd` (`F_SEAL_WRITE|SHRINK|GROW|SEAL`);
   - **other Unix:** unlinked temp file reopened `O_RDONLY` (engineering residual
     until memfd seals land);
 - a finite `context` deadline for wait;
-- `EngineeringMode=true` required; when false, Start refuses (release path not
-  yet implemented).
+- Exactly one of `EngineeringMode` or `ReleaseMode` (M2k) required; when both
+  false or both true, Start refuses. `ReleaseMode` sets
+  `INTEGRIS_LAUNCH_MODE=release` for fail-closed child confinement checks
+  (`integrisd -strict-launch`, including FreeBSD CapMode M3m, Capsicum
+  rights-limit M3n/M3o, and ambient FS-read deny M3q); it is not a product
+  IC-1 release claim.
 
 No `/bin/sh`, no interpolated command lines, no `PATH` search for the executable
 (caller supplies an absolute path). Working directory is set to an empty temp
@@ -89,7 +99,7 @@ directory owned for the test/run.
     allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root;
     `NEG-FS-WRITE` asserts create under root succeeds for Apply/Journal and is
     denied for Index/Audit).
-  Stubs report `NegativeEngineering` (`NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
+  Stubs report `NegativeEngineering` (`NEG-CAP-MODE`, `NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`,
   `NEG-FS-WRITE`, `NEG-EXEC`, `NEG-PTRACE`, `NEG-ROLE-NET`) and role-semantic conferral probes
   (`NEG-NET-ARCHIVE`, `NEG-NET-KEYS`, `NEG-NET-JOURNAL`, `NEG-PARSER-NET`,
   `NEG-PARSER-KEYS`, `NEG-PARSER-ARCHIVES`,
@@ -100,21 +110,32 @@ directory owned for the test/run.
   `NEG-AUDIT-SECRETS`, `NEG-JOURNAL-NET`,
   `NEG-JOURNAL-POLICY`, `NEG-JOURNAL-MUTATE`, `NEG-SUP-PARSER`, `NEG-SUP-TRAVERSE`,
   `NEG-SUP-KEYS`) over IPC.
-- Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles` for
-  engineering callers that cannot yet SendFD after spawn.
+- Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles`.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
   apply is not claimed equivalent).
 - Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
-- Broader role path allow-lists beyond Apply/Index archive caps (FreeBSD
-  conferred directory FDs for Apply/Index archive roots are landed).
-- Dual-live crash recovery beyond kill-both `RestartPair` (in-place peer FD
-  rebind while one child survives; SCM dual-spawn still unsupported).
+- Broader role path allow-lists beyond Apply/Index/Journal/Audit archive caps
+  (FreeBSD conferred directory FDs claimed in product children as of M3c;
+  index ScanAt openat landed in M3d; apply staging openat landed in M3e;
+  journal reopen openat landed in M3f; apply publish ApplyAt/SyncAt landed in M3g;
+  audit sink openat bootstrap landed in M3h; CapEnter receive openat chain
+  proof landed in M3i; RestartOne exit-channel drain landed in M3j;
+  FreeBSD CapEnter stub probe NEG-CAP-MODE landed in M3k; journal openat
+  bootstrap landed in M3l; product CapEnter self-check fail-closed in release
+  mode landed in M3m; product allow-root `cap_rights_limit` fail-closed in
+  release mode landed in M3n; product conferred IPC/key `cap_rights_limit`
+  fail-closed in release mode landed in M3o; FreeBSD supervised CapEnter push
+  first cut landed in M3p; product ambient FS-read deny fail-closed in release
+  mode landed in M3q).
+- Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
+  (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
 
 ### Role stub
 
-`cmd/integris-role-stub` is an engineering helper that speaks one authenticated
-IPC request/response on fd 3 and exits. It is not a product daemon and must not
+`cmd/integris-role-stub` is an engineering helper that claims the MAC key
+(ExtraFiles fd4 or SCM on the M2l key channel), speaks one authenticated IPC
+request/response on fd 3, and exits. It is not a product daemon and must not
 appear in release acceptance evidence as a runtime component.
 
 ### Crash stub

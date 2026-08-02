@@ -20,15 +20,62 @@ Linux, and
 .Ox .
 .Pp
 .Sy Status :
-a release
-.Nm
-binary is not shipped in the current engineering baseline.
-This page reserves the operator-facing name and documents the target process
-model so packages and service managers can install the manual page ahead of the
-daemon.
-Until a release artifact exists, invocations of
-.Nm
-must fail closed.
+an engineering preview binary exists for
+.Cm serve
+.Pq M2a Ns – Ns M3q :
+privilege-separated eight-role receive chain —
+.Nm Ns -auth ,
+.Nm Ns -parser ,
+.Nm Ns -plan ,
+.Nm Ns -index
+(readonly destination scan),
+.Nm Ns -apply
+(openat staging and publish on conferred allow-root FDs),
+.Nm Ns -journal
+(openat bootstrap and reopen on conferred allow-root FDs),
+.Nm Ns -audit
+(openat sink bootstrap on conferred allow-root FDs),
+and
+.Nm Ns -net
+over local IPC.
+Optional per-peer PSK allow-list
+.Pq Fl peer-key
+is held by
+.Nm Ns -auth
+.Pq M2i .
+Optional
+.Fl strict-launch
+selects fail-closed release-shaped launch
+.Pq M2k ,
+including FreeBSD CapEnter self-check
+.Pq M3m ,
+Capsicum rights-limit checks
+.Pq M3n Ns / Ns M3o ,
+and ambient FS-read deny
+.Pq M3q .
+Default key conferral is SCM-only on a dedicated key channel
+.Pq M2l .
+It is not the release product daemon, not PKI, and not the full nine-role
+model.
+See
+.Pa docs/daemon-m2a.md .
+.Bd -literal -offset indent
+integrisd serve -destination DIR -key HEX|-keyfile PATH \\
+  [-addr HOST:PORT] [-once] [-max-restarts N]
+integrisd serve -destination DIR -peer-key ID=PATH... \\
+  [-addr HOST:PORT] [-once] [-max-restarts N]
+.Ed
+.Pp
+.Fl peer-key
+is repeatable and mutually exclusive with
+.Fl key
+/
+.Fl keyfile .
+Without
+.Fl once ,
+the supervisor accepts multiple pushes and may restart the role set after
+an unexpected child exit
+.Pq Fl max-restarts .
 .Ss Process model
 The architecture separates authority across supervised roles
 (see

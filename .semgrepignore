@@ -9,3 +9,6 @@ internal/plan/property_test.go
 
 # Dependabot cooldown is configured; rule false-positive on nested keys.
 .github/dependabot.yml
+
+# CapGetMode is not wrapped in x/sys; the FreeBSD probe needs the out-pointer.
+internal/confine/negative_capmode_freebsd.go
