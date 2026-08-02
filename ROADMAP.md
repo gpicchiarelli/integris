@@ -1066,6 +1066,16 @@ Exit: release ambient FS-OPEN deny green; `docs/daemon-m2a.md`.
 
 Exit: NEG-FS-READ probe honesty green; `docs/daemon-m2a.md`.
 
+## M5r — NEG-FS-READ pre-apply existence (landed engineering)
+
+- OpenBSD `unveil(2)` may return `ENOENT` for non-unveiled paths; M5q’s
+  post-apply `ErrNotExist` → Unavailable broke StrictLaunch on OpenBSD;
+- `AmbientFSReadProbeExisted` before `ApplyEngineering`; `NegativeFSRead(bool)`
+  treats any post-apply open failure as DeniedExpected when the probe existed;
+- hosts-less remains Unavailable via pre-apply false; not an IC-1 claim.
+
+Exit: OpenBSD StrictLaunch green with hosts-less honesty retained; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

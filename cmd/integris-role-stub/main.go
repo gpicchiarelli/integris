@@ -78,8 +78,10 @@ func run() error {
 	defer launcher.CloseAllowRootFDs(rootFDs)
 	opts.AllowRootFDs = rootFDs
 	_ = confine.LimitAllowRootFDs(confine.RoleArchiveFSMode(role), rootFDs...)
+	// Before ApplyEngineering: unveil may report ENOENT for non-unveiled paths.
+	fsReadProbeExisted := confine.AmbientFSReadProbeExisted()
 	_ = confine.ApplyEngineeringOpts(role, opts)
-	negFindings := confine.NegativeEngineeringOpts(role, opts)
+	negFindings := confine.NegativeEngineeringOpts(role, opts, fsReadProbeExisted)
 	negFindings = append(negFindings, confine.NegativeRoleSemantic(confine.RoleProbeInput{
 		Role:      role,
 		Confer:    confine.ParseCapList(os.Getenv(launcher.EnvConfer)),

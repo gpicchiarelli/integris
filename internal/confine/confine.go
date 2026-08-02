@@ -125,10 +125,13 @@ func RequireConferredLimitFinding(f Finding) error {
 
 // RequireAmbientFSReadDenied fails closed when ambient path open is still
 // allowed after apply (M3q). DeniedExpected or Skipped succeed. Unavailable
-// (e.g. missing /etc/hosts probe target, M5q) refuses — infrastructure failure
-// must not look like confinement deny.
-func RequireAmbientFSReadDenied() error {
-	return RequireAmbientFSReadFinding(NegativeFSRead())
+// (e.g. missing /etc/hosts probe target, M5q/M5r) refuses — infrastructure
+// failure must not look like confinement deny.
+//
+// probeExisted must be AmbientFSReadProbeExisted before ApplyEngineering so
+// OpenBSD unveil ENOENT for non-unveiled paths is classified as deny (M5r).
+func RequireAmbientFSReadDenied(probeExisted bool) error {
+	return RequireAmbientFSReadFinding(NegativeFSRead(probeExisted))
 }
 
 // RequireAmbientFSReadFinding is the testable core of RequireAmbientFSReadDenied.

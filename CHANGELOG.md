@@ -286,6 +286,8 @@ is accepted.
   on `NEG-FS-OPEN` (unique probe path; `EEXIST` not counted as deny);
 - M5q NEG-FS-READ missing-probe honesty: missing `/etc/hosts` → Unavailable
   (not DeniedExpected); closes hosts-less false-pass of M3q Require;
+- M5r NEG-FS-READ pre-apply existence: `AmbientFSReadProbeExisted` before
+  Apply so OpenBSD unveil ENOENT is deny (M5q StrictLaunch fix);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

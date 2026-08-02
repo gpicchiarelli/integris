@@ -230,6 +230,9 @@ func closeAll(files ...*os.File) {
 // and ambient process exec deny via NEG-EXEC on all confined ports (M5o;
 // FreeBSD CapEnter denies exec, unlike ROLE-NET).
 func (e ChildEnv) Confine() error {
+	// Capture before ApplyEngineering: OpenBSD unveil may return ENOENT for
+	// non-unveiled paths, indistinguishable from a missing probe target (M5r).
+	fsReadProbeExisted := confine.AmbientFSReadProbeExisted()
 	allowRoots := confine.LimitAllowRootFDs(confine.RoleArchiveFSMode(e.Role), e.AllowRootFDs...)
 	r := confine.ApplyEngineeringOpts(e.Role, confine.ApplyOptions{
 		AllowRoots:   e.AllowRoots,
@@ -252,7 +255,7 @@ func (e ChildEnv) Confine() error {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
-		if err := confine.RequireAmbientFSReadDenied(); err != nil {
+		if err := confine.RequireAmbientFSReadDenied(fsReadProbeExisted); err != nil {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
