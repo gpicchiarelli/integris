@@ -58,6 +58,15 @@ func TestLimitConferredFDsCapRightsGetVerify(t *testing.T) {
 	if execSet {
 		t.Fatal("CAP_FEXECVE should be absent after conferred limit")
 	}
+	for _, right := range []uint64{unix.CAP_FCNTL, unix.CAP_IOCTL} {
+		set, err := unix.CapRightsIsSet(after, []uint64{right})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if set {
+			t.Fatalf("0x%x should be absent after conferred limit (M6b)", right)
+		}
+	}
 }
 
 func TestLimitAllowRootFDsReadonlyClearsWrite(t *testing.T) {
@@ -82,5 +91,41 @@ func TestLimitAllowRootFDsReadonlyClearsWrite(t *testing.T) {
 	}
 	if writeSet {
 		t.Fatal("CAP_WRITE should be absent on readonly allow-root")
+	}
+	for _, right := range []uint64{unix.CAP_FCNTL, unix.CAP_IOCTL} {
+		set, err := unix.CapRightsIsSet(after, []uint64{right})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if set {
+			t.Fatalf("0x%x should be absent on readonly allow-root (M6b)", right)
+		}
+	}
+}
+
+func TestLimitAllowRootFDsReadWriteClearsFcntlIoctl(t *testing.T) {
+	dir := t.TempDir()
+	f, err := os.Open(filepath.Clean(dir))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	ok := confine.LimitAllowRootFDs(confine.ArchiveFSReadWrite, f)
+	if ok.Status != confine.StatusAvailable {
+		t.Fatalf("limit: %+v", ok)
+	}
+	after, err := unix.CapRightsGet(f.Fd())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, right := range []uint64{unix.CAP_FCNTL, unix.CAP_IOCTL} {
+		set, err := unix.CapRightsIsSet(after, []uint64{right})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if set {
+			t.Fatalf("0x%x should be absent on readwrite allow-root (M6b)", right)
+		}
 	}
 }

@@ -121,7 +121,8 @@ profile defect.
   Available Require M5t, and Linux ambient capability clear M5u, and Linux
   no_new_privs verify Require M5v, and Linux seccomp TSYNC Require M5w, and
   Linux dumpable clear Require M5x, and   FreeBSD CapRightsGet verify M5y, Linux RLIMIT_CORE=0 Require M5z, and
-  Unix-wide RLIMIT_CORE Require M6a); it is
+  Unix-wide RLIMIT_CORE Require M6a, and FreeBSD CapRights FCNTL/IOCTL absent
+  M6b); it is
   not a
   product
   IC-1 release claim.
@@ -145,8 +146,8 @@ directory owned for the test/run.
     + `RLIMIT_CORE` soft=hard=0 before unveil (M6a);
   - FreeBSD: `cap_enter` after `LimitConferredFDs` + `LimitAllowRootFDs` on
     conferred archive directory FDs with `CapRightsGet` want+absent verify
-    (M5y; `NEG-FS-PATH`/`NEG-FS-WRITE` via `fstat`/`openat`) + `RLIMIT_CORE`
-    before CapEnter (M6a);
+    (M5y; `CAP_FCNTL`/`CAP_IOCTL` absent M6b; `NEG-FS-PATH`/`NEG-FS-WRITE` via
+    `fstat`/`openat`) + `RLIMIT_CORE` before CapEnter (M6a);
   - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
     path-capable roles may receive `(allow file-read*/file-write* (subpath …))`
     allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root;
@@ -236,7 +237,7 @@ directory owned for the test/run.
   landed in M5v; Linux seccomp TSYNC Require landed in M5w; Linux dumpable
   clear Require landed in M5x; FreeBSD CapRightsGet verify landed in M5y;
   Linux RLIMIT_CORE=0 Require landed in M5z; Unix-wide RLIMIT_CORE Require
-  landed in M6a).
+  landed in M6a; FreeBSD CapRights FCNTL/IOCTL absent landed in M6b).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

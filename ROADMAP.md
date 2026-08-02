@@ -1165,6 +1165,15 @@ Exit: Linux RLIMIT_CORE zero green; `docs/daemon-m2a.md`.
 
 Exit: Unix RLIMIT_CORE zero green; `docs/daemon-m2a.md`.
 
+## M6b — FreeBSD CapRights FCNTL/IOCTL absent (landed engineering)
+
+- `LimitConferredFDs` / `LimitAllowRootFDs` CapRightsGet absent sentinels
+  include `CAP_FCNTL` and `CAP_IOCTL` (closes platform-matrix ioctl residual);
+- existing M3n/M3o Requires refuse Unavailable; M3s AF_INET residual
+  unchanged; not an IC-1 claim.
+
+Exit: FreeBSD FCNTL/IOCTL CapRightsGet green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

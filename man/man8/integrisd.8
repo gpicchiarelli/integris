@@ -22,7 +22,7 @@ Linux, and
 .Sy Status :
 an engineering preview binary exists for
 .Cm serve
-.Pq M2a Ns – Ns M6a :
+.Pq M2a Ns – Ns M6b :
 privilege-separated eight-role receive chain —
 .Nm Ns -auth ,
 .Nm Ns -parser ,
@@ -105,6 +105,8 @@ and Linux RLIMIT_CORE zero and Require
 .Pq M5z ,
 and Unix-wide RLIMIT_CORE zero and Require
 .Pq M6a ,
+and FreeBSD CapRights FCNTL and IOCTL absent
+.Pq M6b ,
 and Darwin StrictLaunch Seatbelt push first cut
 .Pq M4e ,
 and Darwin StrictLaunch Seatbelt RestartOne apply
@@ -202,7 +204,9 @@ and FreeBSD CapRightsGet verify
 and Linux RLIMIT_CORE zero and Require
 .Pq M5z ,
 and Unix-wide RLIMIT_CORE zero and Require
-.Pq M6a .
+.Pq M6a ,
+and FreeBSD CapRights FCNTL and IOCTL absent
+.Pq M6b .
 Default key conferral is SCM-only on a dedicated key channel
 .Pq M2l .
 It is not the release product daemon, not PKI, and not the full nine-role
