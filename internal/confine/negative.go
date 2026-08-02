@@ -63,10 +63,27 @@ func NegativeFSOpen() Finding {
 	}
 }
 
-// NegativeFSRead attempts a path-based open of a well-known file after apply.
-// Landlock empty ruleset, locked unveil, Capsicum, and Darwin Seatbelt (no
-// ambient file-read-data) should deny it; conferred FDs remain readable.
-func NegativeFSRead() Finding {
+// AmbientFSReadProbePath is the well-known path used by NEG-FS-READ.
+const AmbientFSReadProbePath = "/etc/hosts"
+
+// AmbientFSReadProbeExisted reports whether AmbientFSReadProbePath exists.
+// Call before ApplyEngineering: after locked unveil, Landlock, CapEnter, or
+// Seatbelt, absence and deny are not always distinguishable (OpenBSD unveil(2)
+// may return ENOENT for non-unveiled paths).
+func AmbientFSReadProbeExisted() bool {
+	_, err := os.Stat(AmbientFSReadProbePath)
+	return err == nil
+}
+
+// NegativeFSRead attempts a path-based open of AmbientFSReadProbePath after
+// apply. Landlock empty ruleset, locked unveil, Capsicum, and Darwin Seatbelt
+// (no ambient file-read-data) should deny it; conferred FDs remain readable.
+//
+// probeExisted must be the result of AmbientFSReadProbeExisted before apply
+// (M5r). When false, returns Unavailable so hosts-less environments cannot
+// false-pass RequireAmbientFSReadDenied (M5q). When true, any open failure —
+// including OpenBSD unveil ENOENT — is DeniedExpected.
+func NegativeFSRead(probeExisted bool) Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	switch runtime.GOOS {
 	case "linux", "openbsd", "freebsd", "darwin":
@@ -76,21 +93,18 @@ func NegativeFSRead() Finding {
 			Status: StatusSkipped, Detail: "no engineering path-read denylist on this OS",
 		}
 	}
-	f, err := os.Open("/etc/hosts")
+	if !probeExisted {
+		return Finding{
+			ID: "NEG-FS-READ", Platform: plat, Control: "filesystem_reads",
+			Status: StatusUnavailable, Detail: "probe path missing: " + AmbientFSReadProbePath,
+		}
+	}
+	f, err := os.Open(AmbientFSReadProbePath)
 	if err == nil {
 		_ = f.Close()
 		return Finding{
 			ID: "NEG-FS-READ", Platform: plat, Control: "filesystem_reads",
-			Status: StatusUnexpectedAllow, Detail: "path open /etc/hosts succeeded after apply",
-		}
-	}
-	// Missing probe target is infrastructure failure, not confinement deny (M5q;
-	// twin of NEG-EXEC ENOENT honesty in M5o). Otherwise hosts-less environments
-	// false-pass RequireAmbientFSReadDenied.
-	if errors.Is(err, os.ErrNotExist) {
-		return Finding{
-			ID: "NEG-FS-READ", Platform: plat, Control: "filesystem_reads",
-			Status: StatusUnavailable, Detail: "probe path missing: /etc/hosts",
+			Status: StatusUnexpectedAllow, Detail: "path open " + AmbientFSReadProbePath + " succeeded after apply",
 		}
 	}
 	return Finding{
@@ -279,16 +293,18 @@ func archiveModeLabel(mode ArchiveFSMode) string {
 }
 
 // NegativeEngineering runs in-child OS denial probes after ApplyEngineering.
-func NegativeEngineering(role authority.ProcessRole) []Finding {
-	return NegativeEngineeringOpts(role, ApplyOptions{})
+// fsReadProbeExisted must be AmbientFSReadProbeExisted before apply (M5r).
+func NegativeEngineering(role authority.ProcessRole, fsReadProbeExisted bool) []Finding {
+	return NegativeEngineeringOpts(role, ApplyOptions{}, fsReadProbeExisted)
 }
 
 // NegativeEngineeringOpts includes path allow-list probes for archive roles.
-func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions) []Finding {
+// fsReadProbeExisted must be AmbientFSReadProbeExisted before apply (M5r).
+func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions, fsReadProbeExisted bool) []Finding {
 	return []Finding{
 		NegativeCapMode(), // M3k: FreeBSD cap_getmode; skipped elsewhere
 		NegativeFSOpen(),
-		NegativeFSRead(),
+		NegativeFSRead(fsReadProbeExisted),
 		NegativeFSPath(role, opts),
 		NegativeFSPathWrite(role, opts),
 		NegativeExec(),

@@ -27,6 +27,7 @@ func TestSeatbeltAllowRootAndDeniesAmbient(t *testing.T) {
 		t.Fatal(err)
 	}
 	opts := confine.ApplyOptions{AllowRoots: []string{root}}
+	fsReadExisted := confine.AmbientFSReadProbeExisted()
 	r := confine.ApplyEngineeringOpts(authority.RoleApply, opts)
 	if len(r.Findings) == 0 || r.Findings[0].Status != confine.StatusAvailable {
 		t.Fatalf("apply: %+v", r.Findings)
@@ -44,7 +45,10 @@ func TestSeatbeltAllowRootAndDeniesAmbient(t *testing.T) {
 	if err := confine.RequireAmbientFSOpenDenied(); err != nil {
 		t.Fatal(err)
 	}
-	rd := confine.NegativeFSRead()
+	if !fsReadExisted {
+		t.Fatal("NEG-FS-READ probe path missing before Seatbelt")
+	}
+	rd := confine.NegativeFSRead(fsReadExisted)
 	if rd.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-FS-READ: %+v", rd)
 	}

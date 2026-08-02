@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M5q engineering increments)
+# Privilege-separated receive (M2a–M5r engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,7 +65,7 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M5q CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  (M3m–M5r CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
   ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt/Landlock/pledge StrictLaunch
   push, RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual
   documented on FreeBSD)
@@ -150,7 +150,8 @@ ExtraPeer chain (one extra peer per child):
 - **M3q:** release-mode `Confine` fails closed unless ambient path open is
   denied (`RequireAmbientFSReadDenied` / `NEG-FS-READ`); FreeBSD AllowRoots
   stubs also assert `|NEG-FS-READ:denied_as_expected` beside openat path allow;
-  M5q maps missing `/etc/hosts` to Unavailable (not DeniedExpected)
+  M5q/M5r map missing `/etc/hosts` to Unavailable via pre-apply existence
+  (OpenBSD unveil ENOENT for non-unveiled paths is deny when the path existed)
 - **M3r:** FreeBSD StrictLaunch CapEnter RestartOne first cut — persistent
   serve under CapEnter; kill apply; net PID + listen addr survive;
   apply+journal+audit subtree respawns with M3m–M3q fail-closed confine;
@@ -313,6 +314,9 @@ ExtraPeer chain (one extra peer per child):
   on `NEG-FS-OPEN` (unique probe; `EEXIST` → Unavailable)
 - **M5q:** NEG-FS-READ missing-probe honesty — missing `/etc/hosts` →
   Unavailable (not DeniedExpected); closes hosts-less false-pass of M3q
+- **M5r:** NEG-FS-READ pre-apply existence — `AmbientFSReadProbeExisted`
+  before Apply so OpenBSD unveil ENOENT is deny (not Unavailable); fixes
+  M5q StrictLaunch regression on OpenBSD
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

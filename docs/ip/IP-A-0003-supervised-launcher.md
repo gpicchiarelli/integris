@@ -116,7 +116,7 @@ profile defect.
   parent-side AllowRoots normalize-before-spawn M5m, and Linux inotify
   VNodeWatch first cut M5n, and release ambient EXEC deny fail-closed M5o, and
   release ambient FS-OPEN deny fail-closed M5p, and NEG-FS-READ missing-probe
-  honesty M5q); it is not a
+  honesty M5q, and NEG-FS-READ pre-apply existence M5r); it is not a
   product
   IC-1 release claim.
 
@@ -219,7 +219,8 @@ directory owned for the test/run.
   AllowRoots normalize-before-spawn landed in M5m; Linux inotify VNodeWatch
   first cut landed in M5n; release ambient EXEC deny fail-closed landed in
   M5o; release ambient FS-OPEN deny fail-closed landed in M5p; NEG-FS-READ
-  missing-probe honesty landed in M5q).
+  missing-probe honesty landed in M5q; NEG-FS-READ pre-apply existence landed
+  in M5r).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

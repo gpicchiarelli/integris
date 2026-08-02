@@ -40,3 +40,13 @@ func TestRequireAmbientFSReadFinding(t *testing.T) {
 		t.Fatal("expected unavailable refusal")
 	}
 }
+
+func TestNegativeFSReadMissingProbe(t *testing.T) {
+	f := confine.NegativeFSRead(false)
+	if f.Status != confine.StatusUnavailable {
+		t.Fatalf("want unavailable, got %+v", f)
+	}
+	if err := confine.RequireAmbientFSReadDenied(false); err == nil {
+		t.Fatal("expected unavailable refusal")
+	}
+}
