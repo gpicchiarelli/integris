@@ -867,8 +867,8 @@ Exit: supervised Linux Landlock StrictLaunch peer parser-down RestartOne green;
 - Role-parameterized `pledge` (broad M4y first-cut set + omit exec/inet where
   applicable; no `tmppath` — removed from OpenBSD pledgenames) after locked
   `unveil` (AllowRoots + /dev only; not /etc or /tmp so ambient FS-read deny
-  holds); prior `stdio unix` alone aborted supervised children; promise
-  tightening remains a follow-on residual;
+  holds); prior `stdio unix` alone aborted supervised children; role-FS
+  promise tightening landed in M5i;
 - `DISC-PLEDGE` / `DISC-UNVEIL` discovery reflect ApplyEngineering; FreeBSD
   CapEnter, Darwin Seatbelt, and Linux Landlock push first cuts remain
   M3p/M4e/M4o; not an IC-1 claim.
@@ -976,6 +976,17 @@ Exit: supervised OpenBSD pledge StrictLaunch peer apply RestartOne green;
 
 Exit: supervised OpenBSD pledge StrictLaunch peer parser-down RestartOne green;
 `docs/daemon-m2a.md`.
+
+## M5i — OpenBSD pledge promise tightening (landed engineering)
+
+- Role-parameterized `pledge` FS categories: `wpath`/`cpath`/`fattr`/`flock`
+  only for ArchiveFSReadWrite roles; base always keeps `stdio rpath unix
+  sendfd recvfd proc` for Go runtime + AF_UNIX IPC; `inet` only when
+  CapNetwork (closes M4y broad-promise residual);
+- OpenBSD unit test asserts promise sets per role; StrictLaunch campaign
+  M4y–M5h remains green under tightened pledges; not an IC-1 claim.
+
+Exit: OpenBSD role-FS pledge tightening green; `docs/daemon-m2a.md`.
 
 ## M1 — Executable reference kernels (in progress)
 

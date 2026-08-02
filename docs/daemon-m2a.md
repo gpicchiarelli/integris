@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M5h engineering increments)
+# Privilege-separated receive (M2a–M5i engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,7 +65,7 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M5h CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  (M3m–M5i CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
   ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt/Landlock/pledge StrictLaunch
   push, RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual
   documented on FreeBSD)
@@ -260,8 +260,8 @@ ExtraPeer chain (one extra peer per child):
   (M4a/M4n Linux parity); completes Linux Landlock campaign M4o–M4x
 - **M4y:** OpenBSD StrictLaunch pledge+unveil push first cut — OpenBSD CI VM;
   StrictLaunch Once under unveil-then-pledge completes push with
-  journal/audit/plan; broad first-cut promises (no `tmppath`);
-  DISC-PLEDGE/DISC-UNVEIL Available (M3p/M4e/M4o OpenBSD parity)
+  journal/audit/plan; initial broad promises (no `tmppath`); role-FS
+  tightening in M5i; DISC-PLEDGE/DISC-UNVEIL Available (M3p/M4e/M4o OpenBSD parity)
 - **M4z:** OpenBSD StrictLaunch pledge+unveil RestartOne apply — kill apply
   after first push; net+auth+index + listen survive; apply+journal+audit
   respawn; second push succeeds (M3r/M4f/M4p OpenBSD parity)
@@ -293,6 +293,9 @@ ExtraPeer chain (one extra peer per child):
   peer keyring; kill parser after first peer push; net+auth + listen survive;
   parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit`
   (M4a/M4n/M4x OpenBSD parity); completes OpenBSD campaign M4y–M5h
+- **M5i:** OpenBSD pledge promise tightening — `wpath`/`cpath`/`fattr`/
+  `flock` only for ArchiveFSReadWrite; base keeps Go/`unix`/`rpath`; closes
+  M4y broad-promise residual
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

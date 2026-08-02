@@ -88,16 +88,16 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 }
 
 // openbsdPromises is the role-parameterized pledge(2) set for engineering
-// children. M4y first cut keeps a broad promise set so the Go runtime and
-// supervised receive path survive; locked unveil remains the primary ambient
-// FS boundary. Non-net roles omit inet; exec is omitted (NEG-EXEC is
-// promise-omission on OpenBSD). Do not include "tmppath" (removed from
-// pledgenames → EINVAL) or "dns" (BYPASSUNVEIL for /etc/hosts under OpenBSD
-// 7.8, which breaks RequireAmbientFSReadDenied). Tightening is a follow-on.
+// children (M5i). Base always includes Go-runtime survival + AF_UNIX IPC;
+// locked unveil remains the primary ambient FS boundary. FS write categories
+// follow RoleArchiveFSMode. Non-net roles omit inet; exec is omitted (NEG-EXEC
+// is promise-omission). Do not include "tmppath" (removed from pledgenames →
+// EINVAL) or "dns" (BYPASSUNVEIL for /etc/hosts under OpenBSD 7.8).
 func openbsdPromises(role authority.ProcessRole) string {
-	parts := []string{
-		"stdio", "rpath", "wpath", "cpath",
-		"unix", "sendfd", "recvfd", "proc", "fattr", "flock",
+	parts := []string{"stdio", "rpath", "unix", "sendfd", "recvfd", "proc"}
+	switch RoleArchiveFSMode(role) {
+	case ArchiveFSReadWrite:
+		parts = append(parts, "wpath", "cpath", "fattr", "flock")
 	}
 	if RoleMayHoldNetwork(role) {
 		parts = append(parts, "inet")
