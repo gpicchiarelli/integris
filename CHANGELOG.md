@@ -160,6 +160,9 @@ is accepted.
 - M4b FreeBSD StrictLaunch CapEnter M2j peer deny/admit: unknown peer and
   wrong-key rejected without destination mutation; valid peer push admits with
   `auth.peer.deny` + `auth.peer.admit`;
+- M4c Darwin/OpenBSD anon key FD residual documented: `CreateKeyFD` stays
+  anon-unlinked O_RDONLY; `DISC-KEY-FD` Unavailable; sealed path remains
+  Linux/FreeBSD only;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
