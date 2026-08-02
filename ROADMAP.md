@@ -756,6 +756,19 @@ Exit: supervised Linux Landlock StrictLaunch push first cut green;
 Exit: supervised Linux Landlock StrictLaunch RestartOne apply green;
 `docs/daemon-m2a.md`.
 
+## M4q — Linux StrictLaunch Landlock+seccomp RestartOne parser-down (landed engineering)
+
+- Linux `TestM4qStrictLaunchLandlockRestartOneParserDown`: StrictLaunch
+  persistent serve under Landlock+seccomp; kill parser after first push;
+  net+auth + listen survive; parser→plan→index→apply→journal→audit respawn
+  under M3q/M4d fail-closed confine; second push succeeds (M3u/M4g Linux
+  parity);
+- FreeBSD CapEnter and Darwin Seatbelt parser-down RestartOne remain M3u/M4g;
+  not an IC-1 claim.
+
+Exit: supervised Linux Landlock StrictLaunch RestartOne parser-down green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
