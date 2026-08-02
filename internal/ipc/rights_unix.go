@@ -4,8 +4,10 @@ package ipc
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"os"
+	"time"
 
 	"golang.org/x/sys/unix"
 )
@@ -27,6 +29,10 @@ var PrimaryPeerFDMagic = []byte{'I', 'P', 'R', 'I'}
 // StubReadyMagic is written by hold-mode stubs on the key channel after the
 // first IPC exchange so the parent can synchronize before RestartOne.
 var StubReadyMagic = []byte{'R', 'D', 'Y', '1'}
+
+// RebindAckMagic is written by a survivor child after installing a rebound
+// peer FD so the supervisor can publish ready only after the slot is live.
+var RebindAckMagic = []byte{'R', 'B', 'A', 'K'}
 
 // RebindKind discriminates ExtraPeer vs primary peer FD messages on a key channel.
 type RebindKind int
@@ -73,6 +79,40 @@ func RecvPeerFDFile(sock *os.File) (*os.File, error) {
 // SendPrimaryPeerFDFile confers a replacement primary peer IPC socket (M2w).
 func SendPrimaryPeerFDFile(sock, file *os.File) error {
 	return sendFDFileMagic(sock, file, PrimaryPeerFDMagic)
+}
+
+// WriteRebindAck signals that a rebound peer FD has been installed.
+func WriteRebindAck(sock *os.File) error {
+	if sock == nil {
+		return fail("rights", "nil sock", true)
+	}
+	n, err := sock.Write(RebindAckMagic)
+	if err != nil {
+		return fail("rights", err.Error(), true)
+	}
+	if n != len(RebindAckMagic) {
+		return fail("rights", "short rebind ack write", true)
+	}
+	return nil
+}
+
+// WaitRebindAck blocks until the survivor writes RebindAckMagic (or timeout).
+func WaitRebindAck(sock *os.File, d time.Duration) error {
+	if sock == nil {
+		return fail("rights", "nil sock", true)
+	}
+	if d > 0 {
+		_ = sock.SetReadDeadline(time.Now().Add(d))
+		defer func() { _ = sock.SetReadDeadline(time.Time{}) }()
+	}
+	buf := make([]byte, len(RebindAckMagic))
+	if _, err := io.ReadFull(sock, buf); err != nil {
+		return fail("rights", "rebind ack: "+err.Error(), true)
+	}
+	if string(buf) != string(RebindAckMagic) {
+		return fail("rights", "bad rebind ack magic", true)
+	}
+	return nil
 }
 
 // RecvRebindFDFile receives ExtraPeer or primary peer FD (PeerFDMagic /

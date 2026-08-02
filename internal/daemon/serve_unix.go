@@ -753,6 +753,9 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 		return false
 	}
 	_ = peerSock.Close()
+	if err := ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second); err != nil {
+		return false
+	}
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -774,6 +777,9 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 			return false
 		}
 		_ = auditSock.Close()
+		if err := ipc.WaitRebindAck(auditH.KeyChannel, 5*time.Second); err != nil {
+			return false
+		}
 		if auditPID != 0 && auditH.Cmd != nil && auditH.Cmd.Process != nil &&
 			auditH.Cmd.Process.Pid != auditPID {
 			return false
@@ -855,6 +861,9 @@ func (s *Server) restartParserDownM2d(ctx context.Context, exitCh <-chan authori
 		return false
 	}
 	_ = peerSock.Close()
+	if err := ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second); err != nil {
+		return false
+	}
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -958,6 +967,9 @@ func (s *Server) restartParserDownM2g(ctx context.Context, exitCh <-chan authori
 		return false
 	}
 	_ = peerSock.Close()
+	if err := ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second); err != nil {
+		return false
+	}
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -1073,6 +1085,9 @@ func (s *Server) restartParserDownM2h(ctx context.Context, exitCh <-chan authori
 		return false
 	}
 	_ = peerSock.Close()
+	if err := ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second); err != nil {
+		return false
+	}
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -1176,6 +1191,9 @@ func (s *Server) restartApplySubtree(ctx context.Context, exitCh <-chan authorit
 		return false
 	}
 	_ = peerSock.Close()
+	if err := ipc.WaitRebindAck(bridgeH.KeyChannel, 5*time.Second); err != nil {
+		return false
+	}
 	if bridgePID != 0 && bridgeH.Cmd != nil && bridgeH.Cmd.Process != nil &&
 		bridgeH.Cmd.Process.Pid != bridgePID {
 		return false
@@ -1222,6 +1240,9 @@ func (s *Server) sendAuthAuditPeerFD(rt *supervisor.Runtime) bool {
 		return false
 	}
 	_ = peerSock.Close()
+	if err := ipc.WaitRebindAck(authH.KeyChannel, 5*time.Second); err != nil {
+		return false
+	}
 	return true
 }
 

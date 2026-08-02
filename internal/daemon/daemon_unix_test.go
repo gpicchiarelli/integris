@@ -7,6 +7,7 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"sync"
@@ -2039,6 +2040,16 @@ func pushAfterRestart(t *testing.T, opts remotesync.PushOptions) remotesync.Push
 	t.Helper()
 	var last error
 	var res remotesync.PushResult
+	if opts.Dial == nil {
+		opts.Dial = func(network, address string) (net.Conn, error) {
+			conn, err := net.DialTimeout(network, address, 2*time.Second)
+			if err != nil {
+				return nil, err
+			}
+			_ = conn.SetDeadline(time.Now().Add(5 * time.Second))
+			return conn, nil
+		}
+	}
 	for i := 0; i < 50; i++ {
 		res, last = remotesync.Push(opts)
 		if last == nil {

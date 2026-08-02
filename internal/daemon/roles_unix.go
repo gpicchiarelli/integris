@@ -216,6 +216,9 @@ func rebindPeerLoop(env ChildEnv, slot *ipcPeerSlot) {
 			return
 		}
 		slot.install(newSock, &ch)
+		if err := ipc.WriteRebindAck(env.KeyChannel); err != nil {
+			return
+		}
 	}
 }
 
@@ -249,6 +252,9 @@ func rebindNetDualLoop(env ChildEnv, authSlot, dataSlot *ipcPeerSlot) {
 			return
 		}
 		slot.install(newSock, &ch)
+		if err := ipc.WriteRebindAck(env.KeyChannel); err != nil {
+			return
+		}
 	}
 }
 
