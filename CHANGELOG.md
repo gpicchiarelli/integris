@@ -262,6 +262,10 @@ is accepted.
   kill apply after first peer push; net+auth+index + listen survive;
   apply+journal+audit respawn; ≥2 `auth.peer.admit` (M3z/M4m/M4w OpenBSD
   parity);
+- M5h OpenBSD StrictLaunch pledge+unveil peer parser-down RestartOne: peer
+  keyring; kill parser after first peer push; net+auth + listen survive;
+  parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit`
+  (M4a/M4n/M4x OpenBSD parity); completes OpenBSD campaign M4y–M5h;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
