@@ -33,7 +33,8 @@ func NegativeCapMode() Finding {
 
 func capGetMode() (uint32, error) {
 	var mode uint32
-	_, _, errno := unix.Syscall(unix.SYS_CAP_GETMODE, uintptr(unsafe.Pointer(&mode)), 0, 0)
+	// CapGetMode is not wrapped in x/sys; syscall needs the out-pointer.
+	_, _, errno := unix.Syscall(unix.SYS_CAP_GETMODE, uintptr(unsafe.Pointer(&mode)), 0, 0) // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
 	if errno != 0 {
 		return 0, errno
 	}

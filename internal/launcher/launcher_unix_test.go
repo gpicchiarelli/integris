@@ -145,10 +145,10 @@ func TestLaunchStubIPC(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:ping|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:ping|")) {
 		t.Fatalf("%q", resp.Payload)
 	}
-	for _, tok := range []string{"|NEG-EXEC:", "|NEG-PTRACE:"} {
+	for _, tok := range []string{"|NEG-CAP-MODE:", "|NEG-FS:", "|NEG-EXEC:", "|NEG-PTRACE:"} {
 		if !bytes.Contains(resp.Payload, []byte(tok)) {
 			t.Fatalf("missing %s in %q", tok, resp.Payload)
 		}
@@ -278,8 +278,11 @@ func TestLaunchStubIPCViaExtraFiles(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.HasPrefix(resp.Payload, []byte("ack:extra|NEG-FS:")) {
+	if !bytes.HasPrefix(resp.Payload, []byte("ack:extra|")) {
 		t.Fatalf("%q", resp.Payload)
+	}
+	if !bytes.Contains(resp.Payload, []byte("|NEG-CAP-MODE:")) || !bytes.Contains(resp.Payload, []byte("|NEG-FS:")) {
+		t.Fatalf("missing NEG-CAP-MODE/NEG-FS in %q", resp.Payload)
 	}
 	if !bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportAnonFile)) &&
 		!bytes.Contains(resp.Payload, []byte("|KEY:"+launcher.KeyTransportMemfd)) {

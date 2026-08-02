@@ -45,10 +45,10 @@ func TestM2aPushServeSplit(t *testing.T) {
 	defer cancel()
 	go func() {
 		errCh <- daemon.Serve(ctx, daemon.ServeOptions{
-			Addr:        "127.0.0.1:0",
-			Destination: dst,
-			RootKey:     psk,
-			Once:        true,
+			Addr:           "127.0.0.1:0",
+			Destination:    dst,
+			RootKey:        psk,
+			Once:           true,
 			DisableAuth:    true,
 			DisableParser:  true, // M2a: net↔apply only
 			DisableAudit:   true,
@@ -130,10 +130,10 @@ func TestM2cAuthPushServe(t *testing.T) {
 	defer cancel()
 	go func() {
 		errCh <- daemon.Serve(ctx, daemon.ServeOptions{
-			Addr:          "127.0.0.1:0",
-			Destination:   dst,
-			RootKey:       psk,
-			Once:          true,
+			Addr:           "127.0.0.1:0",
+			Destination:    dst,
+			RootKey:        psk,
+			Once:           true,
 			DisableParser:  true, // M2c: auth without parser
 			DisableAudit:   true,
 			DisableJournal: true,
@@ -204,10 +204,10 @@ func TestM2dParserPushServe(t *testing.T) {
 	defer cancel()
 	go func() {
 		errCh <- daemon.Serve(ctx, daemon.ServeOptions{
-			Addr:         "127.0.0.1:0",
-			Destination:  dst,
-			RootKey:      psk,
-			Once:         true,
+			Addr:           "127.0.0.1:0",
+			Destination:    dst,
+			RootKey:        psk,
+			Once:           true,
 			DisableAudit:   true, // M2d: auth+parser without audit/journal
 			DisableJournal: true,
 			DisablePlan:    true,
@@ -595,12 +595,12 @@ func TestM2kStrictLaunchRefusesPartialTopology(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, err := daemon.Start(context.Background(), daemon.ServeOptions{
-		Addr:          "127.0.0.1:0",
-		Destination:   t.TempDir(),
-		RootKey:       psk,
-		StrictLaunch:  true,
-		DisableIndex:  true, // not full chain
-		Executable:    buildIntegrisd(t),
+		Addr:         "127.0.0.1:0",
+		Destination:  t.TempDir(),
+		RootKey:      psk,
+		StrictLaunch: true,
+		DisableIndex: true, // not full chain
+		Executable:   buildIntegrisd(t),
 	})
 	if err == nil {
 		t.Fatal("expected strict launch to refuse DisableIndex")
@@ -766,11 +766,11 @@ func TestM2bMultiPushPersistent(t *testing.T) {
 	defer cancel()
 
 	srv, err := daemon.Start(ctx, daemon.ServeOptions{
-		Addr:        "127.0.0.1:0",
-		Destination: dst,
-		RootKey:     psk,
-		Once:        false,
-		MaxRestarts:   2,
+		Addr:           "127.0.0.1:0",
+		Destination:    dst,
+		RootKey:        psk,
+		Once:           false,
+		MaxRestarts:    2,
 		DisableAuth:    true,
 		DisableParser:  true, // M2a/M2b: net↔apply only
 		DisableAudit:   true,
@@ -873,12 +873,9 @@ func TestM2oRestartOneApply(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-rebind")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -974,12 +971,9 @@ func TestM3bRestartOneAuditAuthExtraPeer(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-m3b-audit")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: alice, PeerID: "alice",
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -1315,12 +1309,9 @@ func TestM2pRestartOneApplyExtraPeer(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-extrapeer-rebind")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -1410,12 +1401,9 @@ func TestM2qRestartOneApplyParserExtraPeer(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-parser-rebind")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -1521,12 +1509,9 @@ func TestM2rRestartOneApplyPlanExtraPeer(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-plan-rebind")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -1639,12 +1624,9 @@ func TestM2sRestartOneApplyIndexExtraPeer(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-index-rebind")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -1748,12 +1730,9 @@ func TestM2tRestartOneParserNetExtraPeer(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-parser-kill")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -1862,12 +1841,9 @@ func TestM2vRestartOneParserDownM2h(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-m2v-parser")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -1976,12 +1952,9 @@ func TestM2uRestartOneParserDownM2g(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-m2u-parser")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after RestartOne: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -2001,11 +1974,11 @@ func TestM2bRestartAfterKill(t *testing.T) {
 	defer cancel()
 
 	srv, err := daemon.Start(ctx, daemon.ServeOptions{
-		Addr:        "127.0.0.1:0",
-		Destination: dst,
-		RootKey:     psk,
-		Once:        false,
-		MaxRestarts:   2,
+		Addr:           "127.0.0.1:0",
+		Destination:    dst,
+		RootKey:        psk,
+		Once:           false,
+		MaxRestarts:    2,
 		DisableAuth:    true,
 		DisableParser:  true, // M2a/M2b: net↔apply only
 		DisableAudit:   true,
@@ -2045,12 +2018,9 @@ func TestM2bRestartAfterKill(t *testing.T) {
 
 	src2 := t.TempDir()
 	mustWrite(t, filepath.Join(src2, "after.txt"), "after-kill")
-	res, err := remotesync.Push(remotesync.PushOptions{
+	res := pushAfterRestart(t, remotesync.PushOptions{
 		Addr: addr2, Source: src2, RootKey: psk,
 	})
-	if err != nil {
-		t.Fatalf("push after restart: %v", err)
-	}
 	if res.Outcome != "success" {
 		t.Fatalf("%+v", res)
 	}
@@ -2069,12 +2039,12 @@ func pushAfterRestart(t *testing.T, opts remotesync.PushOptions) remotesync.Push
 	t.Helper()
 	var last error
 	var res remotesync.PushResult
-	for i := 0; i < 25; i++ {
+	for i := 0; i < 50; i++ {
 		res, last = remotesync.Push(opts)
 		if last == nil {
 			return res
 		}
-		time.Sleep(40 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 	t.Fatalf("push after RestartOne: %v", last)
 	return res

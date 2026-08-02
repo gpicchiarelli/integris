@@ -230,4 +230,3 @@ func ServeJournalIPC(journalPath string, destDir *os.File, applyRW io.ReadWriter
 		}
 	}
 }
-

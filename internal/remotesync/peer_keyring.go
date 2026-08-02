@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	maxPeerIDLen   = 64
-	maxPeerKeyring = 32
+	maxPeerIDLen      = 64
+	maxPeerKeyring    = 32
 	peerPrologueMagic = "INTPID01"
 	peerKeyringMagic  = "INTPEER1"
 )
