@@ -32,4 +32,11 @@ func TestRequireAmbientFSReadFinding(t *testing.T) {
 	if err := confine.RequireAmbientFSReadFinding(wrong); err == nil {
 		t.Fatal("expected wrong-id refusal")
 	}
+
+	unavailable := confine.Finding{
+		ID: "NEG-FS-READ", Status: confine.StatusUnavailable, Detail: "probe path missing: /etc/hosts",
+	}
+	if err := confine.RequireAmbientFSReadFinding(unavailable); err == nil {
+		t.Fatal("expected unavailable refusal")
+	}
 }

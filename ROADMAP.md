@@ -1057,6 +1057,15 @@ Exit: release ambient EXEC deny green; `docs/daemon-m2a.md`.
 
 Exit: release ambient FS-OPEN deny green; `docs/daemon-m2a.md`.
 
+## M5q — NEG-FS-READ missing-probe honesty (landed engineering)
+
+- `NegativeFSRead` maps missing `/etc/hosts` (`os.ErrNotExist`) to
+  `StatusUnavailable` instead of `DeniedExpected` (M5o ENOENT twin);
+- `RequireAmbientFSReadDenied` already refuses Unavailable — hosts-less
+  environments no longer false-pass ambient read deny; not an IC-1 claim.
+
+Exit: NEG-FS-READ probe honesty green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

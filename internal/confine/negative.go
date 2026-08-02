@@ -84,6 +84,15 @@ func NegativeFSRead() Finding {
 			Status: StatusUnexpectedAllow, Detail: "path open /etc/hosts succeeded after apply",
 		}
 	}
+	// Missing probe target is infrastructure failure, not confinement deny (M5q;
+	// twin of NEG-EXEC ENOENT honesty in M5o). Otherwise hosts-less environments
+	// false-pass RequireAmbientFSReadDenied.
+	if errors.Is(err, os.ErrNotExist) {
+		return Finding{
+			ID: "NEG-FS-READ", Platform: plat, Control: "filesystem_reads",
+			Status: StatusUnavailable, Detail: "probe path missing: /etc/hosts",
+		}
+	}
 	return Finding{
 		ID: "NEG-FS-READ", Platform: plat, Control: "filesystem_reads",
 		Status: StatusDeniedExpected, Detail: err.Error(),
