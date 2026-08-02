@@ -7,10 +7,11 @@ import "runtime"
 func discoverPlatform() []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	return []Finding{
-		{ID: "DISC-NO-NEW-PRIVS", Platform: plat, Control: "no_new_privs", Status: StatusUnknown, Detail: "applied in child via confine.ApplyEngineering"},
+		{ID: "DISC-NO-NEW-PRIVS", Platform: plat, Control: "no_new_privs", Status: StatusAvailable, Detail: "ApplyEngineering sets PR_NO_NEW_PRIVS and verifies via PR_GET (M5v)"},
 		{ID: "DISC-LANDLOCK", Platform: plat, Control: "landlock", Status: StatusUnknown, Detail: "ABI probed via confine.ProbeEngineering; applied in child"},
 		{ID: "DISC-SECCOMP", Platform: plat, Control: "seccomp_bpf", Status: StatusUnknown, Detail: "exec/ptrace (+network for non-net roles) EPERM denylist applied in child via ApplyEngineering"},
-		{ID: "DISC-CAP-EMPTY", Platform: plat, Control: "empty_capability_set", Status: StatusAvailable, Detail: "ApplyEngineering clears ambient via PR_CAP_AMBIENT_CLEAR_ALL (M5u); permitted/effective/bounding + dedicated account residual"},
+		{ID: "DISC-CAP-AMBIENT", Platform: plat, Control: "ambient_capability_clear", Status: StatusAvailable, Detail: "ApplyEngineering clears ambient via PR_CAP_AMBIENT_CLEAR_ALL (M5u)"},
+		{ID: "DISC-CAP-EMPTY", Platform: plat, Control: "empty_capability_set", Status: StatusUnavailable, Detail: "full empty permitted/effective/bounding needs CAP_SETPCAP or dedicated account; ambient clear only (M5u residual)"},
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available in-process via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusAvailable, Detail: "launcher.CreateKeyFD uses sealed memfd (F_SEAL_WRITE|SHRINK|GROW|SEAL)"},
 		{ID: "DISC-SENDFILE", Platform: plat, Control: "sendfile", Status: StatusAvailable, Detail: "platform.SendFile uses sendfile(2) to a connected socket (socketpair harness; INT-IC4-0001)"},

@@ -51,10 +51,20 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 			ID: "APPLY-NO-NEW-PRIVS", Platform: plat, Control: "no_new_privs",
 			Status: StatusUnavailable, Detail: err.Error(),
 		})
+	} else if set, err := noNewPrivsSet(); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-NO-NEW-PRIVS", Platform: plat, Control: "no_new_privs",
+			Status: StatusUnavailable, Detail: "verify: " + err.Error(),
+		})
+	} else if !set {
+		out = append(out, Finding{
+			ID: "APPLY-NO-NEW-PRIVS", Platform: plat, Control: "no_new_privs",
+			Status: StatusUnavailable, Detail: "PR_SET_NO_NEW_PRIVS left bit unset",
+		})
 	} else {
 		out = append(out, Finding{
 			ID: "APPLY-NO-NEW-PRIVS", Platform: plat, Control: "no_new_privs",
-			Status: StatusAvailable, Detail: "PR_SET_NO_NEW_PRIVS set",
+			Status: StatusAvailable, Detail: "PR_SET_NO_NEW_PRIVS; PR_GET verified",
 		})
 	}
 

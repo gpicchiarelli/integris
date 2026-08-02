@@ -118,7 +118,8 @@ profile defect.
   release ambient FS-OPEN deny fail-closed M5p, and NEG-FS-READ missing-probe
   honesty M5q, and NEG-FS-READ pre-apply existence M5r, and NEG-FS-WRITE
   unique probe + readonly Require M5s, and archive allow-root path/write
-  Available Require M5t, and Linux ambient capability clear M5u); it is not a
+  Available Require M5t, and Linux ambient capability clear M5u, and Linux
+  no_new_privs verify Require M5v); it is not a
   product
   IC-1 release claim.
 
@@ -224,7 +225,8 @@ directory owned for the test/run.
   missing-probe honesty landed in M5q; NEG-FS-READ pre-apply existence landed
   in M5r; NEG-FS-WRITE unique probe + readonly Require landed in M5s;
   archive allow-root path/write Available Require landed in M5t; Linux
-  ambient capability clear landed in M5u).
+  ambient capability clear landed in M5u; Linux no_new_privs verify Require
+  landed in M5v).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
