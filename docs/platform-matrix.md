@@ -61,7 +61,8 @@ RestartOne apply first cut landed in M4f; Darwin StrictLaunch Seatbelt
 parser-down RestartOne landed in M4g; Darwin StrictLaunch Seatbelt
 auth-primary RestartOne landed in M4h; Darwin StrictLaunch Seatbelt auth
 ExtraPeer RestartOne landed in M4i; Darwin StrictLaunch Seatbelt audit
-ExtraPeer RestartOne landed in M4j. Provisional
+ExtraPeer RestartOne landed in M4j; Darwin StrictLaunch Seatbelt peer-key
+Once push landed in M4k. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.
 
