@@ -57,7 +57,8 @@ deny/admit by M4b. FreeBSD sealed MAC key FD
 (`shm_open2`+`F_ADD_SEALS`) landed in M3t; Darwin/OpenBSD anon-unlinked key FD
 residual documented in M4c (`DISC-KEY-FD` Unavailable). Darwin StrictLaunch
 Seatbelt push first cut landed in M4e; Darwin StrictLaunch Seatbelt
-RestartOne apply first cut landed in M4f. Provisional
+RestartOne apply first cut landed in M4f; Darwin StrictLaunch Seatbelt
+parser-down RestartOne landed in M4g. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.
 

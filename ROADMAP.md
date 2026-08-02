@@ -646,6 +646,17 @@ Exit: supervised Darwin Seatbelt StrictLaunch push first cut green;
 Exit: supervised Darwin Seatbelt RestartOne first cut green;
 `docs/daemon-m2a.md`.
 
+## M4g — Darwin StrictLaunch Seatbelt parser-down RestartOne (landed engineering)
+
+- Darwin `TestM4gStrictLaunchSeatbeltRestartOneParserDown`: StrictLaunch
+  persistent serve under Seatbelt; kill parser after first push; net+auth +
+  listen survive; parser→plan→index→apply→journal→audit respawn with M3q/M4d
+  fail-closed confine; second push succeeds (M3u Darwin parity);
+- not an IC-1 claim.
+
+Exit: supervised Darwin Seatbelt parser-down RestartOne green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
