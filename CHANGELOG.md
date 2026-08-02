@@ -374,7 +374,8 @@ is accepted.
 - Darwin abrupt-detach power-fail harness for EVD-RECOVERY (`SyncFile` survive across `hdiutil` force-detach);
 - `platform.SendFile` (`sendfile(2)` to connected socket; socketpair harness; OpenBSD unavailable);
 - FreeBSD Capsicum conferred allow-root directory FDs (`INTEGRIS_ALLOW_ROOT_FDS` + `LimitAllowRootFDs` + `NEG-FS-PATH`/`WRITE` via openat);
-- `platform.VNodeWatch` kqueue `EVFILT_VNODE` harness (`NOTE_WRITE`/`NOTE_DELETE`; Linux unavailable);
+- `platform.VNodeWatch` kqueue `EVFILT_VNODE` harness (`NOTE_WRITE`/`NOTE_DELETE`);
+  Linux inotify adapter landed in M5n;
 - `resource.WithSoftAS` address/data-space saturation harness for EVD-RESOURCE (`RLIMIT_AS`/`DATA` → ENOMEM; Darwin unenforceable);
 - Linux `platform.ACLRoundTrip`/`CopyACL` via `system.posix_acl_access` xattr (CapACL; CGO-free);
 - Wire `TypeNegotiateOffer` body encodes versions + crypto-suite IDs (`EncodeNegotiateOffer`);
