@@ -13,10 +13,11 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// FreeBSD sys/jail.h flags for jail_set(2).
+// FreeBSD sys/jail.h constants for jail_set(2).
 const (
-	jailCreate = 0x01
-	jailAttach = 0x04
+	jailCreate     = 0x01
+	jailAttach     = 0x04
+	jailSysDisable = 0 // JAIL_SYS_DISABLE — ip4/ip6 enum value
 )
 
 func probeEngineering() []Finding {
@@ -32,7 +33,7 @@ func probeEngineering() []Finding {
 		},
 		{
 			ID: "PROBE-JAIL-NOIP", Platform: plat, Control: "jail_set_ip_disable",
-			Status: StatusAvailable, Detail: "jail_set(2) ip4/ip6=disable for !network roles",
+			Status: StatusAvailable, Detail: "jail_set CREATE|ATTACH path=/ ip4/ip6=JAIL_SYS_DISABLE for !network roles",
 		},
 	}
 }
@@ -93,8 +94,9 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 
 // attachNoIPJail creates a non-persistent jail with IPv4/IPv6 disabled and
 // attaches the current process (M3s). CapEnter alone does not deny AF_INET
-// socket(); jail ip4/ip6=disable does. Caller must only invoke for roles that
-// must not hold CapNetworkSockets (RequireApplyAvailable refuses Skipped).
+// socket(); jail ip4/ip6=JAIL_SYS_DISABLE does. Caller must only invoke for
+// roles that must not hold CapNetworkSockets (RequireApplyAvailable refuses
+// Skipped).
 func attachNoIPJail() Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	name := fmt.Sprintf("integris-%d", os.Getpid())
@@ -108,41 +110,51 @@ func attachNoIPJail() Finding {
 	return Finding{
 		ID: "APPLY-JAIL", Platform: plat, Control: "jail_set_ip_disable",
 		Status: StatusAvailable,
-		Detail: "jid=" + strconv.Itoa(jid) + " ip4=disable ip6=disable nopersist",
+		Detail: "jid=" + strconv.Itoa(jid) + " ip4=disable ip6=disable",
 	}
 }
 
+// jailSetAttachNoIP calls jail_set(JAIL_CREATE|JAIL_ATTACH) with path=/, a
+// unique name, and ip4/ip6 set to JAIL_SYS_DISABLE (int, not the jail(8)
+// string form — raw jail_set expects sizeof(int) enum values).
 func jailSetAttachNoIP(name string) (int, error) {
-	// name/value pairs; booleans use a zero-length value (jail_set(2)).
-	params := [][2]string{
-		{"path", "/"},
-		{"name", name},
-		{"host.hostname", name},
-		{"ip4", "disable"},
-		{"ip6", "disable"},
-		{"nopersist", ""},
+	pathKey := append([]byte("path"), 0)
+	pathVal := append([]byte("/"), 0)
+	nameKey := append([]byte("name"), 0)
+	nameVal := append([]byte(name), 0)
+	ip4Key := append([]byte("ip4"), 0)
+	ip6Key := append([]byte("ip6"), 0)
+	ip4Val := int32(jailSysDisable)
+	ip6Val := int32(jailSysDisable)
+
+	iov := make([]unix.Iovec, 8)
+	keep := []any{pathKey, pathVal, nameKey, nameVal, ip4Key, ip6Key, &ip4Val, &ip6Val}
+
+	setStr := func(i int, b []byte) {
+		iov[i].Base = &b[0]
+		iov[i].SetLen(len(b))
 	}
-	bufs := make([][]byte, 0, len(params)*2)
-	iov := make([]unix.Iovec, 0, len(params)*2)
-	for _, kv := range params {
-		kb := append([]byte(kv[0]), 0)
-		bufs = append(bufs, kb)
-		iov = append(iov, unix.Iovec{Base: &kb[0], Len: uint64(len(kb))})
-		if kv[1] == "" {
-			iov = append(iov, unix.Iovec{Base: nil, Len: 0})
-			continue
-		}
-		vb := append([]byte(kv[1]), 0)
-		bufs = append(bufs, vb)
-		iov = append(iov, unix.Iovec{Base: &vb[0], Len: uint64(len(vb))})
+	setInt := func(i int, p *int32) {
+		iov[i].Base = (*byte)(unsafe.Pointer(p))
+		iov[i].SetLen(int(unsafe.Sizeof(*p)))
 	}
-	_ = bufs // keep backing arrays live across the syscall
-	r1, _, errno := unix.Syscall(
+	setStr(0, pathKey)
+	setStr(1, pathVal)
+	setStr(2, nameKey)
+	setStr(3, nameVal)
+	setStr(4, ip4Key)
+	setInt(5, &ip4Val)
+	setStr(6, ip6Key)
+	setInt(7, &ip6Val)
+
+	r1, _, errno := unix.Syscall( // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
 		unix.SYS_JAIL_SET,
 		uintptr(unsafe.Pointer(&iov[0])),
 		uintptr(len(iov)),
 		uintptr(jailCreate|jailAttach),
 	)
+	runtime.KeepAlive(keep)
+	runtime.KeepAlive(iov)
 	if errno != 0 {
 		return 0, errno
 	}
