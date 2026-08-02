@@ -13,7 +13,7 @@ import (
 // roots before CapEnter. Readonly roles get lookup/read/stat; read-write also
 // gets create/write/unlinkat plus mkdirat/renameat/fsync/fchmod for staging (M3e).
 // CapRightsGet verifies want present and write/create (or network/exec
-// sentinels) absent as appropriate (M5y).
+// sentinels) absent as appropriate (M5y); CAP_FCNTL/CAP_IOCTL absent (M6b).
 func LimitAllowRootFDs(mode ArchiveFSMode, files ...*os.File) Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	if mode == ArchiveFSNone || len(files) == 0 {
@@ -38,11 +38,17 @@ func LimitAllowRootFDs(mode ArchiveFSMode, files ...*os.File) Finding {
 			unix.CAP_FSYNC, unix.CAP_FCHMOD, unix.CAP_FCHMODAT, unix.CAP_FTRUNCATE,
 		)
 		detail += "|CREATE|WRITE|UNLINKAT|MKDIRAT|RENAMEAT|FSYNC|FCHMOD|FTRUNCATE"
-		// Directory allow-roots must not retain socket/exec rights.
-		absent = []uint64{unix.CAP_ACCEPT, unix.CAP_BIND, unix.CAP_FEXECVE}
+		// Directory allow-roots must not retain socket/exec/fcntl/ioctl rights.
+		absent = []uint64{
+			unix.CAP_ACCEPT, unix.CAP_BIND, unix.CAP_FEXECVE,
+			unix.CAP_FCNTL, unix.CAP_IOCTL,
+		}
 	} else {
-		// Readonly: prove CREATE/WRITE were removed.
-		absent = []uint64{unix.CAP_CREATE, unix.CAP_WRITE, unix.CAP_UNLINKAT}
+		// Readonly: prove CREATE/WRITE and fcntl/ioctl were removed.
+		absent = []uint64{
+			unix.CAP_CREATE, unix.CAP_WRITE, unix.CAP_UNLINKAT,
+			unix.CAP_FCNTL, unix.CAP_IOCTL,
+		}
 	}
 	rights, err := unix.CapRightsInit(want)
 	if err != nil {
@@ -70,6 +76,6 @@ func LimitAllowRootFDs(mode ArchiveFSMode, files ...*os.File) Finding {
 	}
 	return Finding{
 		ID: "APPLY-CAP-ALLOW-ROOTS", Platform: plat, Control: "cap_rights_limit",
-		Status: StatusAvailable, Detail: detail + " on allow-root fds; CapRightsGet verified",
+		Status: StatusAvailable, Detail: detail + " on allow-root fds; CapRightsGet verified (FCNTL/IOCTL absent)",
 	}
 }
