@@ -145,7 +145,14 @@ func ClaimChild() (ChildEnv, error) {
 
 	var allowRoots []string
 	if raw := os.Getenv(launcher.EnvAllowRoots); raw != "" {
-		allowRoots = splitAllowRoots(raw)
+		// M5l: normalize before confine/path ops (stub parity). ApplyEngineeringOpts
+		// also EvalSymlinks locally but does not write back onto ChildEnv.
+		norm, err := confine.NormalizeAllowRoots(splitAllowRoots(raw))
+		if err != nil {
+			closeAll(sock, keyF, rootF, extraSock, extraKeyF, keyCh)
+			return zero, fmt.Errorf("allow roots: %w", err)
+		}
+		allowRoots = norm
 	}
 	// M3c: adopt FreeBSD allow-root directory FDs before CapEnter (stub parity).
 	allowRootFDs := launcher.ClaimAllowRootFDs(os.Getenv(launcher.EnvAllowRootFDs))
