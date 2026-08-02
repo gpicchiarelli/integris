@@ -168,7 +168,7 @@ options:
   -peer-key ID=PATH   per-peer PSK allow-list entry (repeatable; M2i)
   -strict-launch      release-shaped launch (full chain; fail-closed confine; M2k)
 
-M2a–M3y engineering privilege-separated receive daemon
+M2a–M3z engineering privilege-separated receive daemon
 (eight supervised roles + optional per-peer PSK admission in integrisd-auth;
 admit/deny audit events when using -peer-key; -strict-launch for fail-closed
 confinement; SCM-only key conferral on a dedicated key channel by default,
@@ -176,9 +176,9 @@ including dual-live StartPair, selective RestartOne with exit-channel drain,
 FreeBSD allow-root directory FD claim, CapEnter-oriented openat for
 index/apply/journal/audit (including journal bootstrap), CapEnter receive-chain
 proof, role-stub NEG-CAP-MODE CapEnter probes, StrictLaunch CapEnter
-RestartOne (apply, parser-down, auth-primary, and M2j dual ExtraPeer
-auth↔audit), StrictLaunch CapEnter peer-key Once push, FreeBSD ambient
-AF_INET residual documentation, and FreeBSD sealed MAC key FD).
+RestartOne (apply, parser-down, auth-primary, M2j dual ExtraPeer auth↔audit,
+and M2j apply RestartOne), StrictLaunch CapEnter peer-key Once push, FreeBSD
+ambient AF_INET residual documentation, and FreeBSD sealed MAC key FD).
 PSK auth only; not release PKI; not an IC-1 production claim.
 
 See docs/daemon-m2a.md.
