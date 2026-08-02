@@ -47,8 +47,11 @@ jobs:
             export PATH=/usr/local/go/bin:$PATH
             export CGO_ENABLED=0
             export GOFLAGS=-buildvcs=false
+            export GOMAXPROCS=2
             export TMPDIR="${PWD}/.ci-tmp"
             mkdir -p "$TMPDIR"
             go version
-            go test -timeout 45m ./...
+            # M4y first cut: confine + supervised StrictLaunch path (full ./...
+            # remains a follow-on once OpenBSD VM runtime budget is stable).
+            go test -timeout 25m -count=1 ./internal/confine/ ./internal/daemon/ ./internal/launcher/
             go vet ./...

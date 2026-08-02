@@ -859,7 +859,7 @@ Exit: supervised Linux Landlock StrictLaunch peer parser-down RestartOne green;
 ## M4y — OpenBSD StrictLaunch pledge+unveil push first cut (landed engineering)
 
 - OpenBSD CI via `vmactions/openbsd-vm` (pinned Go 1.26.5) runs native
-  `go test ./...`;
+  `go test` for confine/daemon/launcher (M4y first-cut package set);
 - OpenBSD `TestM4yStrictLaunchPledgePushServe`: StrictLaunch Once product
   children under pledge+unveil complete a push with journal/audit/plan
   (M2k + M3q/M4d fail-closed ambient FS-read + ROLE-NET; M3p/M4e/M4o OpenBSD
