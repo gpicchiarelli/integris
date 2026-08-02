@@ -36,6 +36,7 @@ jobs:
             --accept 200,206,429
             --exclude 'https://www\.iso\.org/'
             --exclude 'https://man\.openbsd\.org/'
+            --exclude 'https://reproducible-builds\.org/'
             --include-mail=false
             './**/*.md'
           fail: true
