@@ -557,6 +557,15 @@ Exit: supervised CapEnter peer-auth ExtraPeer RestartOne green; `docs/daemon-m2a
 
 Exit: supervised CapEnter audit ExtraPeer RestartOne green; `docs/daemon-m2a.md`.
 
+## M3y — FreeBSD StrictLaunch CapEnter M2j peer-key push (landed engineering)
+
+- FreeBSD `TestM3yStrictLaunchCapEnterPeerPushServe`: StrictLaunch Once product
+  children with peer keyring under CapEnter (M3m–M3q fail-closed); peer push
+  succeeds with journal/audit/plan and ≥1 `auth.peer.admit` (M3p + M2j);
+- not an IC-1 claim.
+
+Exit: supervised CapEnter peer-key push green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
