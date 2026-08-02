@@ -744,6 +744,18 @@ Exit: supervised Darwin Seatbelt peer parser-down RestartOne green;
 Exit: supervised Linux Landlock StrictLaunch push first cut green;
 `docs/daemon-m2a.md`.
 
+## M4p — Linux StrictLaunch Landlock+seccomp RestartOne apply (landed engineering)
+
+- Linux `TestM4pStrictLaunchLandlockRestartOneApply`: StrictLaunch persistent
+  serve under Landlock+seccomp; kill apply after first push; net+auth+index +
+  listen survive; apply+journal+audit respawn under M3q/M4d fail-closed
+  confine; second push succeeds (M3r/M4f Linux parity);
+- FreeBSD CapEnter and Darwin Seatbelt RestartOne apply remain M3r/M4f; not an
+  IC-1 claim.
+
+Exit: supervised Linux Landlock StrictLaunch RestartOne apply green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
