@@ -192,6 +192,10 @@ is accepted.
 - M4m Darwin StrictLaunch Seatbelt peer apply RestartOne: peer keyring; kill
   apply after first peer push; net+auth+index + listen survive;
   apply+journal+audit respawn; ≥2 `auth.peer.admit` (M3z Darwin parity);
+- M4n Darwin StrictLaunch Seatbelt peer parser-down RestartOne: peer keyring;
+  kill parser after first peer push; net+auth + listen survive;
+  parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit` (M4a
+  Darwin parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
