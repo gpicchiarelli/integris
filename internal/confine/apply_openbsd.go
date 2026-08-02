@@ -54,13 +54,19 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 			return out
 		}
 	}
-	// Go runtime / getentropy helpers may touch /dev; keep it readable.
-	if err := unix.Unveil("/dev", "r"); err != nil {
-		out = append(out, Finding{
-			ID: "APPLY-UNVEIL", Platform: plat, Control: "unveil",
-			Status: StatusUnavailable, Detail: "/dev: " + err.Error(),
-		})
-		return out
+	// Go runtime helpers and common devices; archive AllowRoots as above.
+	for _, p := range []struct{ path, perms string }{
+		{"/dev", "r"},
+		{"/tmp", "rwc"},
+		{"/etc", "r"},
+	} {
+		if err := unix.Unveil(p.path, p.perms); err != nil {
+			out = append(out, Finding{
+				ID: "APPLY-UNVEIL", Platform: plat, Control: "unveil",
+				Status: StatusUnavailable, Detail: fmt.Sprintf("%s: %v", p.path, err),
+			})
+			return out
+		}
 	}
 	if err := unix.UnveilBlock(); err != nil {
 		out = append(out, Finding{
@@ -83,21 +89,17 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 }
 
 // openbsdPromises is the role-parameterized pledge(2) set for engineering
-// children: stdio + AF_UNIX IPC (incl. SCM_RIGHTS) always; inet when CapNetwork;
-// rpath/wpath/cpath/fattr when archive allow-roots apply.
+// children. M4y first cut keeps a broad promise set so the Go runtime and
+// supervised receive path survive; locked unveil remains the primary ambient
+// FS boundary. Non-net roles omit inet; exec is omitted (NEG-EXEC is
+// promise-omission on OpenBSD). Tightening is a documented follow-on.
 func openbsdPromises(role authority.ProcessRole) string {
-	// Always include rpath so path probes return errors under locked unveil
-	// instead of SIGABRT from pledge. FS deny is unveil's job. proc is required
-	// by the Go runtime scheduler on OpenBSD.
-	parts := []string{"stdio", "unix", "sendfd", "recvfd", "rpath", "proc"}
+	parts := []string{
+		"stdio", "rpath", "wpath", "cpath", "tmppath",
+		"unix", "sendfd", "recvfd", "dns", "proc", "fattr", "flock",
+	}
 	if RoleMayHoldNetwork(role) {
 		parts = append(parts, "inet")
-	}
-	switch RoleArchiveFSMode(role) {
-	case ArchiveFSReadonly:
-		parts = append(parts, "fattr")
-	case ArchiveFSReadWrite:
-		parts = append(parts, "wpath", "cpath", "fattr")
 	}
 	return strings.Join(parts, " ")
 }
