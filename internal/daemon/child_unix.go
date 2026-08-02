@@ -235,7 +235,8 @@ func closeAll(files ...*os.File) {
 // APPLY-CAP-AMBIENT + NEG-CAP-AMBIENT (M5u; Skipped elsewhere), Linux
 // PR_NO_NEW_PRIVS verify via APPLY-NO-NEW-PRIVS + NEG-NO-NEW-PRIVS (M5v),
 // Linux seccomp FILTER+TSYNC via APPLY-SECCOMP + NEG-SECCOMP (M5w),
-// and Linux dumpable clear via APPLY-DUMPABLE + NEG-DUMPABLE (M5x).
+// Linux dumpable clear via APPLY-DUMPABLE + NEG-DUMPABLE (M5x),
+// and Linux RLIMIT_CORE=0 via APPLY-RLIMIT-CORE + NEG-RLIMIT-CORE (M5z).
 func (e ChildEnv) Confine() error {
 	// Capture before ApplyEngineering: OpenBSD unveil may return ENOENT for
 	// non-unveiled paths, indistinguishable from a missing probe target (M5r).
@@ -276,6 +277,10 @@ func (e ChildEnv) Confine() error {
 			return err
 		}
 		if err := confine.RequireDumpableClear(); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
+			return err
+		}
+		if err := confine.RequireRlimitCoreZero(); err != nil {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
