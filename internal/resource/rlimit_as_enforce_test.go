@@ -4,6 +4,7 @@ package resource_test
 
 import (
 	"errors"
+	"runtime"
 	"testing"
 
 	"github.com/gpicchiarelli/integris/internal/resource"
@@ -11,6 +12,11 @@ import (
 )
 
 func TestASSaturationHarness(t *testing.T) {
+	if runtime.GOOS == "openbsd" {
+		// RLIMIT_DATA soft limits do not reliably deny oversized PROT_NONE
+		// anonymous mmap on OpenBSD CI (lazy reservation).
+		t.Skip("RLIMIT_DATA soft mmap deny not reliable on OpenBSD")
+	}
 	var before unix.Rlimit
 	if err := unix.Getrlimit(asLimitResource(), &before); err != nil {
 		t.Fatal(err)

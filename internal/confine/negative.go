@@ -1,6 +1,7 @@
 package confine
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -104,18 +105,14 @@ func NegativeFSPath(role authority.ProcessRole, opts ApplyOptions) Finding {
 			Status: StatusSkipped, Detail: "no path allow-list on this OS",
 		}
 	}
-	norm, err := NormalizeAllowRoots(roots)
-	if err != nil || len(norm) == 0 {
-		detail := "normalize failed"
-		if err != nil {
-			detail = err.Error()
-		}
+	probe, err := probeAllowRootPath(roots)
+	if err != nil {
 		return Finding{
 			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
-			Status: StatusUnavailable, Detail: detail,
+			Status: StatusUnavailable, Detail: err.Error(),
 		}
 	}
-	f, err := os.Open(norm[0])
+	f, err := os.Open(probe)
 	if err != nil {
 		return Finding{
 			ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
@@ -127,6 +124,26 @@ func NegativeFSPath(role authority.ProcessRole, opts ApplyOptions) Finding {
 		ID: "NEG-FS-PATH", Platform: plat, Control: "path_allow_list",
 		Status: StatusAvailable, Detail: "allow-root open ok mode=" + archiveModeLabel(mode),
 	}
+}
+
+// probeAllowRootPath returns a path safe to open after ApplyEngineering.
+// On OpenBSD, locked unveil can deny EvalSymlinks walks, so absolute roots
+// are cleaned without a second symlink resolution.
+func probeAllowRootPath(roots []string) (string, error) {
+	if len(roots) == 0 {
+		return "", errors.New("normalize failed")
+	}
+	if runtime.GOOS == "openbsd" && filepath.IsAbs(roots[0]) {
+		return filepath.Clean(roots[0]), nil
+	}
+	norm, err := NormalizeAllowRoots(roots)
+	if err != nil {
+		return "", err
+	}
+	if len(norm) == 0 {
+		return "", errors.New("normalize failed")
+	}
+	return norm[0], nil
 }
 
 // NegativeFSPathWrite attempts create/write under a conferred allow-root.
@@ -180,18 +197,14 @@ func NegativeFSPathWrite(role authority.ProcessRole, opts ApplyOptions) Finding 
 			Status: StatusSkipped, Detail: "no path allow-list on this OS",
 		}
 	}
-	norm, err := NormalizeAllowRoots(roots)
-	if err != nil || len(norm) == 0 {
-		detail := "normalize failed"
-		if err != nil {
-			detail = err.Error()
-		}
+	probe, err := probeAllowRootPath(roots)
+	if err != nil {
 		return Finding{
 			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
-			Status: StatusUnavailable, Detail: detail,
+			Status: StatusUnavailable, Detail: err.Error(),
 		}
 	}
-	p := filepath.Join(norm[0], "integris-neg-fs-write")
+	p := filepath.Join(probe, "integris-neg-fs-write")
 	if runtime.GOOS == "openbsd" && mode == ArchiveFSReadonly {
 		// O_CREATE/O_WRONLY without wpath aborts under pledge.
 		return Finding{
