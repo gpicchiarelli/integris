@@ -74,7 +74,18 @@ func TestRequireRlimitCoreZeroBeforeApply(t *testing.T) {
 	if !launcher.InTestSubprocess(t) {
 		return
 	}
-	// Fresh processes typically have non-zero CORE soft/hard; Require must refuse.
+	// Some hosts (OpenBSD CI: ulimit -c 0) already have CORE zero. Raise if
+	// possible so we can prove Require refuses a non-zero limit; otherwise skip.
+	var lim unix.Rlimit
+	if err := unix.Getrlimit(unix.RLIMIT_CORE, &lim); err != nil {
+		t.Fatal(err)
+	}
+	if lim.Cur == 0 && lim.Max == 0 {
+		raise := unix.Rlimit{Cur: 1, Max: 1}
+		if err := unix.Setrlimit(unix.RLIMIT_CORE, &raise); err != nil {
+			t.Skipf("CORE already zero and cannot raise: %v", err)
+		}
+	}
 	if err := confine.RequireRlimitCoreZero(); err == nil {
 		t.Fatal("expected RequireRlimitCoreZero refusal before apply")
 	}
