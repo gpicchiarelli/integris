@@ -617,8 +617,10 @@ Exit: Darwin/OpenBSD key FD residual explicit; `docs/daemon-m2a.md`.
   roles);
 - FreeBSD remains a no-op (M3s residual: CapEnter leaves sockets; jail
   ip-disable still conflicts with allow-root CapRightsLimit);
-- unit `TestRequireAmbientRoleNetFinding` / Linux|OpenBSD apply subprocess /
-  Darwin Seatbelt / FreeBSD CapEnter residual noop; not an IC-1 claim.
+- unit `TestRequireAmbientRoleNetFinding` / Darwin Seatbelt after apply /
+  FreeBSD CapEnter residual noop / CapNetwork role Skipped; Linux/OpenBSD
+  covered by role-stub `|NEG-ROLE-NET:denied_as_expected` (ApplyEngineering
+  mutates the process and breaks coverage meta under Landlock); not an IC-1 claim.
 
 Exit: non-FreeBSD release ambient ROLE-NET deny post-condition green;
 `docs/daemon-m2a.md`.
