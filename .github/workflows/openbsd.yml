@@ -1,0 +1,50 @@
+name: OpenBSD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: OpenBSD test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Test on OpenBSD with pinned Go
+        uses: vmactions/openbsd-vm@c941015845c0f0c429676840963dc63b226d4f69 # v1.4.5
+        with:
+          release: "7.8"
+          usesh: true
+          copyback: false
+          prepare: |
+            pkg_add curl git
+            # go1.26.5.openbsd-amd64.tar.gz — sha256 from https://go.dev/dl/?mode=json
+            curl --fail --location --proto '=https' --tlsv1.2 --retry 3 \
+              -o /tmp/go.tgz \
+              https://go.dev/dl/go1.26.5.openbsd-amd64.tar.gz
+            echo "27721c64efcb571ecfbf52ee77f133ec73dca96015b315199be104ed2dfafd87" >/tmp/go.sha256
+            [ "$(sha256 -q /tmp/go.tgz)" = "$(cat /tmp/go.sha256)" ]
+            rm -rf /usr/local/go
+            tar -C /usr/local -xzf /tmp/go.tgz
+          run: |
+            set -e
+            export PATH=/usr/local/go/bin:$PATH
+            export CGO_ENABLED=0
+            export GOFLAGS=-buildvcs=false
+            go version
+            go test ./...
+            go vet ./...

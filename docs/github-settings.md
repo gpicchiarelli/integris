@@ -72,6 +72,7 @@ Make these required on `main` as they remain stable greens:
 | `Typos` / Spell check | identifier/docs spelling |
 | `Link check` | Markdown link integrity |
 | `FreeBSD` | native FreeBSD tests |
+| `OpenBSD` | native OpenBSD tests (M4y) |
 | `Reproducible builds` | dual-runner digest equality |
 | `Evidence` | campaign/digest regeneration |
 | `License compliance` / go-licenses check | license allow-list |

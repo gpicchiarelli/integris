@@ -75,7 +75,8 @@ Linux StrictLaunch Landlock+seccomp peer-key Once push landed in M4u;
 Linux StrictLaunch Landlock+seccomp peer deny/admit landed in M4v;
 Linux StrictLaunch Landlock+seccomp peer apply RestartOne landed in M4w;
 Linux StrictLaunch Landlock+seccomp peer parser-down RestartOne landed in M4x
-(completes Linux Landlock campaign M4o–M4x).
+(completes Linux Landlock campaign M4o–M4x);
+OpenBSD StrictLaunch pledge+unveil push first cut landed in M4y (OpenBSD CI).
 Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.

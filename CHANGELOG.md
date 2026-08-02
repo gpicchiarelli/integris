@@ -229,6 +229,9 @@ is accepted.
   keyring; kill parser after first peer push; net+auth + listen survive;
   parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit`
   (M4a/M4n Linux parity); completes Linux Landlock campaign M4o–M4x;
+- M4y OpenBSD StrictLaunch pledge+unveil push first cut: OpenBSD CI VM +
+  StrictLaunch Once completes push with journal/audit/plan (M3p/M4e/M4o
+  OpenBSD parity); DISC-PLEDGE/DISC-UNVEIL reflect ApplyEngineering;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
@@ -241,7 +244,7 @@ is accepted.
   Go, TLA+, and related platform facilities);
 - expanded GitHub Actions surface: staticcheck/gosec, OSV, Trivy, Semgrep,
   Scorecard, gitleaks, SBOM (CycloneDX/Syft), reproducible dual-build digests
-  with attestations, FreeBSD VM tests, macOS cgo Seatbelt, cross-compile matrix
+  with attestations, FreeBSD VM tests, OpenBSD VM tests, macOS cgo Seatbelt, cross-compile matrix
   for Linux/Darwin/FreeBSD/OpenBSD, coverage artifacts, evidence regeneration,
   license inventory, workflow lint (actionlint/zizmor), typos, Markdown link
   check, EditorConfig hygiene, dependency-graph submission, stale bot, and PR
