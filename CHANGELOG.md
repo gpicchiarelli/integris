@@ -248,6 +248,10 @@ is accepted.
   keyring; kill auth after first peer push; net + full data plane + listen
   survive; auth respawns with ExtraPeer rebind; ≥2 `auth.peer.admit`
   (M3w/M4i/M4s OpenBSD parity);
+- M5d OpenBSD StrictLaunch pledge+unveil RestartOne audit ExtraPeer: peer
+  keyring; kill audit after first peer push; auth+net+parser+plan+index +
+  listen survive; apply+journal+audit respawn; ≥2 `auth.peer.admit`
+  (M3x/M4j/M4t OpenBSD parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

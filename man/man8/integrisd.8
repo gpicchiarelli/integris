@@ -22,7 +22,7 @@ Linux, and
 .Sy Status :
 an engineering preview binary exists for
 .Cm serve
-.Pq M2a Ns – Ns M5c :
+.Pq M2a Ns – Ns M5d :
 privilege-separated eight-role receive chain —
 .Nm Ns -auth ,
 .Nm Ns -parser ,
@@ -128,7 +128,9 @@ and OpenBSD StrictLaunch pledge+unveil RestartOne parser-down
 and OpenBSD StrictLaunch pledge+unveil RestartOne auth-primary
 .Pq M5b ,
 and OpenBSD StrictLaunch pledge+unveil RestartOne auth ExtraPeer
-.Pq M5c .
+.Pq M5c ,
+and OpenBSD StrictLaunch pledge+unveil RestartOne audit ExtraPeer
+.Pq M5d .
 Default key conferral is SCM-only on a dedicated key channel
 .Pq M2l .
 It is not the release product daemon, not PKI, and not the full nine-role

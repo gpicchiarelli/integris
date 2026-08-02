@@ -51,8 +51,8 @@ jobs:
             export TMPDIR="${PWD}/.ci-tmp"
             mkdir -p "$TMPDIR"
             go version
-            # Focused M4y–M5c StrictLaunch; avoid full RestartOne suite on slow VM.
+            # Focused M4y–M5d StrictLaunch; avoid full RestartOne suite on slow VM.
             go test -timeout 15m -count=1 ./internal/confine/
-            go test -timeout 15m -count=1 ./internal/daemon/ -run 'TestM4yStrictLaunchPledgePushServe|TestM4zStrictLaunchPledgeRestartOneApply|TestM5aStrictLaunchPledgeRestartOneParserDown|TestM5bStrictLaunchPledgeRestartOneAuthPrimary|TestM5cStrictLaunchPledgeRestartOneAuthPeerExtraPeer|TestM2kStrictLaunchPushServe|TestM2aPushServeSplit'
+            go test -timeout 15m -count=1 ./internal/daemon/ -run 'TestM4yStrictLaunchPledgePushServe|TestM4zStrictLaunchPledgeRestartOneApply|TestM5aStrictLaunchPledgeRestartOneParserDown|TestM5bStrictLaunchPledgeRestartOneAuthPrimary|TestM5cStrictLaunchPledgeRestartOneAuthPeerExtraPeer|TestM5dStrictLaunchPledgeRestartOneAuditAuthExtraPeer|TestM2kStrictLaunchPushServe|TestM2aPushServeSplit'
             go test -timeout 10m -count=1 ./internal/launcher/ -run 'TestLaunchStubIPC|TestM4c'
             go vet ./internal/confine/ ./internal/daemon/ ./internal/launcher/
