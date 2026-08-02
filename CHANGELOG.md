@@ -208,6 +208,10 @@ is accepted.
 - M4r Linux StrictLaunch Landlock+seccomp RestartOne auth-primary: kill auth
   after first push; net + full data plane + listen survive; auth respawns;
   second push succeeds (M3v/M4h Linux parity);
+- M4s Linux StrictLaunch Landlock+seccomp RestartOne auth ExtraPeer: peer
+  keyring; kill auth after first peer push; net + full data plane + listen
+  survive; auth respawns with ExtraPeer rebind; ≥2 `auth.peer.admit`
+  (M3w/M4i Linux parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
