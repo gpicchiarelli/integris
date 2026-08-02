@@ -241,7 +241,8 @@ func (s *localStore) endFile(rel string, dig codec.Digest) error {
 		if err != nil {
 			return wrap(KindApply, "finalize read", err)
 		}
-		if err := os.WriteFile(final, data, mode); err != nil {
+		// final is under staging root + validated relative path (safeName).
+		if err := os.WriteFile(final, data, mode); err != nil { // #nosec G703 -- validated stage-relative path
 			return wrap(KindApply, "finalize write", err)
 		}
 		_ = os.Remove(s.partPath)

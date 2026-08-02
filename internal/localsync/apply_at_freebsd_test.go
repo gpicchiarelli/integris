@@ -7,11 +7,15 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gpicchiarelli/integris/internal/launcher"
 	"github.com/gpicchiarelli/integris/internal/localsync"
 	"golang.org/x/sys/unix"
 )
 
 func TestApplyAtAfterCapEnter(t *testing.T) {
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
 	src, dst := t.TempDir(), t.TempDir()
 	mustWrite(t, filepath.Join(src, "cap.txt"), "capsicum-m3g-publish")
 

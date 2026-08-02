@@ -2,7 +2,6 @@ package remotesync
 
 import (
 	"encoding/binary"
-	"encoding/hex"
 
 	"github.com/gpicchiarelli/integris/internal/codec"
 	"github.com/gpicchiarelli/integris/internal/localsync"
@@ -117,22 +116,6 @@ func decodeManifest(p []byte) ([]localsync.Entry, error) {
 }
 
 func encodeManifestOK() []byte { return []byte{msgManifestOK} }
-
-func encodeFile(f fileWire) ([]byte, error) {
-	b := []byte{msgFile}
-	var err error
-	if b, err = appendString(b, f.Rel); err != nil {
-		return nil, err
-	}
-	b = appendU32(b, f.Mode)
-	b = append(b, f.Digest[:]...)
-	b = appendU32(b, uint32(len(f.Data)))
-	b = append(b, f.Data...)
-	if len(b) > protocolMaxBodyUseful {
-		return nil, failf(KindProtocol, "file %s too large for single-frame transfer", f.Rel)
-	}
-	return b, nil
-}
 
 func decodeFile(p []byte) (fileWire, error) {
 	var zero fileWire
@@ -340,5 +323,3 @@ func takeString(b []byte) (string, []byte, error) {
 	}
 	return string(b[:n]), b[n:], nil
 }
-
-func digestHex(d codec.Digest) string { return hex.EncodeToString(d[:]) }

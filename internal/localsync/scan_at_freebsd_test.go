@@ -7,11 +7,15 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/gpicchiarelli/integris/internal/launcher"
 	"github.com/gpicchiarelli/integris/internal/localsync"
 	"golang.org/x/sys/unix"
 )
 
 func TestScanAtAfterCapEnter(t *testing.T) {
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
 	root := t.TempDir()
 	mustWrite(t, filepath.Join(root, "cap.txt"), "capsicum-scanat")
 

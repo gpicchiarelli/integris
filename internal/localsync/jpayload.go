@@ -171,18 +171,6 @@ func encodeConfirmation(planDig codec.Digest, completed, skipped uint32, bytes u
 	return putU64(b, bytes)
 }
 
-func decodeConfirmation(p []byte) (codec.Digest, uint32, uint32, uint64, error) {
-	var d codec.Digest
-	if len(p) != 1+32+4+4+8 || p[0] != payloadVersion {
-		return d, 0, 0, 0, fmt.Errorf("localsync: bad confirmation payload")
-	}
-	copy(d[:], p[1:33])
-	c := binary.LittleEndian.Uint32(p[33:37])
-	s := binary.LittleEndian.Uint32(p[37:41])
-	b := binary.LittleEndian.Uint64(p[41:49])
-	return d, c, s, b, nil
-}
-
 func encodeCancellation(reason string) ([]byte, error) {
 	b := []byte{payloadVersion}
 	return putBytes(b, []byte(reason))

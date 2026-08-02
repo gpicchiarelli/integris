@@ -6,11 +6,14 @@ import (
 	"testing"
 
 	"github.com/gpicchiarelli/integris/internal/confine"
+	"github.com/gpicchiarelli/integris/internal/launcher"
 	"golang.org/x/sys/unix"
 )
 
 func TestRequireAmbientFSReadDeniedAfterCapEnter(t *testing.T) {
-	// CapEnter is process-wide; earlier freebsd CapEnter tests may have entered.
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
 	if confine.NegativeCapMode().Status != confine.StatusAvailable {
 		if err := confine.RequireAmbientFSReadDenied(); err == nil {
 			t.Fatal("expected refuse before CapEnter")

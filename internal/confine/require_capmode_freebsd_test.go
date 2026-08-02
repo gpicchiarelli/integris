@@ -6,10 +6,14 @@ import (
 	"testing"
 
 	"github.com/gpicchiarelli/integris/internal/confine"
+	"github.com/gpicchiarelli/integris/internal/launcher"
 	"golang.org/x/sys/unix"
 )
 
 func TestRequireCapModeAvailableAfterCapEnter(t *testing.T) {
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
 	if err := confine.RequireCapModeAvailable(); err == nil {
 		t.Fatal("expected refuse before CapEnter")
 	}

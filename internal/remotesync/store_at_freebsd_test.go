@@ -6,10 +6,14 @@ import (
 	"os"
 	"testing"
 
+	"github.com/gpicchiarelli/integris/internal/launcher"
 	"golang.org/x/sys/unix"
 )
 
 func TestStageAtAfterCapEnter(t *testing.T) {
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
 	dest := t.TempDir()
 	fd, err := unix.Open(dest, unix.O_RDONLY|unix.O_DIRECTORY|unix.O_CLOEXEC, 0)
 	if err != nil {

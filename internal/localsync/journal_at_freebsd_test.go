@@ -8,11 +8,15 @@ import (
 	"testing"
 
 	"github.com/gpicchiarelli/integris/internal/codec"
+	"github.com/gpicchiarelli/integris/internal/launcher"
 	"github.com/gpicchiarelli/integris/internal/localsync"
 	"golang.org/x/sys/unix"
 )
 
 func TestJournalAtAfterCapEnter(t *testing.T) {
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
 	dest := t.TempDir()
 	// Pre-create ambient so we can contrast reopen after CapEnter.
 	jpath := filepath.Join(dest, localsync.MetaDirName, localsync.JournalFileName)

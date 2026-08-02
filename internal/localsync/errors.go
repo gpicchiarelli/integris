@@ -2,7 +2,6 @@ package localsync
 
 import (
 	"errors"
-	"fmt"
 )
 
 // Kind classifies localsync failures for stable control flow (not string match).
@@ -86,8 +85,4 @@ func wrap(kind Kind, op, rel string, err error) error {
 		return err
 	}
 	return classify(kind, op, rel, "", err)
-}
-
-func internalf(op, format string, args ...any) error {
-	return classify(KindInternal, op, "", fmt.Sprintf(format, args...), nil)
 }

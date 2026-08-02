@@ -72,10 +72,11 @@ func runNet(env ChildEnv) error {
 	defer ln.Close()
 	if ready := os.Getenv(launcher.EnvReadyPath); ready != "" {
 		tmp := ready + ".tmp"
-		if err := os.WriteFile(tmp, []byte(ln.Addr().String()+"\n"), 0o600); err != nil {
+		// Ready path is conferred by the supervisor (absolute temp path), not caller input.
+		if err := os.WriteFile(tmp, []byte(ln.Addr().String()+"\n"), 0o600); err != nil { // #nosec G703 -- supervisor EnvReadyPath
 			return err
 		}
-		if err := os.Rename(tmp, ready); err != nil {
+		if err := os.Rename(tmp, ready); err != nil { // #nosec G703 -- supervisor EnvReadyPath
 			return err
 		}
 	}

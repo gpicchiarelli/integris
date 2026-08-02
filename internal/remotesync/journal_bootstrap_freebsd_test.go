@@ -8,12 +8,16 @@ import (
 	"testing"
 
 	"github.com/gpicchiarelli/integris/internal/codec"
+	"github.com/gpicchiarelli/integris/internal/launcher"
 	"github.com/gpicchiarelli/integris/internal/localsync"
 	"github.com/gpicchiarelli/integris/internal/remotesync"
 	"golang.org/x/sys/unix"
 )
 
 func TestJournalBootstrapAtAfterCapEnter(t *testing.T) {
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
 	dest := t.TempDir()
 	fd, err := unix.Open(dest, unix.O_RDONLY|unix.O_DIRECTORY|unix.O_CLOEXEC, 0)
 	if err != nil {
