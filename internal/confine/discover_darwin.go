@@ -12,7 +12,7 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-SEATBELT", Platform: plat, Control: "seatbelt", Status: StatusAvailable, Detail: "engineering ApplyEngineering uses sandbox_init when CGO enabled"},
 		{ID: "DISC-LAUNCHD-IDENTITY", Platform: plat, Control: "dedicated_identity", Status: StatusUnavailable, Detail: "no launchd child identities until spawn adapter"},
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available in-process via OpenSocketFabric"},
-		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnknown, Detail: "launcher.CreateKeyFD uses anon-unlinked FD; memfd seals unavailable on Darwin"},
+		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnavailable, Detail: "M4c residual: launcher.CreateKeyFD uses anon-unlinked O_RDONLY FD; Darwin has no memfd/F_ADD_SEALS"},
 		{ID: "DISC-FULLFSYNC", Platform: plat, Control: "durable_sync", Status: StatusAvailable, Detail: "platform.SyncFile uses F_FULLFSYNC (INT-IC4-0001)"},
 		{ID: "DISC-CLONEFILE", Platform: plat, Control: "clonefile", Status: StatusAvailable, Detail: "platform.CloneFile prefers clonefile; degraded copy uses sparse SEEK_DATA/HOLE + CopyXattr+CopyBSDFlags+CopyACL+CopyResourceFork+CopyTimes (INT-IC4-0001)"},
 		{ID: "DISC-SPARSE", Platform: plat, Control: "sparse_extents", Status: StatusAvailable, Detail: "platform copyFileContents uses SEEK_DATA/SEEK_HOLE on CloneFile degraded copy (INT-IC4-0001 / CapSparse)"},

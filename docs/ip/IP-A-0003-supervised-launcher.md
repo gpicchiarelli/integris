@@ -82,7 +82,8 @@ profile defect.
   auth ExtraPeer RestartOne M3w, and FreeBSD CapEnter M2j audit ExtraPeer
   RestartOne M3x, FreeBSD CapEnter M2j peer-key push M3y, and FreeBSD CapEnter
   M2j apply RestartOne M3z, and FreeBSD CapEnter M2j parser-down RestartOne
-  M4a, and FreeBSD CapEnter M2j peer deny/admit M4b); it is not a
+  M4a, FreeBSD CapEnter M2j peer deny/admit M4b, and Darwin/OpenBSD anon key
+  FD residual M4c); it is not a
   product
   IC-1 release claim.
 
@@ -122,7 +123,8 @@ directory owned for the test/run.
 - Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles`.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
   apply is not claimed equivalent).
-- Darwin/OpenBSD memfd-equivalent seals (anon-unlinked residual; FreeBSD sealed
+- Darwin/OpenBSD memfd-equivalent seals (anon-unlinked residual documented in
+  M4c; FreeBSD sealed
   key FD landed in M3t).
 - Broader role path allow-lists beyond Apply/Index/Journal/Audit archive caps
   (FreeBSD conferred directory FDs claimed in product children as of M3c;
@@ -147,7 +149,7 @@ directory owned for the test/run.
   peer-key push landed in M3y; FreeBSD StrictLaunch CapEnter M2j apply
   RestartOne landed in M3z; FreeBSD StrictLaunch CapEnter M2j parser-down
   RestartOne landed in M4a; FreeBSD StrictLaunch CapEnter M2j peer deny/admit
-  landed in M4b).
+  landed in M4b; Darwin/OpenBSD anon key FD residual documented in M4c).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

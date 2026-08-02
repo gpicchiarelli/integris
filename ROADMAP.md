@@ -599,6 +599,16 @@ Exit: supervised CapEnter peer parser-down RestartOne green; `docs/daemon-m2a.md
 
 Exit: supervised CapEnter peer deny/admit green; `docs/daemon-m2a.md`.
 
+## M4c — Darwin/OpenBSD anon key FD residual documented (landed engineering)
+
+- Darwin/OpenBSD `CreateKeyFD` remains anon-unlinked O_RDONLY
+  (`KeyTransportAnonFile`); no `memfd_create` / `F_ADD_SEALS`;
+- `DISC-KEY-FD` Unavailable on Darwin/OpenBSD with residual detail;
+  `TestM4cCreateKeyFDAnonUnlinkedResidual` asserts transport + O_RDONLY write
+  deny; Linux/FreeBSD sealed path unchanged; not an IC-1 claim.
+
+Exit: Darwin/OpenBSD key FD residual explicit; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
