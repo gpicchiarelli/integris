@@ -76,7 +76,7 @@ Linux StrictLaunch Landlock+seccomp peer deny/admit landed in M4v;
 Linux StrictLaunch Landlock+seccomp peer apply RestartOne landed in M4w;
 Linux StrictLaunch Landlock+seccomp peer parser-down RestartOne landed in M4x
 (completes Linux Landlock campaign M4o–M4x);
-OpenBSD StrictLaunch pledge+unveil push (M4y), RestartOne apply (M4z), parser-down (M5a), auth-primary (M5b), auth ExtraPeer (M5c), audit ExtraPeer (M5d), peer-key Once push (M5e), and peer deny/admit (M5f) landed (OpenBSD CI).
+OpenBSD StrictLaunch pledge+unveil push (M4y), RestartOne apply (M4z), parser-down (M5a), auth-primary (M5b), auth ExtraPeer (M5c), audit ExtraPeer (M5d), peer-key Once push (M5e), peer deny/admit (M5f), and peer apply RestartOne (M5g) landed (OpenBSD CI).
 Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.

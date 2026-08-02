@@ -954,6 +954,17 @@ Exit: supervised OpenBSD pledge StrictLaunch peer-key Once push green;
 Exit: supervised OpenBSD pledge StrictLaunch peer deny/admit green;
 `docs/daemon-m2a.md`.
 
+## M5g — OpenBSD StrictLaunch pledge+unveil peer apply RestartOne (landed engineering)
+
+- OpenBSD `TestM5gStrictLaunchPledgeRestartOneApplyPeer`: peer keyring
+  StrictLaunch; kill apply after first peer push; net+auth+index and listen
+  survive; apply+journal+audit respawn under M3q/M4d fail-closed confine;
+  ≥2 `auth.peer.admit` (M3z/M4m/M4w OpenBSD parity);
+- OpenBSD CI `-run` includes M5g; not an IC-1 claim.
+
+Exit: supervised OpenBSD pledge StrictLaunch peer apply RestartOne green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
