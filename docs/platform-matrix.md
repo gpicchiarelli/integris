@@ -55,7 +55,8 @@ M3x; CapEnter M2j peer-key Once push by M3y; CapEnter M2j apply RestartOne by
 M3z. FreeBSD CapEnter M2j parser-down RestartOne by M4a; CapEnter M2j peer
 deny/admit by M4b. FreeBSD sealed MAC key FD
 (`shm_open2`+`F_ADD_SEALS`) landed in M3t; Darwin/OpenBSD anon-unlinked key FD
-residual documented in M4c (`DISC-KEY-FD` Unavailable). Provisional
+residual documented in M4c (`DISC-KEY-FD` Unavailable). Darwin StrictLaunch
+Seatbelt push first cut landed in M4e. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.
 
