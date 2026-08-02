@@ -41,6 +41,14 @@ func NegativeExec() Finding {
 			Status: StatusUnexpectedAllow, Detail: "exec returned nil (unreachable)",
 		}
 	}
+	// Missing probe binary is infrastructure failure, not confinement deny.
+	// Do not pre-Stat: after CapEnter ambient path opens are already denied.
+	if err == unix.ENOENT {
+		return Finding{
+			ID: "NEG-EXEC", Platform: plat, Control: "process_exec",
+			Status: StatusUnavailable, Detail: "probe binary missing: " + path,
+		}
+	}
 	return Finding{
 		ID: "NEG-EXEC", Platform: plat, Control: "process_exec",
 		Status: StatusDeniedExpected, Detail: err.Error(),

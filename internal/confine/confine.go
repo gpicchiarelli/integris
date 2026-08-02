@@ -158,6 +158,21 @@ func RequireAmbientRoleNetFinding(f Finding) error {
 	}
 }
 
+// RequireAmbientExecFinding is the testable core of RequireAmbientExecDenied
+// (M5o). DeniedExpected or Skipped succeed. Unlike ROLE-NET, FreeBSD CapEnter
+// denies exec, so there is no platform no-op.
+func RequireAmbientExecFinding(f Finding) error {
+	if f.ID != "NEG-EXEC" {
+		return &Error{Code: "confine", Message: "expected NEG-EXEC finding"}
+	}
+	switch f.Status {
+	case StatusDeniedExpected, StatusSkipped:
+		return nil
+	default:
+		return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+	}
+}
+
 // HasUnexpectedAllow reports whether any finding is unexpected_allow.
 func (r Report) HasUnexpectedAllow() bool {
 	for _, f := range r.Findings {
