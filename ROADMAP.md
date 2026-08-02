@@ -933,6 +933,16 @@ Exit: supervised OpenBSD pledge StrictLaunch RestartOne auth ExtraPeer green;
 Exit: supervised OpenBSD pledge StrictLaunch RestartOne audit ExtraPeer green;
 `docs/daemon-m2a.md`.
 
+## M5e — OpenBSD StrictLaunch pledge+unveil peer-key Once push (landed engineering)
+
+- OpenBSD `TestM5eStrictLaunchPledgePeerPushServe`: StrictLaunch Once under
+  pledge+unveil with peer keyring completes a peer push with journal/audit/
+  plan and ≥1 `auth.peer.admit` (M3y/M4k/M4u OpenBSD parity);
+- OpenBSD CI `-run` includes M5e; not an IC-1 claim.
+
+Exit: supervised OpenBSD pledge StrictLaunch peer-key Once push green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
