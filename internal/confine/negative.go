@@ -16,6 +16,20 @@ func NegativeFSOpen() Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	dir := os.TempDir()
 	p := filepath.Join(dir, "integris-neg-fs-probe")
+	if runtime.GOOS == "openbsd" {
+		// O_CREATE without wpath aborts under pledge; probe unveil deny via open.
+		_, err := os.Open(p)
+		if err == nil {
+			return Finding{
+				ID: "NEG-FS-OPEN", Platform: plat, Control: "filesystem_writes",
+				Status: StatusUnexpectedAllow, Detail: "path open of non-unveiled temp succeeded after apply",
+			}
+		}
+		return Finding{
+			ID: "NEG-FS-OPEN", Platform: plat, Control: "filesystem_writes",
+			Status: StatusDeniedExpected, Detail: "unveil/path: " + err.Error(),
+		}
+	}
 	f, err := os.OpenFile(p, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0o600)
 	if err == nil {
 		_ = f.Close()

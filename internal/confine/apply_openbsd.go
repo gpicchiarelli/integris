@@ -78,15 +78,17 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 // children: stdio + AF_UNIX IPC (incl. SCM_RIGHTS) always; inet when CapNetwork;
 // rpath/wpath/cpath/fattr when archive allow-roots apply.
 func openbsdPromises(role authority.ProcessRole) string {
-	parts := []string{"stdio", "unix", "sendfd", "recvfd"}
+	// Always include rpath so path probes return errors under locked unveil
+	// instead of SIGABRT from pledge. FS deny is unveil's job.
+	parts := []string{"stdio", "unix", "sendfd", "recvfd", "rpath"}
 	if RoleMayHoldNetwork(role) {
 		parts = append(parts, "inet")
 	}
 	switch RoleArchiveFSMode(role) {
 	case ArchiveFSReadonly:
-		parts = append(parts, "rpath", "fattr")
+		parts = append(parts, "fattr")
 	case ArchiveFSReadWrite:
-		parts = append(parts, "rpath", "wpath", "cpath", "fattr")
+		parts = append(parts, "wpath", "cpath", "fattr")
 	}
 	return strings.Join(parts, " ")
 }
