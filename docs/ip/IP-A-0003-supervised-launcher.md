@@ -86,7 +86,7 @@ profile defect.
   FD residual M4c, non-FreeBSD release ambient ROLE-NET deny M4d, and Darwin
   StrictLaunch Seatbelt push first cut M4e, and Darwin StrictLaunch Seatbelt
   RestartOne apply M4f, and Darwin StrictLaunch Seatbelt parser-down RestartOne
-  M4g); it is not a
+  M4g, and Darwin StrictLaunch Seatbelt auth-primary RestartOne M4h); it is not a
   product
   IC-1 release claim.
 
@@ -156,7 +156,8 @@ directory owned for the test/run.
   non-FreeBSD release ambient ROLE-NET deny fail-closed landed in M4d;
   Darwin StrictLaunch Seatbelt push first cut landed in M4e; Darwin
   StrictLaunch Seatbelt RestartOne apply landed in M4f; Darwin StrictLaunch
-  Seatbelt parser-down RestartOne landed in M4g).
+  Seatbelt parser-down RestartOne landed in M4g; Darwin StrictLaunch Seatbelt
+  auth-primary RestartOne landed in M4h).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
