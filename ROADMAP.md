@@ -1094,6 +1094,16 @@ Exit: archive-readonly write deny green; `docs/daemon-m2a.md`.
 
 Exit: archive allow-root positive Require green; `docs/daemon-m2a.md`.
 
+## M5u — Linux ambient capability clear (landed engineering)
+
+- `ApplyEngineering` clears ambient caps via `PR_CAP_AMBIENT_CLEAR_ALL`
+  (`APPLY-CAP-AMBIENT`); `NegativeCapAmbient` reads `CapAmb`;
+- release `Confine` calls `RequireCapAmbientEmpty` (Available or Skipped);
+- `DISC-CAP-EMPTY` Available with permitted/bounding + dedicated-account
+  residual; not an IC-1 claim.
+
+Exit: Linux ambient clear green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

@@ -292,6 +292,8 @@ is accepted.
   EEXIST → Unavailable; `RequireArchiveFSWriteDenied` in release Confine;
 - M5t archive allow-root path/write Available Require:
   `RequireArchiveFSPathAvailable` + `RequireArchiveFSWriteAvailable`;
+- M5u Linux ambient capability clear: `PR_CAP_AMBIENT_CLEAR_ALL`,
+  `NEG-CAP-AMBIENT` / `RequireCapAmbientEmpty`; `DISC-CAP-EMPTY` Available;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

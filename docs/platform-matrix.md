@@ -29,7 +29,8 @@ operational controls.
 
 Engineering scaffold: `internal/confine` probes and applies best-effort child
 confinement (`ApplyEngineeringOpts(role, opts)`: Linux Landlock with optional
-path_beneath allow-roots for Apply/Index + `no_new_privs` + seccomp denylist;
+path_beneath allow-roots for Apply/Index + `no_new_privs` + ambient
+capability clear (M5u) + seccomp denylist;
 OpenBSD role-parameterized `pledge`/`unveil` allow-roots; FreeBSD
 `cap_rights_limit` then `cap_enter` with conferred allow-root directory FDs
 for Apply/Index/Journal/Audit (M3c product claim); Darwin Seatbelt with deny
@@ -56,7 +57,10 @@ fail closed unless allow-root create is denied (`RequireArchiveFSWriteDenied`,
 M5s; unique probe path; `EEXIST` → Unavailable). Archive roles also fail
 closed unless allow-root open succeeds (`RequireArchiveFSPathAvailable`, M5t)
 and ArchiveFSReadWrite roles unless allow-root create succeeds
-(`RequireArchiveFSWriteAvailable`, M5t). FreeBSD
+(`RequireArchiveFSWriteAvailable`, M5t). On Linux, release mode also fails
+closed unless ambient capabilities are cleared (`RequireCapAmbientEmpty`,
+M5u; `PR_CAP_AMBIENT_CLEAR_ALL`; permitted/bounding + dedicated account
+residual). FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down
 RestartOne by M3u; CapEnter auth-primary RestartOne by M3v; CapEnter M2j
