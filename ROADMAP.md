@@ -1035,6 +1035,17 @@ Exit: parent AllowRoots normalize green; `docs/daemon-m2a.md`.
 
 Exit: Linux inotify VNodeWatch green; `docs/daemon-m2a.md`.
 
+## M5o — Release ambient EXEC deny fail-closed (landed engineering)
+
+- `RequireAmbientExecDenied` / `RequireAmbientExecFinding` fail closed on
+  `NEG-EXEC` unless `DeniedExpected` or `Skipped`; wired into release-mode
+  `ChildEnv.Confine` after ROLE-NET (M4d twin for `process_exec`);
+- FreeBSD is not skipped (CapEnter denies `unix.Exec`, unlike M3s AF_INET);
+  OpenBSD keeps soft DeniedExpected (in-process exec would SIGABRT);
+- Unit + CapEnter/Seatbelt coverage; not an IC-1 claim.
+
+Exit: release ambient EXEC deny green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

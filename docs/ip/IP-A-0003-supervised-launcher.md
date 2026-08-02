@@ -114,7 +114,7 @@ profile defect.
   promise tightening M5i, and OpenBSD CI widen M5j, and OpenBSD CI full
   daemon suite M5k, and product AllowRoots normalize-before-apply M5l, and
   parent-side AllowRoots normalize-before-spawn M5m, and Linux inotify
-  VNodeWatch first cut M5n); it is not a
+  VNodeWatch first cut M5n, and release ambient EXEC deny fail-closed M5o); it is not a
   product
   IC-1 release claim.
 
@@ -215,7 +215,8 @@ directory owned for the test/run.
   OpenBSD CI widen landed in M5j; OpenBSD CI full daemon suite landed in M5k;
   product AllowRoots normalize-before-apply landed in M5l; parent-side
   AllowRoots normalize-before-spawn landed in M5m; Linux inotify VNodeWatch
-  first cut landed in M5n).
+  first cut landed in M5n; release ambient EXEC deny fail-closed landed in
+  M5o).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

@@ -279,6 +279,9 @@ is accepted.
   `Runtime.allowRootsFor` + Serve dest canonicalize fail-closed;
 - M5n Linux inotify VNodeWatch first cut: `platform.VNodeWatch` via inotify
   (write/delete harness; `DISC-INOTIFY`); BSD kqueue parity for INT-IC4-0001;
+- M5o release ambient EXEC deny fail-closed: `RequireAmbientExecDenied` on
+  `NEG-EXEC` in release `Confine` (all confined ports; FreeBSD CapEnter
+  included);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

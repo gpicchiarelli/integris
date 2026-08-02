@@ -46,7 +46,9 @@ On Linux/Darwin/OpenBSD, release mode also fails closed unless ambient
 AF_INET is denied for non-network roles (`RequireAmbientRoleNetDenied`, M4d).
 FreeBSD CapEnter leaves ambient AF_INET possible (`NEG-ROLE-NET` residual,
 M3s; jail ip-disable is not used with allow-root CapRightsLimit;
-`RequireAmbientRoleNetDenied` is a no-op on FreeBSD). FreeBSD
+`RequireAmbientRoleNetDenied` is a no-op on FreeBSD). Release mode fails
+closed unless ambient process exec is denied (`RequireAmbientExecDenied`,
+M5o) on all confined ports (including FreeBSD CapEnter). FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down
 RestartOne by M3u; CapEnter auth-primary RestartOne by M3v; CapEnter M2j
