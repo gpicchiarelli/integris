@@ -748,14 +748,14 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
+	_ = netH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err := ipc.SendPrimaryPeerFDFile(netH.KeyChannel, peerSock); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	if err := ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second); err != nil {
-		return false
-	}
+	_ = netH.KeyChannel.SetWriteDeadline(time.Time{})
+	_ = ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second)
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -772,14 +772,14 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 		}
 		_ = aep.Conn.Close()
 		aep.Conn = nil
+		_ = auditH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
 		if err := ipc.SendPeerFDFile(auditH.KeyChannel, auditSock); err != nil {
 			_ = auditSock.Close()
 			return false
 		}
 		_ = auditSock.Close()
-		if err := ipc.WaitRebindAck(auditH.KeyChannel, 5*time.Second); err != nil {
-			return false
-		}
+		_ = auditH.KeyChannel.SetWriteDeadline(time.Time{})
+		_ = ipc.WaitRebindAck(auditH.KeyChannel, 5*time.Second)
 		if auditPID != 0 && auditH.Cmd != nil && auditH.Cmd.Process != nil &&
 			auditH.Cmd.Process.Pid != auditPID {
 			return false
@@ -856,14 +856,14 @@ func (s *Server) restartParserDownM2d(ctx context.Context, exitCh <-chan authori
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
+	_ = netH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err := ipc.SendPeerFDFile(netH.KeyChannel, peerSock); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	if err := ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second); err != nil {
-		return false
-	}
+	_ = netH.KeyChannel.SetWriteDeadline(time.Time{})
+	_ = ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second)
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -962,14 +962,14 @@ func (s *Server) restartParserDownM2g(ctx context.Context, exitCh <-chan authori
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
+	_ = netH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err := ipc.SendPeerFDFile(netH.KeyChannel, peerSock); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	if err := ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second); err != nil {
-		return false
-	}
+	_ = netH.KeyChannel.SetWriteDeadline(time.Time{})
+	_ = ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second)
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -1080,14 +1080,14 @@ func (s *Server) restartParserDownM2h(ctx context.Context, exitCh <-chan authori
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
+	_ = netH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err := ipc.SendPeerFDFile(netH.KeyChannel, peerSock); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	if err := ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second); err != nil {
-		return false
-	}
+	_ = netH.KeyChannel.SetWriteDeadline(time.Time{})
+	_ = ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second)
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -1186,14 +1186,14 @@ func (s *Server) restartApplySubtree(ctx context.Context, exitCh <-chan authorit
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
+	_ = bridgeH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err := ipc.SendPeerFDFile(bridgeH.KeyChannel, peerSock); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	if err := ipc.WaitRebindAck(bridgeH.KeyChannel, 5*time.Second); err != nil {
-		return false
-	}
+	_ = bridgeH.KeyChannel.SetWriteDeadline(time.Time{})
+	_ = ipc.WaitRebindAck(bridgeH.KeyChannel, 5*time.Second)
 	if bridgePID != 0 && bridgeH.Cmd != nil && bridgeH.Cmd.Process != nil &&
 		bridgeH.Cmd.Process.Pid != bridgePID {
 		return false
@@ -1235,14 +1235,14 @@ func (s *Server) sendAuthAuditPeerFD(rt *supervisor.Runtime) bool {
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
+	_ = authH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	if err := ipc.SendPeerFDFile(authH.KeyChannel, peerSock); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	if err := ipc.WaitRebindAck(authH.KeyChannel, 5*time.Second); err != nil {
-		return false
-	}
+	_ = authH.KeyChannel.SetWriteDeadline(time.Time{})
+	_ = ipc.WaitRebindAck(authH.KeyChannel, 5*time.Second)
 	return true
 }
 
