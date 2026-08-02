@@ -2,7 +2,12 @@
 
 package confine
 
-import "golang.org/x/sys/unix"
+import (
+	"crypto/rand"
+	"encoding/hex"
+
+	"golang.org/x/sys/unix"
+)
 
 func probeAllowRootReadable(opts ApplyOptions) error {
 	if len(opts.AllowRootFDs) == 0 || opts.AllowRootFDs[0] == nil {
@@ -20,7 +25,12 @@ func probeAllowRootCreate(opts ApplyOptions) (cleanup func(), err error) {
 		return nil, errNoAllowRootFD
 	}
 	dirfd := int(opts.AllowRootFDs[0].Fd())
-	const name = "integris-neg-fs-write"
+	var nonce [8]byte
+	if _, err := rand.Read(nonce[:]); err != nil {
+		return nil, err
+	}
+	// Unique name avoids EEXIST false-pass of readonly deny (M5s).
+	name := "integris-neg-fs-" + hex.EncodeToString(nonce[:])
 	fd, err := unix.Openat(dirfd, name, unix.O_CREAT|unix.O_WRONLY|unix.O_EXCL|unix.O_CLOEXEC, 0o600)
 	if err != nil {
 		return nil, err

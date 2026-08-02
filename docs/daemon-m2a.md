@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M5r engineering increments)
+# Privilege-separated receive (M2a–M5s engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,7 +65,7 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M5r CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  (M3m–M5s CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
   ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt/Landlock/pledge StrictLaunch
   push, RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual
   documented on FreeBSD)
@@ -317,6 +317,9 @@ ExtraPeer chain (one extra peer per child):
 - **M5r:** NEG-FS-READ pre-apply existence — `AmbientFSReadProbeExisted`
   before Apply so OpenBSD unveil ENOENT is deny (not Unavailable); fixes
   M5q StrictLaunch regression on OpenBSD
+- **M5s:** NEG-FS-WRITE unique probe + readonly Require — nonce path;
+  EEXIST → Unavailable; `RequireArchiveFSWriteDenied` for Index/Audit in
+  release `Confine`
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

@@ -189,6 +189,7 @@ func probeAllowRootPath(roots []string) (string, error) {
 // NegativeFSPathWrite attempts create/write under a conferred allow-root.
 // ArchiveFSReadonly roles must be denied; ArchiveFSReadWrite must succeed.
 // On FreeBSD, uses openat on a conferred directory FD.
+// Probe paths use a unique nonce name; EEXIST is Unavailable, not deny (M5s).
 func NegativeFSPathWrite(role authority.ProcessRole, opts ApplyOptions) Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	mode := RoleArchiveFSMode(role)
@@ -211,6 +212,13 @@ func NegativeFSPathWrite(role authority.ProcessRole, opts ApplyOptions) Finding 
 				return Finding{
 					ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
 					Status: StatusUnexpectedAllow, Detail: "create under readonly allow-root fd succeeded",
+				}
+			}
+			// EEXIST is infrastructure collision, not Capsicum deny (M5s).
+			if errors.Is(err, os.ErrExist) {
+				return Finding{
+					ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+					Status: StatusUnavailable, Detail: "probe path exists under allow-root fd",
 				}
 			}
 			return Finding{
@@ -244,7 +252,14 @@ func NegativeFSPathWrite(role authority.ProcessRole, opts ApplyOptions) Finding 
 			Status: StatusUnavailable, Detail: err.Error(),
 		}
 	}
-	p := filepath.Join(probe, "integris-neg-fs-write")
+	var nonce [8]byte
+	if _, err := rand.Read(nonce[:]); err != nil {
+		return Finding{
+			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+			Status: StatusUnavailable, Detail: "probe nonce: " + err.Error(),
+		}
+	}
+	p := filepath.Join(probe, "integris-neg-fs-"+hex.EncodeToString(nonce[:]))
 	if runtime.GOOS == "openbsd" && mode == ArchiveFSReadonly {
 		// O_CREATE/O_WRONLY without wpath aborts under pledge.
 		return Finding{
@@ -260,6 +275,15 @@ func NegativeFSPathWrite(role authority.ProcessRole, opts ApplyOptions) Finding 
 			return Finding{
 				ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
 				Status: StatusUnexpectedAllow, Detail: "create under readonly allow-root succeeded",
+			}
+		}
+		// Stale fixed-name collisions must not look like confinement deny (M5s;
+		// twin of NEG-FS-OPEN EEXIST honesty in M5p). Unique nonce makes this
+		// rare; still refuse to treat EEXIST as DeniedExpected.
+		if errors.Is(err, os.ErrExist) {
+			return Finding{
+				ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+				Status: StatusUnavailable, Detail: "probe path exists: " + p,
 			}
 		}
 		return Finding{
