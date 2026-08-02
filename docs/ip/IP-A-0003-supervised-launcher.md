@@ -149,7 +149,8 @@ directory owned for the test/run.
     (M5y; `CAP_FCNTL`/`CAP_IOCTL` absent M6b; `NEG-FS-PATH`/`NEG-FS-WRITE` via
     `fstat`/`openat`) + `RLIMIT_CORE` before CapEnter (M6a) +
     `PROC_TRACE_CTL_DISABLE` before CapEnter with `PROC_TRACE_STATUS=-1`
-    verify (M6c);
+    verify (M6c; STATUS re-probe blocked after CapEnter — Require trusts
+    APPLY verify while in capability mode);
   - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
     path-capable roles may receive `(allow file-read*/file-write* (subpath …))`
     allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root;

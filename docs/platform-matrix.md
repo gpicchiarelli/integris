@@ -74,8 +74,9 @@ residual (`DISC-CAP-EMPTY` Unavailable). Landlock is applied and discoverable
 observational (Yama self-attach is non-discriminative). On Darwin/OpenBSD/
 FreeBSD, release mode also fails closed unless `RLIMIT_CORE` is zero
 (`RequireRlimitCoreZero`, M6a). On FreeBSD, release mode also fails closed
-unless `PROC_TRACE_STATUS` is `-1` after `PROC_TRACE_CTL_DISABLE`
-(`RequireTraceCtlDisabled`, M6c).
+unless TRACE_CTL was verified disabled (`RequireTraceCtlDisabled`, M6c;
+`PROC_TRACE_STATUS` is blocked after CapEnter — Require accepts prior APPLY
+STATUS verify while in capability mode).
 FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down

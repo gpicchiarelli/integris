@@ -10,7 +10,7 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-CAPSICUM", Platform: plat, Control: "cap_enter", Status: StatusAvailable, Detail: "ApplyEngineering CapEnter; RequireCapModeAvailable (M3m)"},
 		{ID: "DISC-CAP-RIGHTS", Platform: plat, Control: "cap_rights_limit", Status: StatusAvailable, Detail: "LimitConferredFDs/LimitAllowRootFDs + CapRightsGet verify want present and FCNTL/IOCTL/exec/net sentinels absent (M5y/M6b)"},
 		{ID: "DISC-RLIMIT-CORE", Platform: plat, Control: "rlimit_core", Status: StatusAvailable, Detail: "ApplyEngineering sets RLIMIT_CORE soft=hard=0 before CapEnter; getrlimit verified (M6a)"},
-		{ID: "DISC-TRACE-CTL", Platform: plat, Control: "proc_trace_ctl", Status: StatusAvailable, Detail: "ApplyEngineering PROC_TRACE_CTL_DISABLE before CapEnter; PROC_TRACE_STATUS=-1 verified (M6c)"},
+		{ID: "DISC-TRACE-CTL", Platform: plat, Control: "proc_trace_ctl", Status: StatusAvailable, Detail: "ApplyEngineering PROC_TRACE_CTL_DISABLE before CapEnter; STATUS=-1 verified pre-mode (STATUS blocked after CapEnter; M6c)"},
 		{ID: "DISC-ALLOW-ROOT-FD", Platform: plat, Control: "conferred_directory_fds", Status: StatusAvailable, Detail: "launcher ExtraFiles + INTEGRIS_ALLOW_ROOT_FDS; LimitAllowRootFDs before cap_enter; NEG-FS-PATH/WRITE via openat"},
 		{ID: "DISC-JAIL-NOIP", Platform: plat, Control: "jail_set_ip_disable", Status: StatusUnavailable, Detail: "M3s residual: CapEnter leaves AF_INET; jail ip-disable conflicts with allow-root CapRightsLimit"},
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available via OpenSocketFabric"},

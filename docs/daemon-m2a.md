@@ -346,8 +346,9 @@ ExtraPeer chain (one extra peer per child):
   conferred and allow-root FDs; closes platform-matrix ioctl residual; M3s
   AF_INET residual unchanged
 - **M6c:** FreeBSD PROC_TRACE_CTL_DISABLE — apply+STATUS=-1 verify before
-  CapEnter; `RequireTraceCtlDisabled`; Linux dumpable / RLIMIT_CORE anti-trace
-  parity; self re-ENABLE residual (same class as re-PR_SET_DUMPABLE)
+  CapEnter; `RequireTraceCtlDisabled` (STATUS blocked after CapEnter — trusts
+  APPLY verify in capability mode); Linux dumpable / RLIMIT_CORE anti-trace
+  parity; self re-ENABLE residual only outside CapEnter
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

@@ -1179,10 +1179,13 @@ Exit: FreeBSD FCNTL/IOCTL CapRightsGet green; `docs/daemon-m2a.md`.
 - `APPLY-TRACE-CTL`: `procctl(P_PID, …, PROC_TRACE_CTL, DISABLE)` before
   CapEnter; verify `PROC_TRACE_STATUS == -1`;
 - `NegativeTraceCtl` + release `RequireTraceCtlDisabled` (Available or
-  Skipped); `DISC-TRACE-CTL` Available on FreeBSD;
+  Skipped); after CapEnter, STATUS is ECAPMODE — Require accepts prior APPLY
+  verify while `cap_getmode` confirms capability mode; `DISC-TRACE-CTL`
+  Available on FreeBSD;
 - DISABLE (not DISABLE_EXEC): CapEnter already denies execve; does not claim
-  self cannot re-ENABLE (same class as re-`PR_SET_DUMPABLE`); FreeBSD parity
-  with Linux dumpable / RLIMIT_CORE anti-trace surface; not an IC-1 claim.
+  self cannot re-ENABLE outside CapEnter (same class as re-`PR_SET_DUMPABLE`);
+  FreeBSD parity with Linux dumpable / RLIMIT_CORE anti-trace surface; not an
+  IC-1 claim.
 
 Exit: FreeBSD TRACE_CTL green; `docs/daemon-m2a.md`.
 
