@@ -266,6 +266,9 @@ is accepted.
   keyring; kill parser after first peer push; net+auth + listen survive;
   parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit`
   (M4a/M4n/M4x OpenBSD parity); completes OpenBSD campaign M4y–M5h;
+- M5i OpenBSD pledge promise tightening: `wpath`/`cpath`/`fattr`/`flock` only
+  for ArchiveFSReadWrite roles; base `stdio rpath unix sendfd recvfd proc`
+  (+ `inet` when CapNetwork); closes M4y broad-promise residual;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

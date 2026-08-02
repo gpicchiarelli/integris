@@ -51,8 +51,8 @@ jobs:
             export TMPDIR="${PWD}/.ci-tmp"
             mkdir -p "$TMPDIR"
             go version
-            # Focused M4y–M5h StrictLaunch campaign; avoid full RestartOne suite on slow VM.
+            # Focused OpenBSD StrictLaunch campaign + confine unit tests (M4y–M5i).
             go test -timeout 15m -count=1 ./internal/confine/
-            go test -timeout 15m -count=1 ./internal/daemon/ -run 'TestM4yStrictLaunchPledgePushServe|TestM4zStrictLaunchPledgeRestartOneApply|TestM5aStrictLaunchPledgeRestartOneParserDown|TestM5bStrictLaunchPledgeRestartOneAuthPrimary|TestM5cStrictLaunchPledgeRestartOneAuthPeerExtraPeer|TestM5dStrictLaunchPledgeRestartOneAuditAuthExtraPeer|TestM5eStrictLaunchPledgePeerPushServe|TestM5fStrictLaunchPledgePeerDenyAdmit|TestM5gStrictLaunchPledgeRestartOneApplyPeer|TestM5hStrictLaunchPledgeRestartOneParserDownPeer|TestM2kStrictLaunchPushServe|TestM2aPushServeSplit'
+            go test -timeout 15m -count=1 ./internal/daemon/ -run 'TestM4y|TestM4z|TestM5|TestM2kStrictLaunchPushServe|TestM2aPushServeSplit'
             go test -timeout 10m -count=1 ./internal/launcher/ -run 'TestLaunchStubIPC|TestM4c'
             go vet ./internal/confine/ ./internal/daemon/ ./internal/launcher/
