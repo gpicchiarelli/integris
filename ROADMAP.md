@@ -794,6 +794,19 @@ Exit: supervised Linux Landlock StrictLaunch RestartOne auth-primary green;
 Exit: supervised Linux Landlock StrictLaunch RestartOne auth ExtraPeer green;
 `docs/daemon-m2a.md`.
 
+## M4t — Linux StrictLaunch Landlock+seccomp RestartOne audit ExtraPeer (landed engineering)
+
+- Linux `TestM4tStrictLaunchLandlockRestartOneAuditAuthExtraPeer`: StrictLaunch
+  persistent serve with peer keyring under Landlock+seccomp; kill audit after
+  first peer push; auth+net+parser+plan+index + listen survive;
+  apply+journal+audit respawn with auth ExtraPeer→audit rebind; ≥2
+  `auth.peer.admit` (M3x/M4j Linux parity);
+- FreeBSD CapEnter and Darwin Seatbelt audit ExtraPeer RestartOne remain
+  M3x/M4j; not an IC-1 claim.
+
+Exit: supervised Linux Landlock StrictLaunch RestartOne audit ExtraPeer green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
