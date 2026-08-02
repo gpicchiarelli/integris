@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M4k engineering increments)
+# Privilege-separated receive (M2a–M4l engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,9 +65,10 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M4k CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
-  ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt StrictLaunch push and
-  RestartOne first cuts; FreeBSD ambient AF_INET residual documented on FreeBSD)
+  (M3m–M4l CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt StrictLaunch push,
+  RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual documented
+  on FreeBSD)
 - **M2l:** default key conferral is SCM-only — ExtraFiles carries IPC sockets plus
   a dedicated key-channel socketpair end (fd4); MAC/root/extra keys arrive via
   `SCM_RIGHTS` on that channel (`Handle.KeyChannel`). Legacy
@@ -216,6 +217,9 @@ ExtraPeer chain (one extra peer per child):
 - **M4k:** Darwin StrictLaunch Seatbelt peer-key push — StrictLaunch Once with
   peer keyring under Seatbelt; peer push succeeds with journal/audit/plan and
   ≥1 `auth.peer.admit` (M3y Darwin parity)
+- **M4l:** Darwin StrictLaunch Seatbelt peer deny/admit — unknown peer and
+  wrong-key rejected without destination mutation; valid peer push admits with
+  `auth.peer.deny` + `auth.peer.admit` (M4b Darwin parity)
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

@@ -700,6 +700,17 @@ Exit: supervised Darwin Seatbelt audit ExtraPeer RestartOne green;
 Exit: supervised Darwin Seatbelt peer-key Once push green;
 `docs/daemon-m2a.md`.
 
+## M4l — Darwin StrictLaunch Seatbelt peer deny/admit (landed engineering)
+
+- Darwin `TestM4lStrictLaunchSeatbeltPeerDenyAdmit`: StrictLaunch persistent
+  serve under Seatbelt with peer keyring; unknown peer and wrong-key pushes are
+  rejected without destination mutation; valid peer push succeeds with
+  journal/audit/plan and both `auth.peer.deny` + `auth.peer.admit` (M4b Darwin
+  parity);
+- not an IC-1 claim.
+
+Exit: supervised Darwin Seatbelt peer deny/admit green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
