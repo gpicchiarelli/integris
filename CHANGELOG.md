@@ -271,6 +271,8 @@ is accepted.
   (+ `inet` when CapNetwork); closes M4y broad-promise residual;
 - M5j OpenBSD CI widen: `go test` all packages except full daemon RestartOne
   matrix; focused StrictLaunch `-run` retained; `go vet ./...`;
+- M5k OpenBSD CI full daemon suite: `go test ./...` + `go vet ./...`
+  (FreeBSD parity; includes RestartOne matrix);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
