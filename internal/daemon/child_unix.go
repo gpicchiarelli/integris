@@ -236,7 +236,8 @@ func closeAll(files ...*os.File) {
 // PR_NO_NEW_PRIVS verify via APPLY-NO-NEW-PRIVS + NEG-NO-NEW-PRIVS (M5v),
 // Linux seccomp FILTER+TSYNC via APPLY-SECCOMP + NEG-SECCOMP (M5w),
 // Linux dumpable clear via APPLY-DUMPABLE + NEG-DUMPABLE (M5x),
-// and Unix RLIMIT_CORE=0 via APPLY-RLIMIT-CORE + NEG-RLIMIT-CORE (M5z/M6a).
+// Unix RLIMIT_CORE=0 via APPLY-RLIMIT-CORE + NEG-RLIMIT-CORE (M5z/M6a),
+// and FreeBSD PROC_TRACE_CTL_DISABLE via APPLY-TRACE-CTL + NEG-TRACE-CTL (M6c).
 func (e ChildEnv) Confine() error {
 	// Capture before ApplyEngineering: OpenBSD unveil may return ENOENT for
 	// non-unveiled paths, indistinguishable from a missing probe target (M5r).
@@ -281,6 +282,10 @@ func (e ChildEnv) Confine() error {
 			return err
 		}
 		if err := confine.RequireRlimitCoreZero(); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
+			return err
+		}
+		if err := confine.RequireTraceCtlDisabled(); err != nil {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}

@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M6b engineering increments)
+# Privilege-separated receive (M2a–M6c engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,7 +65,7 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M6b CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  (M3m–M6c CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
   ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt/Landlock/pledge StrictLaunch
   push, RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual
   documented on FreeBSD)
@@ -345,6 +345,10 @@ ExtraPeer chain (one extra peer per child):
 - **M6b:** FreeBSD CapRights FCNTL/IOCTL absent — CapRightsGet sentinels on
   conferred and allow-root FDs; closes platform-matrix ioctl residual; M3s
   AF_INET residual unchanged
+- **M6c:** FreeBSD PROC_TRACE_CTL_DISABLE — apply+STATUS=-1 verify before
+  CapEnter; `RequireTraceCtlDisabled` (STATUS blocked after CapEnter — trusts
+  APPLY verify in capability mode); Linux dumpable / RLIMIT_CORE anti-trace
+  parity; self re-ENABLE residual only outside CapEnter
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

@@ -122,7 +122,7 @@ profile defect.
   no_new_privs verify Require M5v, and Linux seccomp TSYNC Require M5w, and
   Linux dumpable clear Require M5x, and   FreeBSD CapRightsGet verify M5y, Linux RLIMIT_CORE=0 Require M5z, and
   Unix-wide RLIMIT_CORE Require M6a, and FreeBSD CapRights FCNTL/IOCTL absent
-  M6b); it is
+  M6b, and FreeBSD PROC_TRACE_CTL_DISABLE Require M6c); it is
   not a
   product
   IC-1 release claim.
@@ -147,7 +147,10 @@ directory owned for the test/run.
   - FreeBSD: `cap_enter` after `LimitConferredFDs` + `LimitAllowRootFDs` on
     conferred archive directory FDs with `CapRightsGet` want+absent verify
     (M5y; `CAP_FCNTL`/`CAP_IOCTL` absent M6b; `NEG-FS-PATH`/`NEG-FS-WRITE` via
-    `fstat`/`openat`) + `RLIMIT_CORE` before CapEnter (M6a);
+    `fstat`/`openat`) + `RLIMIT_CORE` before CapEnter (M6a) +
+    `PROC_TRACE_CTL_DISABLE` before CapEnter with `PROC_TRACE_STATUS=-1`
+    verify (M6c; STATUS re-probe blocked after CapEnter — Require trusts
+    APPLY verify while in capability mode);
   - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
     path-capable roles may receive `(allow file-read*/file-write* (subpath …))`
     allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root;
@@ -237,7 +240,8 @@ directory owned for the test/run.
   landed in M5v; Linux seccomp TSYNC Require landed in M5w; Linux dumpable
   clear Require landed in M5x; FreeBSD CapRightsGet verify landed in M5y;
   Linux RLIMIT_CORE=0 Require landed in M5z; Unix-wide RLIMIT_CORE Require
-  landed in M6a; FreeBSD CapRights FCNTL/IOCTL absent landed in M6b).
+  landed in M6a; FreeBSD CapRights FCNTL/IOCTL absent landed in M6b; FreeBSD
+  PROC_TRACE_CTL_DISABLE Require landed in M6c).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

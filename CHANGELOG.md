@@ -310,6 +310,9 @@ is accepted.
   Seatbelt/unveil/CapEnter; `RequireRlimitCoreZero` fail-closed off Linux;
 - M6b FreeBSD CapRights FCNTL/IOCTL absent: CapRightsGet sentinels on
   conferred and allow-root FDs; closes platform-matrix ioctl residual;
+- M6c FreeBSD PROC_TRACE_CTL_DISABLE: apply+STATUS verify before CapEnter;
+  `RequireTraceCtlDisabled` (STATUS blocked after CapEnter — trusts APPLY);
+  `DISC-TRACE-CTL` Available; dumpable parity;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
