@@ -68,7 +68,11 @@ func run() error {
 	_ = confine.LimitConferredFDs(sock, keyF)
 	opts := confine.ApplyOptions{}
 	if rawRoots := os.Getenv(launcher.EnvAllowRoots); rawRoots != "" {
-		opts.AllowRoots = splitAllowRoots(rawRoots)
+		roots, err := confine.NormalizeAllowRoots(splitAllowRoots(rawRoots))
+		if err != nil {
+			return fmt.Errorf("allow roots: %w", err)
+		}
+		opts.AllowRoots = roots
 	}
 	rootFDs := launcher.ClaimAllowRootFDs(os.Getenv(launcher.EnvAllowRootFDs))
 	defer launcher.CloseAllowRootFDs(rootFDs)
