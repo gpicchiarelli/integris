@@ -546,6 +546,17 @@ Exit: supervised CapEnter auth-primary RestartOne green; `docs/daemon-m2a.md`.
 
 Exit: supervised CapEnter peer-auth ExtraPeer RestartOne green; `docs/daemon-m2a.md`.
 
+## M3x — FreeBSD StrictLaunch CapEnter M2j audit ExtraPeer RestartOne (landed engineering)
+
+- FreeBSD `TestM3xStrictLaunchCapEnterRestartOneAuditAuthExtraPeer`: StrictLaunch
+  persistent serve under CapEnter with peer keyring; kill audit after first peer
+  push; auth+net+parser+plan+index + listen survive; apply+journal+audit
+  respawn with auth ExtraPeer→audit rebind under M3m–M3q fail-closed confine;
+  second peer push yields ≥2 `auth.peer.admit` (M3b path under CapEnter);
+- not an IC-1 claim.
+
+Exit: supervised CapEnter audit ExtraPeer RestartOne green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

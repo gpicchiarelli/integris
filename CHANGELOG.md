@@ -145,6 +145,9 @@ is accepted.
 - M3w FreeBSD StrictLaunch CapEnter M2j auth ExtraPeer RestartOne: peer
   keyring; kill auth after first peer push; data plane + listen survive; auth
   respawns with primary + audit ExtraPeer rebind; ≥2 `auth.peer.admit`;
+- M3x FreeBSD StrictLaunch CapEnter M2j audit ExtraPeer RestartOne: peer
+  keyring; kill audit after first peer push; auth+upstream + listen survive;
+  apply+journal+audit respawn with auth ExtraPeer→audit rebind; ≥2 admits;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
