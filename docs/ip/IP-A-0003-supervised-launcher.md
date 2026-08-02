@@ -101,7 +101,8 @@ profile defect.
   M4u, and Linux StrictLaunch Landlock+seccomp peer deny/admit M4v, and Linux
   StrictLaunch Landlock+seccomp peer apply RestartOne M4w, and Linux
   StrictLaunch Landlock+seccomp peer parser-down RestartOne M4x, and OpenBSD
-  StrictLaunch pledge+unveil push first cut M4y); it is not a
+  StrictLaunch pledge+unveil push first cut M4y, and OpenBSD StrictLaunch
+  pledge+unveil RestartOne apply M4z); it is not a
   product
   IC-1 release claim.
 
@@ -188,7 +189,8 @@ directory owned for the test/run.
   StrictLaunch Landlock+seccomp peer deny/admit landed in M4v; Linux
   StrictLaunch Landlock+seccomp peer apply RestartOne landed in M4w; Linux
   StrictLaunch Landlock+seccomp peer parser-down RestartOne landed in M4x;
-  OpenBSD StrictLaunch pledge+unveil push first cut landed in M4y).
+  OpenBSD StrictLaunch pledge+unveil push first cut landed in M4y; OpenBSD
+  StrictLaunch pledge+unveil RestartOne apply landed in M4z).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

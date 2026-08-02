@@ -234,6 +234,9 @@ is accepted.
   journal/audit/plan (M3p/M4e/M4o OpenBSD parity); unveil then pledge
   (no `tmppath`; AllowRoots+/dev only); DISC-PLEDGE/DISC-UNVEIL reflect
   ApplyEngineering;
+- M4z OpenBSD StrictLaunch pledge+unveil RestartOne apply: kill apply after
+  first push; net+auth+index + listen survive; apply+journal+audit respawn;
+  second push succeeds (M3r/M4f/M4p OpenBSD parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
