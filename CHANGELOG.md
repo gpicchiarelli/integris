@@ -301,6 +301,9 @@ is accepted.
   Available; Landlock per-thread residual unchanged;
 - M5x Linux dumpable clear + Require: `PR_SET_DUMPABLE(0)`,
   `RequireDumpableClear`; `DISC-DUMPABLE` Available; `NEG-PTRACE` residual;
+- M5y FreeBSD CapRightsGet verify: `LimitConferredFDs` /
+  `LimitAllowRootFDs` read back want+absent sentinels;
+  `DISC-CAPSICUM`/`DISC-CAP-RIGHTS` Available; M3s AF_INET residual;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

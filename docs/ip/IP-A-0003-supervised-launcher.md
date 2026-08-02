@@ -120,7 +120,7 @@ profile defect.
   unique probe + readonly Require M5s, and archive allow-root path/write
   Available Require M5t, and Linux ambient capability clear M5u, and Linux
   no_new_privs verify Require M5v, and Linux seccomp TSYNC Require M5w, and
-  Linux dumpable clear Require M5x); it is
+  Linux dumpable clear Require M5x, and FreeBSD CapRightsGet verify M5y); it is
   not a
   product
   IC-1 release claim.
@@ -141,8 +141,8 @@ directory owned for the test/run.
     roles without `network_sockets` also deny socket/connect/bind/listen/accept*;
   - OpenBSD: role-parameterized `pledge` + `unveil` of allow-roots then lock;
   - FreeBSD: `cap_enter` after `LimitConferredFDs` + `LimitAllowRootFDs` on
-    conferred archive directory FDs (`NEG-FS-PATH`/`NEG-FS-WRITE` via
-    `fstat`/`openat`);
+    conferred archive directory FDs with `CapRightsGet` want+absent verify
+    (M5y; `NEG-FS-PATH`/`NEG-FS-WRITE` via `fstat`/`openat`);
   - Darwin: Seatbelt `sandbox_init` via cgo (`deny network*` unless net role;
     path-capable roles may receive `(allow file-read*/file-write* (subpath …))`
     allow-roots — EvalSymlinks required; `NEG-FS-PATH` asserts open under root;
@@ -230,7 +230,7 @@ directory owned for the test/run.
   archive allow-root path/write Available Require landed in M5t; Linux
   ambient capability clear landed in M5u; Linux no_new_privs verify Require
   landed in M5v; Linux seccomp TSYNC Require landed in M5w; Linux dumpable
-  clear Require landed in M5x).
+  clear Require landed in M5x; FreeBSD CapRightsGet verify landed in M5y).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
