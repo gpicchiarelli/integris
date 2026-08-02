@@ -769,6 +769,19 @@ Exit: supervised Linux Landlock StrictLaunch RestartOne apply green;
 Exit: supervised Linux Landlock StrictLaunch RestartOne parser-down green;
 `docs/daemon-m2a.md`.
 
+## M4r — Linux StrictLaunch Landlock+seccomp RestartOne auth-primary (landed engineering)
+
+- Linux `TestM4rStrictLaunchLandlockRestartOneAuthPrimary`: StrictLaunch
+  persistent serve under Landlock+seccomp; kill auth after first push; net +
+  full data plane + listen survive; auth respawns with primary peer rebind
+  under M3q/M4d fail-closed confine; second push succeeds (M3v/M4h Linux
+  parity);
+- FreeBSD CapEnter and Darwin Seatbelt auth-primary RestartOne remain M3v/M4h;
+  not an IC-1 claim.
+
+Exit: supervised Linux Landlock StrictLaunch RestartOne auth-primary green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
