@@ -54,6 +54,14 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 			return out
 		}
 	}
+	// Go runtime / getentropy helpers may touch /dev; keep it readable.
+	if err := unix.Unveil("/dev", "r"); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-UNVEIL", Platform: plat, Control: "unveil",
+			Status: StatusUnavailable, Detail: "/dev: " + err.Error(),
+		})
+		return out
+	}
 	if err := unix.UnveilBlock(); err != nil {
 		out = append(out, Finding{
 			ID: "APPLY-UNVEIL", Platform: plat, Control: "unveil",
@@ -79,8 +87,9 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 // rpath/wpath/cpath/fattr when archive allow-roots apply.
 func openbsdPromises(role authority.ProcessRole) string {
 	// Always include rpath so path probes return errors under locked unveil
-	// instead of SIGABRT from pledge. FS deny is unveil's job.
-	parts := []string{"stdio", "unix", "sendfd", "recvfd", "rpath"}
+	// instead of SIGABRT from pledge. FS deny is unveil's job. proc is required
+	// by the Go runtime scheduler on OpenBSD.
+	parts := []string{"stdio", "unix", "sendfd", "recvfd", "rpath", "proc"}
 	if RoleMayHoldNetwork(role) {
 		parts = append(parts, "inet")
 	}
