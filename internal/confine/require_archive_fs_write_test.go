@@ -58,3 +58,47 @@ func TestRequireArchiveFSWriteDeniedNonReadonly(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestRequireArchiveFSWriteAvailableFinding(t *testing.T) {
+	ok := confine.Finding{
+		ID: "NEG-FS-WRITE", Status: confine.StatusAvailable, Detail: "wrote",
+	}
+	if err := confine.RequireArchiveFSWriteAvailableFinding(ok); err != nil {
+		t.Fatal(err)
+	}
+
+	skip := confine.Finding{
+		ID: "NEG-FS-WRITE", Status: confine.StatusSkipped, Detail: "no roots",
+	}
+	if err := confine.RequireArchiveFSWriteAvailableFinding(skip); err != nil {
+		t.Fatal(err)
+	}
+
+	denied := confine.Finding{
+		ID: "NEG-FS-WRITE", Status: confine.StatusDeniedExpected, Detail: "denied",
+	}
+	if err := confine.RequireArchiveFSWriteAvailableFinding(denied); err == nil {
+		t.Fatal("expected denied refusal for readwrite require")
+	}
+
+	unavailable := confine.Finding{
+		ID: "NEG-FS-WRITE", Status: confine.StatusUnavailable, Detail: "failed",
+	}
+	if err := confine.RequireArchiveFSWriteAvailableFinding(unavailable); err == nil {
+		t.Fatal("expected unavailable refusal")
+	}
+
+	wrong := confine.Finding{ID: "NEG-FS-PATH", Status: confine.StatusAvailable}
+	if err := confine.RequireArchiveFSWriteAvailableFinding(wrong); err == nil {
+		t.Fatal("expected wrong-id refusal")
+	}
+}
+
+func TestRequireArchiveFSWriteAvailableNonReadWrite(t *testing.T) {
+	if err := confine.RequireArchiveFSWriteAvailable(authority.RoleIndex, confine.ApplyOptions{}); err != nil {
+		t.Fatal(err)
+	}
+	if err := confine.RequireArchiveFSWriteAvailable(authority.RoleAuth, confine.ApplyOptions{}); err != nil {
+		t.Fatal(err)
+	}
+}

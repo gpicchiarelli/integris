@@ -60,6 +60,12 @@ func TestSeatbeltAllowRootAndDeniesAmbient(t *testing.T) {
 	if wr.Status != confine.StatusAvailable {
 		t.Fatalf("NEG-FS-WRITE apply: %+v", wr)
 	}
+	if err := confine.RequireArchiveFSPathAvailable(authority.RoleApply, opts); err != nil {
+		t.Fatal(err)
+	}
+	if err := confine.RequireArchiveFSWriteAvailable(authority.RoleApply, opts); err != nil {
+		t.Fatal(err)
+	}
 	ex := confine.NegativeExec()
 	if ex.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-EXEC: %+v", ex)
@@ -93,6 +99,9 @@ func TestSeatbeltIndexDeniesAllowRootWrite(t *testing.T) {
 	wr := confine.NegativeFSPathWrite(authority.RoleIndex, opts)
 	if wr.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-FS-WRITE index: %+v", wr)
+	}
+	if err := confine.RequireArchiveFSPathAvailable(authority.RoleIndex, opts); err != nil {
+		t.Fatal(err)
 	}
 	if err := confine.RequireArchiveFSWriteDenied(authority.RoleIndex, opts); err != nil {
 		t.Fatal(err)

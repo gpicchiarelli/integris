@@ -228,8 +228,10 @@ func closeAll(files ...*os.File) {
 // NEG-FS-OPEN (M5p), ambient AF_INET deny via NEG-ROLE-NET on
 // Linux/Darwin/OpenBSD (M4d; FreeBSD CapEnter leaves AF_INET — M3s residual),
 // ambient process exec deny via NEG-EXEC on all confined ports (M5o;
-// FreeBSD CapEnter denies exec, unlike ROLE-NET), and archive-readonly
-// allow-root create denial via NEG-FS-WRITE (M5s; Index/Audit).
+// FreeBSD CapEnter denies exec, unlike ROLE-NET), archive-readonly
+// allow-root create denial via NEG-FS-WRITE (M5s; Index/Audit), archive
+// allow-root open via NEG-FS-PATH (M5t), and archive-readwrite create via
+// NEG-FS-WRITE (M5t; Apply/Journal).
 func (e ChildEnv) Confine() error {
 	// Capture before ApplyEngineering: OpenBSD unveil may return ENOENT for
 	// non-unveiled paths, indistinguishable from a missing probe target (M5r).
@@ -273,7 +275,15 @@ func (e ChildEnv) Confine() error {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
+		if err := confine.RequireArchiveFSPathAvailable(e.Role, applyOpts); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
+			return err
+		}
 		if err := confine.RequireArchiveFSWriteDenied(e.Role, applyOpts); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
+			return err
+		}
+		if err := confine.RequireArchiveFSWriteAvailable(e.Role, applyOpts); err != nil {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}

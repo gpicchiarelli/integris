@@ -1085,6 +1085,15 @@ Exit: OpenBSD StrictLaunch green with hosts-less honesty retained; `docs/daemon-
 
 Exit: archive-readonly write deny green; `docs/daemon-m2a.md`.
 
+## M5t — archive allow-root path/write Available Require (landed engineering)
+
+- release `Confine` calls `RequireArchiveFSPathAvailable` (`NEG-FS-PATH`
+  Available or Skipped) for archive roles;
+- `RequireArchiveFSWriteAvailable` for Apply/Journal (`NEG-FS-WRITE`
+  Available or Skipped); complements M5s readonly deny; not an IC-1 claim.
+
+Exit: archive allow-root positive Require green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
