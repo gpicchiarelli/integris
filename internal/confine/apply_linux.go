@@ -65,10 +65,20 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 			ID: "APPLY-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
 			Status: StatusUnavailable, Detail: err.Error(),
 		})
+	} else if empty, err := ambientCapsEmpty(); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
+			Status: StatusUnavailable, Detail: "verify: " + err.Error(),
+		})
+	} else if !empty {
+		out = append(out, Finding{
+			ID: "APPLY-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
+			Status: StatusUnavailable, Detail: "PR_CAP_AMBIENT_CLEAR_ALL left ambient caps set",
+		})
 	} else {
 		out = append(out, Finding{
 			ID: "APPLY-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
-			Status: StatusAvailable, Detail: "PR_CAP_AMBIENT_CLEAR_ALL",
+			Status: StatusAvailable, Detail: "PR_CAP_AMBIENT_CLEAR_ALL; CapAmb verified empty",
 		})
 	}
 

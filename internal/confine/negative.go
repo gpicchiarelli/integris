@@ -326,7 +326,7 @@ func NegativeEngineering(role authority.ProcessRole, fsReadProbeExisted bool) []
 // fsReadProbeExisted must be AmbientFSReadProbeExisted before apply (M5r).
 func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions, fsReadProbeExisted bool) []Finding {
 	return []Finding{
-		NegativeCapMode(), // M3k: FreeBSD cap_getmode; skipped elsewhere
+		NegativeCapMode(),    // M3k: FreeBSD cap_getmode; skipped elsewhere
 		NegativeCapAmbient(), // M5u: Linux CapAmb empty; skipped elsewhere
 		NegativeFSOpen(),
 		NegativeFSRead(fsReadProbeExisted),

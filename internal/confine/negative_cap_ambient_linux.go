@@ -3,15 +3,14 @@
 package confine
 
 import (
-	"bufio"
-	"errors"
-	"os"
 	"runtime"
-	"strings"
+
+	"golang.org/x/sys/unix"
 )
 
 // NegativeCapAmbient reports whether the Linux ambient capability set is empty
-// after ApplyEngineering (M5u). Reads CapAmb from /proc/self/status.
+// after ApplyEngineering (M5u). Uses PR_CAP_AMBIENT_IS_SET so Landlock cannot
+// deny the probe by blocking /proc/self/status.
 func NegativeCapAmbient() Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	empty, err := ambientCapsEmpty()
@@ -24,42 +23,35 @@ func NegativeCapAmbient() Finding {
 	if !empty {
 		return Finding{
 			ID: "NEG-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
-			Status: StatusUnexpectedAllow, Detail: "CapAmb non-empty after apply",
+			Status: StatusUnexpectedAllow, Detail: "ambient capability remains set",
 		}
 	}
 	return Finding{
 		ID: "NEG-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
-		Status: StatusAvailable, Detail: "CapAmb empty",
+		Status: StatusAvailable, Detail: "ambient capability set empty",
 	}
 }
 
+// ambientCapsEmpty reports whether no ambient capabilities remain, via
+// PR_CAP_AMBIENT_IS_SET (works after Landlock; does not need /proc).
 func ambientCapsEmpty() (bool, error) {
-	f, err := os.Open("/proc/self/status")
-	if err != nil {
-		return false, err
-	}
-	defer f.Close()
-	sc := bufio.NewScanner(f)
-	for sc.Scan() {
-		line := sc.Text()
-		if !strings.HasPrefix(line, "CapAmb:") {
-			continue
+	for cap := uintptr(0); cap < 64; cap++ {
+		r1, _, errno := unix.Syscall6(
+			unix.SYS_PRCTL,
+			uintptr(unix.PR_CAP_AMBIENT),
+			uintptr(unix.PR_CAP_AMBIENT_IS_SET),
+			cap, 0, 0, 0,
+		)
+		if errno == unix.EINVAL {
+			// Past CAP_LAST_CAP.
+			break
 		}
-		v := strings.TrimSpace(strings.TrimPrefix(line, "CapAmb:"))
-		if v == "" {
-			return false, errCapAmbMissing
+		if errno != 0 {
+			return false, errno
 		}
-		for _, c := range v {
-			if c != '0' {
-				return false, nil
-			}
+		if r1 != 0 {
+			return false, nil
 		}
-		return true, nil
 	}
-	if err := sc.Err(); err != nil {
-		return false, err
-	}
-	return false, errCapAmbMissing
+	return true, nil
 }
-
-var errCapAmbMissing = errors.New("CapAmb missing from /proc/self/status")

@@ -1097,7 +1097,8 @@ Exit: archive allow-root positive Require green; `docs/daemon-m2a.md`.
 ## M5u — Linux ambient capability clear (landed engineering)
 
 - `ApplyEngineering` clears ambient caps via `PR_CAP_AMBIENT_CLEAR_ALL`
-  (`APPLY-CAP-AMBIENT`); `NegativeCapAmbient` reads `CapAmb`;
+  (`APPLY-CAP-AMBIENT`); `NegativeCapAmbient` uses `PR_CAP_AMBIENT_IS_SET`
+  (Landlock-safe; no `/proc`);
 - release `Confine` calls `RequireCapAmbientEmpty` (Available or Skipped);
 - `DISC-CAP-EMPTY` Available with permitted/bounding + dedicated-account
   residual; not an IC-1 claim.
