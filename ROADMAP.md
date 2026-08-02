@@ -1024,6 +1024,17 @@ Exit: product AllowRoots normalize green; `docs/daemon-m2a.md`.
 
 Exit: parent AllowRoots normalize green; `docs/daemon-m2a.md`.
 
+## M5n — Linux inotify VNodeWatch first cut (landed engineering)
+
+- `platform.VNodeWatch` on Linux via `inotify` (`IN_MODIFY`/`IN_CLOSE_WRITE`,
+  `IN_DELETE_SELF`); `VNodeWatchMechanismInotify`; write/delete harness
+  mirrors BSD kqueue tests; `DISC-INOTIFY` Available (`DISC-KQUEUE` remains
+  Unavailable — kqueue absent);
+- Closes Linux notification residual in INT-IC4-0001 inventory; not an IC-1
+  claim. Out of scope: fanotify, recursive watches, daemon consumer.
+
+Exit: Linux inotify VNodeWatch green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
@@ -1078,7 +1089,7 @@ Darwin abrupt-detach SyncFile-survive harness landed; unflushed-loss
 differential host-dependent; `platform.SendFile` sendfile→socket harness on
 Darwin/Linux/FreeBSD, OpenBSD unavailable);
 differential host-dependent; `platform.VNodeWatch` kqueue VNODE notify
-harness on Darwin/FreeBSD/OpenBSD);
+harness on Darwin/FreeBSD/OpenBSD; Linux inotify (M5n));
 sealed MAC key FD (Linux/FreeBSD sealed memfd-equivalent; Darwin/OpenBSD
 anon-unlinked residual) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys

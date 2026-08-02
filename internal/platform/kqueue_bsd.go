@@ -14,6 +14,8 @@ import (
 
 func vnodeWatchSupported() bool { return true }
 
+func vnodeWatchMechanism() string { return VNodeWatchMechanismKqueue }
+
 type kqueueVNodeWatch struct {
 	kq   int
 	file *os.File

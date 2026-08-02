@@ -1,4 +1,4 @@
-//go:build !(darwin || freebsd || openbsd || netbsd || dragonfly)
+//go:build !(darwin || freebsd || openbsd || netbsd || dragonfly || linux)
 
 package platform_test
 
