@@ -58,6 +58,30 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 		})
 	}
 
+	// Clear ambient capability set (M5u). Does not empty permitted/effective/
+	// bounding sets — dedicated account residual remains for full empty caps.
+	if err := unix.Prctl(unix.PR_CAP_AMBIENT, unix.PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
+			Status: StatusUnavailable, Detail: err.Error(),
+		})
+	} else if empty, err := ambientCapsEmpty(); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
+			Status: StatusUnavailable, Detail: "verify: " + err.Error(),
+		})
+	} else if !empty {
+		out = append(out, Finding{
+			ID: "APPLY-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
+			Status: StatusUnavailable, Detail: "PR_CAP_AMBIENT_CLEAR_ALL left ambient caps set",
+		})
+	} else {
+		out = append(out, Finding{
+			ID: "APPLY-CAP-AMBIENT", Platform: plat, Control: "empty_capability_set",
+			Status: StatusAvailable, Detail: "PR_CAP_AMBIENT_CLEAR_ALL; CapAmb verified empty",
+		})
+	}
+
 	abi, err := landlockABIVersion()
 	if err != nil {
 		out = append(out, Finding{

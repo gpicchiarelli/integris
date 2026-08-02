@@ -230,8 +230,9 @@ func closeAll(files ...*os.File) {
 // ambient process exec deny via NEG-EXEC on all confined ports (M5o;
 // FreeBSD CapEnter denies exec, unlike ROLE-NET), archive-readonly
 // allow-root create denial via NEG-FS-WRITE (M5s; Index/Audit), archive
-// allow-root open via NEG-FS-PATH (M5t), and archive-readwrite create via
-// NEG-FS-WRITE (M5t; Apply/Journal).
+// allow-root open via NEG-FS-PATH (M5t), archive-readwrite create via
+// NEG-FS-WRITE (M5t; Apply/Journal), and Linux ambient capability clear
+// via APPLY-CAP-AMBIENT + NEG-CAP-AMBIENT (M5u; Skipped elsewhere).
 func (e ChildEnv) Confine() error {
 	// Capture before ApplyEngineering: OpenBSD unveil may return ENOENT for
 	// non-unveiled paths, indistinguishable from a missing probe target (M5r).
@@ -256,6 +257,10 @@ func (e ChildEnv) Confine() error {
 			return err
 		}
 		if err := confine.RequireCapModeAvailable(); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
+			return err
+		}
+		if err := confine.RequireCapAmbientEmpty(); err != nil {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
