@@ -856,6 +856,26 @@ Exit: supervised Linux Landlock StrictLaunch peer apply RestartOne green;
 Exit: supervised Linux Landlock StrictLaunch peer parser-down RestartOne green;
 `docs/daemon-m2a.md`.
 
+## M4y — OpenBSD StrictLaunch pledge+unveil push first cut (landed engineering)
+
+- OpenBSD CI via `vmactions/openbsd-vm` (pinned Go 1.26.5) runs native
+  `go test` for confine/daemon/launcher (M4y first-cut package set);
+- OpenBSD `TestM4yStrictLaunchPledgePushServe`: StrictLaunch Once product
+  children under pledge+unveil complete a push with journal/audit/plan
+  (M2k + M3q/M4d fail-closed ambient FS-read + ROLE-NET; M3p/M4e/M4o OpenBSD
+  parity);
+- Role-parameterized `pledge` (broad M4y first-cut set + omit exec/inet where
+  applicable; no `tmppath` — removed from OpenBSD pledgenames) after locked
+  `unveil` (AllowRoots + /dev only; not /etc or /tmp so ambient FS-read deny
+  holds); prior `stdio unix` alone aborted supervised children; promise
+  tightening remains a follow-on residual;
+- `DISC-PLEDGE` / `DISC-UNVEIL` discovery reflect ApplyEngineering; FreeBSD
+  CapEnter, Darwin Seatbelt, and Linux Landlock push first cuts remain
+  M3p/M4e/M4o; not an IC-1 claim.
+
+Exit: supervised OpenBSD pledge StrictLaunch push first cut green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

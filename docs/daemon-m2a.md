@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M4x engineering increments)
+# Privilege-separated receive (M2a–M4y engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,10 +65,10 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M4x CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
-  ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt/Landlock StrictLaunch push,
-  RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual documented
-  on FreeBSD)
+  (M3m–M4y CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt/Landlock/pledge StrictLaunch
+  push, RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual
+  documented on FreeBSD)
 - **M2l:** default key conferral is SCM-only — ExtraFiles carries IPC sockets plus
   a dedicated key-channel socketpair end (fd4); MAC/root/extra keys arrive via
   `SCM_RIGHTS` on that channel (`Handle.KeyChannel`). Legacy
@@ -258,6 +258,10 @@ ExtraPeer chain (one extra peer per child):
   peer keyring; kill parser; net+auth + listen survive;
   parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit`
   (M4a/M4n Linux parity); completes Linux Landlock campaign M4o–M4x
+- **M4y:** OpenBSD StrictLaunch pledge+unveil push first cut — OpenBSD CI VM;
+  StrictLaunch Once under unveil-then-pledge completes push with
+  journal/audit/plan; broad first-cut promises (no `tmppath`);
+  DISC-PLEDGE/DISC-UNVEIL Available (M3p/M4e/M4o OpenBSD parity)
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

@@ -228,21 +228,27 @@ func (e ChildEnv) Confine() error {
 	})
 	if os.Getenv(launcher.EnvMode) == launcher.ModeRelease {
 		if err := confine.RequireConferredLimitFinding(e.ConferredRights); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
 		if err := confine.RequireAllowRootLimitFinding(allowRoots); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
 		if err := r.RequireApplyAvailable(); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v findings=%v\n", err, r.Findings)
 			return err
 		}
 		if err := confine.RequireCapModeAvailable(); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
 		if err := confine.RequireAmbientFSReadDenied(); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
 		if err := confine.RequireAmbientRoleNetDenied(e.Role); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}
 	}

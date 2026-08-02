@@ -143,6 +143,7 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 
 	cmd := exec.CommandContext(ctx, req.Executable)
 	cmd.Dir = work
+	cmd.Stderr = os.Stderr
 	h := &Handle{Cmd: cmd, Role: req.Role}
 	if req.KeyViaExtraFiles {
 		env = append(env, EnvKeyTransport+"="+string(transport))

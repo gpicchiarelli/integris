@@ -15,7 +15,14 @@ import (
 func NegativeExec() Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	switch runtime.GOOS {
-	case "linux", "openbsd", "freebsd", "darwin":
+	case "openbsd":
+		// unix.Exec without the exec promise terminates with SIGABRT; do not
+		// probe in-process. Omission of exec from ApplyEngineering is the deny.
+		return Finding{
+			ID: "NEG-EXEC", Platform: plat, Control: "process_exec",
+			Status: StatusDeniedExpected, Detail: "pledge omits exec (in-process probe would SIGABRT)",
+		}
+	case "linux", "freebsd", "darwin":
 	default:
 		return Finding{
 			ID: "NEG-EXEC", Platform: plat, Control: "process_exec",
@@ -60,6 +67,13 @@ func NegativeRoleNet(role authority.ProcessRole) Finding {
 		return Finding{
 			ID: "NEG-ROLE-NET", Platform: plat, Control: "network_sockets",
 			Status: StatusSkipped, Detail: "role may hold network_sockets; ambient deny not required",
+		}
+	}
+	if runtime.GOOS == "openbsd" {
+		// socket(AF_INET) without inet terminates with SIGABRT under pledge.
+		return Finding{
+			ID: "NEG-ROLE-NET", Platform: plat, Control: "network_sockets",
+			Status: StatusDeniedExpected, Detail: "pledge omits inet (in-process probe would SIGABRT)",
 		}
 	}
 	fd, err := unix.Socket(unix.AF_INET, unix.SOCK_STREAM, 0)
