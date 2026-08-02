@@ -53,7 +53,10 @@ M5o) on all confined ports (including FreeBSD CapEnter). Release mode also
 fails closed unless ambient path create outside allow-roots is denied
 (`RequireAmbientFSOpenDenied`, M5p). ArchiveFSReadonly roles (Index/Audit)
 fail closed unless allow-root create is denied (`RequireArchiveFSWriteDenied`,
-M5s; unique probe path; `EEXIST` → Unavailable). FreeBSD
+M5s; unique probe path; `EEXIST` → Unavailable). Archive roles also fail
+closed unless allow-root open succeeds (`RequireArchiveFSPathAvailable`, M5t)
+and ArchiveFSReadWrite roles unless allow-root create succeeds
+(`RequireArchiveFSWriteAvailable`, M5t). FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down
 RestartOne by M3u; CapEnter auth-primary RestartOne by M3v; CapEnter M2j
