@@ -1046,6 +1046,17 @@ Exit: Linux inotify VNodeWatch green; `docs/daemon-m2a.md`.
 
 Exit: release ambient EXEC deny green; `docs/daemon-m2a.md`.
 
+## M5p — Release ambient FS-OPEN deny fail-closed (landed engineering)
+
+- `RequireAmbientFSOpenDenied` / `RequireAmbientFSOpenFinding` fail closed on
+  `NEG-FS-OPEN` unless `DeniedExpected` or `Skipped`; wired into release
+  `Confine` after FS-READ (M3q twin for ambient create/write surface);
+- Probe honesty: unique TempDir path; `EEXIST` → Unavailable (not deny);
+  OpenBSD keeps unveil-via-open soft probe (O_CREATE would SIGABRT);
+- Unit + CapEnter/Seatbelt coverage; not an IC-1 claim.
+
+Exit: release ambient FS-OPEN deny green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

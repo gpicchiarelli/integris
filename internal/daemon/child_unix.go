@@ -224,7 +224,8 @@ func closeAll(files ...*os.File) {
 // release mode also requires capability mode via cap_getmode (M3m),
 // allow-root rights-limit success (M3n), conferred IPC/key rights-limit
 // success from ClaimChild (M3o; Skipped on non-FreeBSD), ambient path
-// open denial via NEG-FS-READ (M3q), ambient AF_INET deny via NEG-ROLE-NET on
+// open denial via NEG-FS-READ (M3q), ambient path create denial via
+// NEG-FS-OPEN (M5p), ambient AF_INET deny via NEG-ROLE-NET on
 // Linux/Darwin/OpenBSD (M4d; FreeBSD CapEnter leaves AF_INET — M3s residual),
 // and ambient process exec deny via NEG-EXEC on all confined ports (M5o;
 // FreeBSD CapEnter denies exec, unlike ROLE-NET).
@@ -252,6 +253,10 @@ func (e ChildEnv) Confine() error {
 			return err
 		}
 		if err := confine.RequireAmbientFSReadDenied(); err != nil {
+			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
+			return err
+		}
+		if err := confine.RequireAmbientFSOpenDenied(); err != nil {
 			fmt.Fprintf(os.Stderr, "integrisd confine: %v\n", err)
 			return err
 		}

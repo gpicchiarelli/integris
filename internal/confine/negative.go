@@ -1,6 +1,8 @@
 package confine
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"os"
 	"path/filepath"
@@ -16,11 +18,19 @@ import (
 func NegativeFSOpen() Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	dir := os.TempDir()
-	p := filepath.Join(dir, "integris-neg-fs-probe")
+	var nonce [8]byte
+	if _, err := rand.Read(nonce[:]); err != nil {
+		return Finding{
+			ID: "NEG-FS-OPEN", Platform: plat, Control: "filesystem_writes",
+			Status: StatusUnavailable, Detail: "probe nonce: " + err.Error(),
+		}
+	}
+	p := filepath.Join(dir, "integris-neg-fs-"+hex.EncodeToString(nonce[:]))
 	if runtime.GOOS == "openbsd" {
 		// O_CREATE without wpath aborts under pledge; probe unveil deny via open.
 		_, err := os.Open(p)
 		if err == nil {
+			_ = os.Remove(p) // unreachable if path was unique and non-existent
 			return Finding{
 				ID: "NEG-FS-OPEN", Platform: plat, Control: "filesystem_writes",
 				Status: StatusUnexpectedAllow, Detail: "path open of non-unveiled temp succeeded after apply",
@@ -38,6 +48,13 @@ func NegativeFSOpen() Finding {
 		return Finding{
 			ID: "NEG-FS-OPEN", Platform: plat, Control: "filesystem_writes",
 			Status: StatusUnexpectedAllow, Detail: "new file create succeeded after apply",
+		}
+	}
+	// Stale fixed-name collisions must not look like confinement deny (M5p).
+	if errors.Is(err, os.ErrExist) {
+		return Finding{
+			ID: "NEG-FS-OPEN", Platform: plat, Control: "filesystem_writes",
+			Status: StatusUnavailable, Detail: "probe path exists: " + p,
 		}
 	}
 	return Finding{

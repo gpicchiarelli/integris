@@ -282,6 +282,8 @@ is accepted.
 - M5o release ambient EXEC deny fail-closed: `RequireAmbientExecDenied` on
   `NEG-EXEC` in release `Confine` (all confined ports; FreeBSD CapEnter
   included);
+- M5p release ambient FS-OPEN deny fail-closed: `RequireAmbientFSOpenDenied`
+  on `NEG-FS-OPEN` (unique probe path; `EEXIST` not counted as deny);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
