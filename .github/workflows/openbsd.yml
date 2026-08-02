@@ -51,9 +51,6 @@ jobs:
             export TMPDIR="${PWD}/.ci-tmp"
             mkdir -p "$TMPDIR"
             go version
-            # M5j: broaden toward FreeBSD-parity coverage. Full ./internal/daemon
-            # RestartOne matrix stays focused (VM budget); all other packages run.
-            pkgs=$(go list ./... | grep -v '/internal/daemon$')
-            go test -timeout 25m -count=1 $pkgs
-            go test -timeout 20m -count=1 ./internal/daemon/ -run 'TestM4y|TestM4z|TestM5|TestM2kStrictLaunchPushServe|TestM2aPushServeSplit'
+            # M5k: FreeBSD-parity full package + daemon RestartOne matrix.
+            go test -timeout 60m -count=1 ./...
             go vet ./...

@@ -111,7 +111,8 @@ profile defect.
   pledge+unveil peer deny/admit M5f, and OpenBSD StrictLaunch
   pledge+unveil peer apply RestartOne M5g, and OpenBSD StrictLaunch
   pledge+unveil peer parser-down RestartOne M5h, and OpenBSD pledge
-  promise tightening M5i, and OpenBSD CI widen M5j); it is not a
+  promise tightening M5i, and OpenBSD CI widen M5j, and OpenBSD CI full
+  daemon suite M5k); it is not a
   product
   IC-1 release claim.
 
@@ -209,7 +210,7 @@ directory owned for the test/run.
   StrictLaunch pledge+unveil peer apply RestartOne landed in M5g; OpenBSD
   StrictLaunch pledge+unveil peer parser-down RestartOne landed in M5h;
   OpenBSD campaign M4y–M5h complete; pledge promise tightening landed in M5i;
-  OpenBSD CI widen landed in M5j).
+  OpenBSD CI widen landed in M5j; OpenBSD CI full daemon suite landed in M5k).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

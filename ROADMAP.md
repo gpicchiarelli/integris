@@ -998,6 +998,14 @@ Exit: OpenBSD role-FS pledge tightening green; `docs/daemon-m2a.md`.
 
 Exit: broadened OpenBSD CI green; `docs/daemon-m2a.md`.
 
+## M5k — OpenBSD CI full daemon suite (landed engineering)
+
+- OpenBSD CI matches FreeBSD: `go test ./...` (includes full
+  `./internal/daemon` RestartOne matrix) + `go vet ./...`; 60m test
+  timeout within 90m job; not an IC-1 claim.
+
+Exit: OpenBSD full-suite CI green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
