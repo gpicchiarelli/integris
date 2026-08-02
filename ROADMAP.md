@@ -711,6 +711,17 @@ Exit: supervised Darwin Seatbelt peer-key Once push green;
 
 Exit: supervised Darwin Seatbelt peer deny/admit green; `docs/daemon-m2a.md`.
 
+## M4m — Darwin StrictLaunch Seatbelt peer apply RestartOne (landed engineering)
+
+- Darwin `TestM4mStrictLaunchSeatbeltRestartOneApplyPeer`: peer keyring
+  StrictLaunch under Seatbelt; kill apply after first peer push; net+auth+index
+  + listen survive; apply+journal+audit respawn; ≥2 `auth.peer.admit` (M3z
+  Darwin parity);
+- not an IC-1 claim.
+
+Exit: supervised Darwin Seatbelt peer apply RestartOne green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
