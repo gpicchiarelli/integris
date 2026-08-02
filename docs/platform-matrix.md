@@ -67,7 +67,8 @@ in M4l; Darwin StrictLaunch Seatbelt peer apply RestartOne landed in M4m;
 Darwin StrictLaunch Seatbelt peer parser-down RestartOne landed in M4n;
 Linux StrictLaunch Landlock+seccomp push first cut landed in M4o;
 Linux StrictLaunch Landlock+seccomp RestartOne apply landed in M4p;
-Linux StrictLaunch Landlock+seccomp RestartOne parser-down landed in M4q.
+Linux StrictLaunch Landlock+seccomp RestartOne parser-down landed in M4q;
+Linux StrictLaunch Landlock+seccomp RestartOne auth-primary landed in M4r.
 Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.

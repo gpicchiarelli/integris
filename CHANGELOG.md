@@ -205,6 +205,9 @@ is accepted.
   after first push; net+auth + listen survive;
   parser→plan→index→apply→journal→audit respawn; second push succeeds
   (M3u/M4g Linux parity);
+- M4r Linux StrictLaunch Landlock+seccomp RestartOne auth-primary: kill auth
+  after first push; net + full data plane + listen survive; auth respawns;
+  second push succeeds (M3v/M4h Linux parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
