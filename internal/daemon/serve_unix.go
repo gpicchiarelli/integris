@@ -666,8 +666,14 @@ func (s *Server) tryRestartOne(ctx context.Context, dead authority.ProcessRole, 
 	if _, ok := rt.Child(live); !ok {
 		return nil, false
 	}
+	liveH, _ := rt.Child(live)
 	if err := rt.RestartOne(ctx, dead, live, initiator, exe); err != nil {
 		return nil, false
+	}
+	// Daemon survivors write RebindAckMagic after installing the peer FD;
+	// drain it so the KeyChannel does not retain a stale ACK byte.
+	if liveH != nil && liveH.KeyChannel != nil {
+		_ = ipc.WaitRebindAck(liveH.KeyChannel, 5*time.Second)
 	}
 	return []authority.ProcessRole{dead}, true
 }
@@ -692,7 +698,7 @@ func (s *Server) childAlive(role authority.ProcessRole) bool {
 // dead role so RestartOne strategy matches the real failure set (M2t–M2v).
 func (s *Server) escalateRestartTrigger(first authority.ProcessRole, exitCh <-chan authority.ProcessRole) authority.ProcessRole {
 	seen := map[authority.ProcessRole]bool{first: true}
-	timer := time.NewTimer(100 * time.Millisecond)
+	timer := time.NewTimer(50 * time.Millisecond)
 	defer timer.Stop()
 drain:
 	for {
@@ -703,6 +709,7 @@ drain:
 			break drain
 		}
 	}
+	// Only roles that belong to this fleet: never-started roles are not "dead".
 	for _, r := range s.roleList() {
 		if r == authority.RoleNet {
 			continue
@@ -711,7 +718,6 @@ drain:
 			seen[r] = true
 		}
 	}
-	// Upstream-first: parser death subsumes plan/index/apply fan-out.
 	order := []authority.ProcessRole{
 		authority.RoleParser, authority.RolePlan, authority.RoleIndex,
 		authority.RoleApply, authority.RoleJournal, authority.RoleAudit,
