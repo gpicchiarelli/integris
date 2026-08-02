@@ -260,8 +260,8 @@ ExtraPeer chain (one extra peer per child):
   (M4a/M4n Linux parity); completes Linux Landlock campaign M4o–M4x
 - **M4y:** OpenBSD StrictLaunch pledge+unveil push first cut — OpenBSD CI VM;
   StrictLaunch Once under pledge+unveil completes push with
-  journal/audit/plan; DISC-PLEDGE/DISC-UNVEIL Available (M3p/M4e/M4o OpenBSD
-  parity)
+  journal/audit/plan; role-parameterized pledge (`sendfd`/`recvfd` + FS);
+  DISC-PLEDGE/DISC-UNVEIL Available (M3p/M4e/M4o OpenBSD parity)
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

@@ -5,6 +5,7 @@
 *.test
 *.prof
 **/testdata/fuzz/
+.ci-tmp/
 
 # Model checker output
 /formal/**/states/

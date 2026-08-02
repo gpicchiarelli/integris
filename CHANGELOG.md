@@ -231,7 +231,8 @@ is accepted.
   (M4a/M4n Linux parity); completes Linux Landlock campaign M4o–M4x;
 - M4y OpenBSD StrictLaunch pledge+unveil push first cut: OpenBSD CI VM +
   StrictLaunch Once completes push with journal/audit/plan (M3p/M4e/M4o
-  OpenBSD parity); DISC-PLEDGE/DISC-UNVEIL reflect ApplyEngineering;
+  OpenBSD parity); role-parameterized pledge promises (sendfd/recvfd + FS);
+  DISC-PLEDGE/DISC-UNVEIL reflect ApplyEngineering;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

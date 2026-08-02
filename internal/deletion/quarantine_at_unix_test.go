@@ -37,8 +37,9 @@ func TestExecuteQuarantineMoveAT(t *testing.T) {
 }
 
 func TestExecuteQuarantineMoveATCollision(t *testing.T) {
-	if runtime.GOOS == "freebsd" {
-		t.Skip("renameat exclusive collision semantics differ under FreeBSD; tracked as platform residual")
+	switch runtime.GOOS {
+	case "freebsd", "openbsd":
+		t.Skip("renameat exclusive collision semantics differ under FreeBSD/OpenBSD; tracked as platform residual")
 	}
 	root := t.TempDir()
 	_ = os.MkdirAll(filepath.Join(root, "quarantine"), 0o755)

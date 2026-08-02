@@ -30,6 +30,7 @@ jobs:
           release: "7.8"
           usesh: true
           copyback: false
+          mem: 8192
           prepare: |
             pkg_add curl git
             # go1.26.5.openbsd-amd64.tar.gz — sha256 from https://go.dev/dl/?mode=json
@@ -42,9 +43,12 @@ jobs:
             tar -C /usr/local -xzf /tmp/go.tgz
           run: |
             set -e
+            ulimit -c 0
             export PATH=/usr/local/go/bin:$PATH
             export CGO_ENABLED=0
             export GOFLAGS=-buildvcs=false
+            export TMPDIR="${PWD}/.ci-tmp"
+            mkdir -p "$TMPDIR"
             go version
-            go test ./...
+            go test -timeout 45m ./...
             go vet ./...

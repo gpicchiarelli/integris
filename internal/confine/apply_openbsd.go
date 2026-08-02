@@ -5,6 +5,7 @@ package confine
 import (
 	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 	"golang.org/x/sys/unix"
@@ -21,10 +22,7 @@ func probeEngineering() []Finding {
 func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	var out []Finding
-	promises := "stdio unix"
-	if RoleMayHoldNetwork(role) {
-		promises = "stdio unix inet"
-	}
+	promises := openbsdPromises(role)
 	if err := unix.Pledge(promises, ""); err != nil {
 		out = append(out, Finding{
 			ID: "APPLY-PLEDGE", Platform: plat, Control: "pledge",
@@ -44,7 +42,7 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 		case ArchiveFSReadonly:
 			perms = "r"
 		case ArchiveFSReadWrite:
-			perms = "rw"
+			perms = "rwc"
 		default:
 			continue
 		}
@@ -74,4 +72,21 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 		})
 	}
 	return out
+}
+
+// openbsdPromises is the role-parameterized pledge(2) set for engineering
+// children: stdio + AF_UNIX IPC (incl. SCM_RIGHTS) always; inet when CapNetwork;
+// rpath/wpath/cpath/fattr when archive allow-roots apply.
+func openbsdPromises(role authority.ProcessRole) string {
+	parts := []string{"stdio", "unix", "sendfd", "recvfd"}
+	if RoleMayHoldNetwork(role) {
+		parts = append(parts, "inet")
+	}
+	switch RoleArchiveFSMode(role) {
+	case ArchiveFSReadonly:
+		parts = append(parts, "rpath", "fattr")
+	case ArchiveFSReadWrite:
+		parts = append(parts, "rpath", "wpath", "cpath", "fattr")
+	}
+	return strings.Join(parts, " ")
 }
