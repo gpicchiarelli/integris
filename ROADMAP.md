@@ -1006,6 +1006,15 @@ Exit: broadened OpenBSD CI green; `docs/daemon-m2a.md`.
 
 Exit: OpenBSD full-suite CI green; `docs/daemon-m2a.md`.
 
+## M5l — Product AllowRoots normalize-before-apply (landed engineering)
+
+- `ClaimChild` EvalSymlinks allow-roots (fail-closed) before confine and
+  role path ops, matching stub M5j hardening; `ChildEnv.AllowRoots` holds
+  canonical paths Landlock/unveil/Seatbelt/Capsicum already apply;
+- Unit tests cover symlink resolve + relative reject; not an IC-1 claim.
+
+Exit: product AllowRoots normalize green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
