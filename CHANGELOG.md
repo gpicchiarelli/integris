@@ -186,6 +186,9 @@ is accepted.
 - M4k Darwin StrictLaunch Seatbelt peer-key push: StrictLaunch Once with peer
   keyring under Seatbelt; peer push succeeds with journal/audit/plan and ≥1
   `auth.peer.admit` (M3y Darwin parity);
+- M4l Darwin StrictLaunch Seatbelt peer deny/admit: unknown peer and wrong-key
+  rejected without destination mutation; valid peer push admits with
+  `auth.peer.deny` + `auth.peer.admit` (M4b Darwin parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
