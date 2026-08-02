@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
@@ -667,12 +668,18 @@ func (s *Server) tryRestartOne(ctx context.Context, dead authority.ProcessRole, 
 
 func (s *Server) childAlive(role authority.ProcessRole) bool {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.rt == nil {
+	rt := s.rt
+	s.mu.Unlock()
+	if rt == nil {
 		return false
 	}
-	h, ok := s.rt.Child(role)
-	return ok && h != nil && h.Cmd != nil && h.Cmd.Process != nil
+	h, ok := rt.Child(role)
+	if !ok || h == nil || h.Cmd == nil || h.Cmd.Process == nil {
+		return false
+	}
+	// Signal(0) detects a dying child still present in Children before Wait
+	// removes it — critical for cascade races (parser killed → apply exits first).
+	return h.Cmd.Process.Signal(syscall.Signal(0)) == nil
 }
 
 // restartAuthPrimary respawns auth and rebinds net primary→auth while the
