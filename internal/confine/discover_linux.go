@@ -9,7 +9,7 @@ func discoverPlatform() []Finding {
 	return []Finding{
 		{ID: "DISC-NO-NEW-PRIVS", Platform: plat, Control: "no_new_privs", Status: StatusAvailable, Detail: "ApplyEngineering sets PR_NO_NEW_PRIVS and verifies via PR_GET (M5v)"},
 		{ID: "DISC-DUMPABLE", Platform: plat, Control: "dumpable", Status: StatusAvailable, Detail: "ApplyEngineering clears PR_DUMPABLE via PR_SET_DUMPABLE(0) and verifies PR_GET (M5x)"},
-		{ID: "DISC-RLIMIT-CORE", Platform: plat, Control: "rlimit_core", Status: StatusAvailable, Detail: "ApplyEngineering sets RLIMIT_CORE soft=hard=0 and verifies getrlimit (M5z)"},
+		{ID: "DISC-RLIMIT-CORE", Platform: plat, Control: "rlimit_core", Status: StatusAvailable, Detail: "ApplyEngineering sets RLIMIT_CORE soft=hard=0 and verifies getrlimit (M5z; M6a Unix-wide)"},
 		{ID: "DISC-LANDLOCK", Platform: plat, Control: "landlock", Status: StatusAvailable, Detail: "ApplyEngineering Landlock restrict_self; ABI probed; release FS Requires gate effect (per-thread residual for threads created before restrict)"},
 		{ID: "DISC-SECCOMP", Platform: plat, Control: "seccomp_bpf", Status: StatusAvailable, Detail: "ApplyEngineering installs SECCOMP_SET_MODE_FILTER+TSYNC and verifies PR_GET_SECCOMP (M5w)"},
 		{ID: "DISC-CAP-AMBIENT", Platform: plat, Control: "ambient_capability_clear", Status: StatusAvailable, Detail: "ApplyEngineering clears ambient via PR_CAP_AMBIENT_CLEAR_ALL (M5u)"},

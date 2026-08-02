@@ -20,8 +20,12 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	_ = role
 	_ = opts
 	plat := runtime.GOOS + "/" + runtime.GOARCH
-	return []Finding{{
-		ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
-		Status: StatusSkipped, Detail: "sandbox_init requires cgo (CGO_ENABLED=0 build)",
-	}}
+	// RLIMIT_CORE still applies without cgo Seatbelt (M6a).
+	return []Finding{
+		applyRlimitCoreFinding(plat),
+		{
+			ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
+			Status: StatusSkipped, Detail: "sandbox_init requires cgo (CGO_ENABLED=0 build)",
+		},
+	}
 }

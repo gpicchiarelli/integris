@@ -29,23 +29,25 @@ func probeEngineering() []Finding {
 
 func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
+	// RLIMIT_CORE before Seatbelt (M6a).
+	out := []Finding{applyRlimitCoreFinding(plat)}
 	profile, detail, err := buildSeatbeltProfile(role, opts.AllowRoots)
 	if err != nil {
-		return []Finding{{
+		return append(out, Finding{
 			ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
 			Status: StatusUnavailable, Detail: err.Error(),
-		}}
+		})
 	}
 	if err := sandboxInit(profile); err != nil {
-		return []Finding{{
+		return append(out, Finding{
 			ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
 			Status: StatusUnavailable, Detail: err.Error(),
-		}}
+		})
 	}
-	return []Finding{{
+	return append(out, Finding{
 		ID: "APPLY-SEATBELT", Platform: plat, Control: "seatbelt",
 		Status: StatusAvailable, Detail: detail,
-	}}
+	})
 }
 
 func buildSeatbeltProfile(role authority.ProcessRole, roots []string) (profile, detail string, err error) {

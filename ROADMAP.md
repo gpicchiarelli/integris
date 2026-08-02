@@ -1156,6 +1156,15 @@ Exit: FreeBSD CapRightsGet verify green; `docs/daemon-m2a.md`.
 
 Exit: Linux RLIMIT_CORE zero green; `docs/daemon-m2a.md`.
 
+## M6a — Unix-wide RLIMIT_CORE=0 (landed engineering)
+
+- Extend M5z `APPLY-RLIMIT-CORE` / `RequireRlimitCoreZero` to Darwin,
+  OpenBSD, and FreeBSD (set before Seatbelt / unveil+pledge / CapEnter);
+- `DISC-RLIMIT-CORE` Available on all confined Unix ports; does not claim to
+  stop all privileged/pipe coredump paths; not an IC-1 claim.
+
+Exit: Unix RLIMIT_CORE zero green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

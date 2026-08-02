@@ -72,11 +72,13 @@ func LimitConferredFDs(files ...*os.File) Finding {
 func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	_ = role
 	plat := runtime.GOOS + "/" + runtime.GOARCH
+	// RLIMIT_CORE before CapEnter (M6a): setrlimit remains available pre-mode.
+	out := []Finding{applyRlimitCoreFinding(plat)}
 	if err := unix.CapEnter(); err != nil {
-		return []Finding{{
+		return append(out, Finding{
 			ID: "APPLY-CAPSICUM", Platform: plat, Control: "cap_enter",
 			Status: StatusUnavailable, Detail: err.Error(),
-		}}
+		})
 	}
 	detail := "capability mode entered"
 	if n := len(opts.AllowRootFDs); n > 0 {
@@ -84,8 +86,8 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	} else if len(opts.AllowRoots) > 0 {
 		detail += "; allow-roots paths set but no conferred directory fds"
 	}
-	return []Finding{{
+	return append(out, Finding{
 		ID: "APPLY-CAPSICUM", Platform: plat, Control: "cap_enter",
 		Status: StatusAvailable, Detail: detail,
-	}}
+	})
 }

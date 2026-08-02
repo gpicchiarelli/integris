@@ -9,6 +9,7 @@ func discoverPlatform() []Finding {
 	return []Finding{
 		{ID: "DISC-PLEDGE", Platform: plat, Control: "pledge", Status: StatusAvailable, Detail: "engineering ApplyEngineering uses role-parameterized pledge(2); FS write promises only for ArchiveFSReadWrite (M5i)"},
 		{ID: "DISC-UNVEIL", Platform: plat, Control: "unveil", Status: StatusAvailable, Detail: "engineering ApplyEngineering unveils AllowRoots then UnveilBlock before pledge"},
+		{ID: "DISC-RLIMIT-CORE", Platform: plat, Control: "rlimit_core", Status: StatusAvailable, Detail: "ApplyEngineering sets RLIMIT_CORE soft=hard=0 before unveil/pledge; getrlimit verified (M6a)"},
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnavailable, Detail: "M4c residual: launcher.CreateKeyFD uses anon-unlinked O_RDONLY FD; OpenBSD has no memfd/F_ADD_SEALS"},
 		{ID: "DISC-SENDFILE", Platform: plat, Control: "sendfile", Status: StatusUnavailable, Detail: "x/sys unix.Sendfile returns ENOSYS on OpenBSD; no platform.SendFile path"},

@@ -1,8 +1,9 @@
-//go:build linux
+//go:build unix
 
 package confine_test
 
 import (
+	"runtime"
 	"testing"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
@@ -12,7 +13,7 @@ import (
 )
 
 func TestRequireRlimitCoreZeroAfterApply(t *testing.T) {
-	if testing.CoverMode() != "" {
+	if runtime.GOOS == "linux" && testing.CoverMode() != "" {
 		// Landlock in this process blocks go cover meta writes under /tmp.
 		t.Skip("Landlock apply blocks coverage meta under -cover")
 	}
@@ -21,6 +22,22 @@ func TestRequireRlimitCoreZeroAfterApply(t *testing.T) {
 	}
 	r := confine.ApplyEngineering(authority.RoleApply)
 	if err := r.RequireApplyAvailable(); err != nil {
+		// Darwin CGO_ENABLED=0 leaves APPLY-SEATBELT Skipped — release refuses.
+		if runtime.GOOS == "darwin" {
+			var coreOK bool
+			for _, f := range r.Findings {
+				if f.ID == "APPLY-RLIMIT-CORE" && f.Status == confine.StatusAvailable {
+					coreOK = true
+				}
+			}
+			if !coreOK {
+				t.Fatalf("APPLY-RLIMIT-CORE missing/unavailable: %+v", r.Findings)
+			}
+			if err := confine.RequireRlimitCoreZero(); err != nil {
+				t.Fatal(err)
+			}
+			return
+		}
 		t.Fatal(err)
 	}
 	var saw bool
@@ -40,8 +57,8 @@ func TestRequireRlimitCoreZeroAfterApply(t *testing.T) {
 	}
 }
 
-func TestRlimitCoreZeroWithoutLandlock(t *testing.T) {
-	// Coverage-safe: set RLIMIT_CORE only (no Landlock/seccomp).
+func TestRlimitCoreZeroSetrlimitOnly(t *testing.T) {
+	// Coverage-safe on Linux: set RLIMIT_CORE only (no Landlock/seccomp).
 	if !launcher.InTestSubprocess(t) {
 		return
 	}

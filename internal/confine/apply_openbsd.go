@@ -21,7 +21,8 @@ func probeEngineering() []Finding {
 
 func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
-	var out []Finding
+	// RLIMIT_CORE before unveil/pledge lock (M6a).
+	out := []Finding{applyRlimitCoreFinding(plat)}
 
 	// Unveil before pledge: once pledged without the "unveil" promise,
 	// further unveil(2) is denied. Lock the FS view first, then shrink

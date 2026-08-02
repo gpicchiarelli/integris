@@ -42,9 +42,10 @@ func TestRequireRlimitCoreFinding(t *testing.T) {
 	}
 }
 
-func TestRequireRlimitCoreZeroNonLinux(t *testing.T) {
-	if runtime.GOOS == "linux" {
-		t.Skip("linux covered by apply subprocess test")
+func TestRequireRlimitCoreZeroNonUnix(t *testing.T) {
+	switch runtime.GOOS {
+	case "linux", "darwin", "freebsd", "openbsd":
+		t.Skip("unix covered by setrlimit / apply subprocess tests")
 	}
 	if err := confine.RequireRlimitCoreZero(); err != nil {
 		t.Fatal(err)
