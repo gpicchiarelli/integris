@@ -46,7 +46,7 @@ FreeBSD CapEnter leaves ambient AF_INET possible (`NEG-ROLE-NET` residual,
 M3s; jail ip-disable is not used with allow-root CapRightsLimit). FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down
-RestartOne by M3u. FreeBSD sealed MAC key FD
+RestartOne by M3u; CapEnter auth-primary RestartOne by M3v. FreeBSD sealed MAC key FD
 (`shm_open2`+`F_ADD_SEALS`) landed in M3t; Darwin/OpenBSD remain
 anon-unlinked residual. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated

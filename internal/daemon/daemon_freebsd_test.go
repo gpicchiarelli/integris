@@ -321,3 +321,113 @@ func TestM3uStrictLaunchCapEnterRestartOneParserDown(t *testing.T) {
 		t.Fatalf("plan snapshot after parser-down: %v", err)
 	}
 }
+
+// TestM3vStrictLaunchCapEnterRestartOneAuthPrimary is FreeBSD CapEnter
+// StrictLaunch coverage for M2z: kill auth after the first push; net and the
+// full data plane survive; auth respawns with primary peer rebind under
+// M3m–M3q fail-closed confine; second push succeeds.
+func TestM3vStrictLaunchCapEnterRestartOneAuthPrimary(t *testing.T) {
+	bin := buildIntegrisd(t)
+	psk := make([]byte, remotesync.RootKeySize)
+	if _, err := rand.Read(psk); err != nil {
+		t.Fatal(err)
+	}
+	dst := t.TempDir()
+	ready := make(chan string, 4)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	survivors := []authority.ProcessRole{
+		authority.RoleNet, authority.RoleParser, authority.RolePlan,
+		authority.RoleIndex, authority.RoleApply, authority.RoleJournal,
+		authority.RoleAudit,
+	}
+	srv, err := daemon.Start(ctx, daemon.ServeOptions{
+		Addr:         "127.0.0.1:0",
+		Destination:  dst,
+		RootKey:      psk,
+		Once:         false,
+		MaxRestarts:  3,
+		StrictLaunch: true,
+		Executable:   bin,
+		Ready:        ready,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = srv.Close() }()
+
+	addr1 := <-ready
+	survivorPIDs := make(map[authority.ProcessRole]int, len(survivors))
+	for _, role := range survivors {
+		pid, ok := srv.ChildPID(role)
+		if !ok || pid == 0 {
+			t.Fatalf("missing %s PID", role)
+		}
+		survivorPIDs[role] = pid
+	}
+	authPID, ok := srv.ChildPID(authority.RoleAuth)
+	if !ok || authPID == 0 {
+		t.Fatal("missing auth PID")
+	}
+
+	src1 := t.TempDir()
+	mustWrite(t, filepath.Join(src1, "before.txt"), "before-m3v-capenter")
+	if _, err := remotesync.Push(remotesync.PushOptions{
+		Addr: addr1, Source: src1, RootKey: psk,
+	}); err != nil {
+		t.Fatalf("first push: %v", err)
+	}
+	assertFile(t, filepath.Join(dst, "before.txt"), "before-m3v-capenter")
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "local.jrn")); err != nil {
+		t.Fatalf("journal before auth-primary RestartOne: %v", err)
+	}
+
+	if err := srv.KillRole(authority.RoleAuth); err != nil {
+		t.Fatal(err)
+	}
+
+	var addr2 string
+	select {
+	case addr2 = <-ready:
+	case <-time.After(45 * time.Second):
+		t.Fatal("timeout waiting for auth-primary RestartOne ready under CapEnter StrictLaunch")
+	}
+	if addr2 != addr1 {
+		t.Fatalf("listen addr changed: %q → %q", addr1, addr2)
+	}
+	for role, want := range survivorPIDs {
+		got, ok := srv.ChildPID(role)
+		if !ok || got != want {
+			t.Fatalf("%s PID changed: %d → %d", role, want, got)
+		}
+	}
+	authPID2, ok := srv.ChildPID(authority.RoleAuth)
+	if !ok || authPID2 == 0 {
+		t.Fatal("auth not restarted")
+	}
+	if authPID2 == authPID {
+		t.Fatal("auth PID unchanged after kill")
+	}
+	st := srv.Status()
+	if st.Restarts < 1 {
+		t.Fatalf("expected restart count, status=%+v", st)
+	}
+
+	src2 := t.TempDir()
+	mustWrite(t, filepath.Join(src2, "after.txt"), "after-m3v-capenter")
+	res := pushAfterRestart(t, remotesync.PushOptions{
+		Addr: addr2, Source: src2, RootKey: psk,
+	})
+	if res.Outcome != "success" {
+		t.Fatalf("%+v", res)
+	}
+	assertFile(t, filepath.Join(dst, "before.txt"), "before-m3v-capenter")
+	assertFile(t, filepath.Join(dst, "after.txt"), "after-m3v-capenter")
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "audit.events")); err != nil {
+		t.Fatalf("audit sink after auth-primary RestartOne: %v", err)
+	}
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "last-plan.json")); err != nil {
+		t.Fatalf("plan snapshot after auth-primary RestartOne: %v", err)
+	}
+}
