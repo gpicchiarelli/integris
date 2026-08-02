@@ -807,6 +807,17 @@ Exit: supervised Linux Landlock StrictLaunch RestartOne auth ExtraPeer green;
 Exit: supervised Linux Landlock StrictLaunch RestartOne audit ExtraPeer green;
 `docs/daemon-m2a.md`.
 
+## M4u — Linux StrictLaunch Landlock+seccomp peer-key Once push (landed engineering)
+
+- Linux `TestM4uStrictLaunchLandlockPeerPushServe`: StrictLaunch Once under
+  Landlock+seccomp with peer keyring completes a peer push with
+  journal/audit/plan and ≥1 `auth.peer.admit` (M3y/M4k Linux parity);
+- FreeBSD CapEnter and Darwin Seatbelt peer-key Once push remain M3y/M4k; not
+  an IC-1 claim.
+
+Exit: supervised Linux Landlock StrictLaunch peer-key Once push green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

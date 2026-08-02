@@ -70,7 +70,8 @@ Linux StrictLaunch Landlock+seccomp RestartOne apply landed in M4p;
 Linux StrictLaunch Landlock+seccomp RestartOne parser-down landed in M4q;
 Linux StrictLaunch Landlock+seccomp RestartOne auth-primary landed in M4r;
 Linux StrictLaunch Landlock+seccomp RestartOne auth ExtraPeer landed in M4s;
-Linux StrictLaunch Landlock+seccomp RestartOne audit ExtraPeer landed in M4t.
+Linux StrictLaunch Landlock+seccomp RestartOne audit ExtraPeer landed in M4t;
+Linux StrictLaunch Landlock+seccomp peer-key Once push landed in M4u.
 Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.

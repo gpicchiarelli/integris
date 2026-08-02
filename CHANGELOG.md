@@ -216,6 +216,9 @@ is accepted.
   keyring; kill audit after first peer push; auth+net+parser+plan+index +
   listen survive; apply+journal+audit respawn; ≥2 `auth.peer.admit`
   (M3x/M4j Linux parity);
+- M4u Linux StrictLaunch Landlock+seccomp peer-key Once push: peer keyring
+  completes push with journal/audit/plan and ≥1 `auth.peer.admit` (M3y/M4k
+  Linux parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
