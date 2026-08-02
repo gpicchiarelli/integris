@@ -91,12 +91,13 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 // children. M4y first cut keeps a broad promise set so the Go runtime and
 // supervised receive path survive; locked unveil remains the primary ambient
 // FS boundary. Non-net roles omit inet; exec is omitted (NEG-EXEC is
-// promise-omission on OpenBSD). Do not include "tmppath" — removed from the
-// OpenBSD pledgenames table (EINVAL). Tightening is a documented follow-on.
+// promise-omission on OpenBSD). Do not include "tmppath" (removed from
+// pledgenames → EINVAL) or "dns" (BYPASSUNVEIL for /etc/hosts under OpenBSD
+// 7.8, which breaks RequireAmbientFSReadDenied). Tightening is a follow-on.
 func openbsdPromises(role authority.ProcessRole) string {
 	parts := []string{
 		"stdio", "rpath", "wpath", "cpath",
-		"unix", "sendfd", "recvfd", "dns", "proc", "fattr", "flock",
+		"unix", "sendfd", "recvfd", "proc", "fattr", "flock",
 	}
 	if RoleMayHoldNetwork(role) {
 		parts = append(parts, "inet")
