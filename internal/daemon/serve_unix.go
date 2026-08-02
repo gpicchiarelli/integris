@@ -20,7 +20,7 @@ import (
 	"github.com/gpicchiarelli/integris/internal/supervisor"
 )
 
-// ServeOptions configures the M2a–M3r engineering supervisor.
+// ServeOptions configures the M2a–M3s engineering supervisor.
 type ServeOptions struct {
 	Addr        string
 	Destination string
@@ -52,7 +52,7 @@ type ServeOptions struct {
 	// StrictLaunch enables M2k release-shaped launch: full role chain required,
 	// children use INTEGRIS_LAUNCH_MODE=release with fail-closed confinement
 	// (APPLY-*, CapMode M3m, Capsicum rights M3n/M3o, ambient FS-read M3q;
-	// CapEnter RestartOne first cut M3r).
+	// CapEnter RestartOne first cut M3r; FreeBSD jail ambient AF_INET M3s).
 	// Not an IC-1 production claim.
 	StrictLaunch bool
 }

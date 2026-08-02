@@ -42,7 +42,8 @@ func NegativeExec() Finding {
 
 // NegativeRoleNet attempts AF_INET socket use after ApplyEngineering.
 // Roles that must not hold CapNetworkSockets should be denied by OS policy
-// (Linux/OpenBSD/FreeBSD typically deny socket(); Darwin Seatbelt denies connect).
+// (Linux seccomp, OpenBSD pledge, Darwin Seatbelt, FreeBSD jail
+// ip4/ip6=disable before CapEnter). CapEnter alone does not deny AF_INET.
 // CapNetworkSockets holders skip (ambient create is not asserted; conferred
 // sockets remain the intended path on Capsicum).
 func NegativeRoleNet(role authority.ProcessRole) Finding {

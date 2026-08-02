@@ -9,6 +9,8 @@ package confine
 import (
 	"runtime"
 	"sort"
+
+	"github.com/gpicchiarelli/integris/internal/authority"
 )
 
 // Status classifies a probe outcome.
@@ -133,6 +135,26 @@ func RequireAmbientFSReadDenied() error {
 func RequireAmbientFSReadFinding(f Finding) error {
 	if f.ID != "NEG-FS-READ" {
 		return &Error{Code: "confine", Message: "expected NEG-FS-READ finding"}
+	}
+	switch f.Status {
+	case StatusDeniedExpected, StatusSkipped:
+		return nil
+	default:
+		return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+	}
+}
+
+// RequireAmbientRoleNetDenied fails closed when ambient AF_INET socket use is
+// still allowed after apply for roles that must not hold CapNetworkSockets
+// (M3s). DeniedExpected or Skipped succeed.
+func RequireAmbientRoleNetDenied(role authority.ProcessRole) error {
+	return RequireAmbientRoleNetFinding(NegativeRoleNet(role))
+}
+
+// RequireAmbientRoleNetFinding is the testable core of RequireAmbientRoleNetDenied.
+func RequireAmbientRoleNetFinding(f Finding) error {
+	if f.ID != "NEG-ROLE-NET" {
+		return &Error{Code: "confine", Message: "expected NEG-ROLE-NET finding"}
 	}
 	switch f.Status {
 	case StatusDeniedExpected, StatusSkipped:

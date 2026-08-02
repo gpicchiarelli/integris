@@ -491,6 +491,19 @@ Exit: product ambient FS-read deny post-condition green; `docs/daemon-m2a.md`.
 
 Exit: supervised CapEnter RestartOne first cut green; `docs/daemon-m2a.md`.
 
+## M3s — FreeBSD ambient socket / NEG-ROLE-NET fail-closed (landed engineering)
+
+- FreeBSD `ApplyEngineering` for `!RoleMayHoldNetwork` attaches a non-persistent
+  jail with `ip4=disable` / `ip6=disable` before CapEnter (`APPLY-JAIL`);
+  CapEnter alone does not deny AF_INET;
+- release-mode `Confine` calls `RequireAmbientRoleNetDenied` (`NEG-ROLE-NET`
+  DeniedExpected or Skipped);
+- FreeBSD non-net stubs assert `|NEG-ROLE-NET:denied_as_expected`;
+- unit `TestRequireAmbientRoleNetFinding` / FreeBSD
+  `TestRequireAmbientRoleNetDeniedAfterJailCapEnter`; not an IC-1 claim.
+
+Exit: product ambient AF_INET deny post-condition green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
