@@ -293,7 +293,9 @@ is accepted.
 - M5t archive allow-root path/write Available Require:
   `RequireArchiveFSPathAvailable` + `RequireArchiveFSWriteAvailable`;
 - M5u Linux ambient capability clear: `PR_CAP_AMBIENT_CLEAR_ALL`,
-  `NEG-CAP-AMBIENT` / `RequireCapAmbientEmpty`; `DISC-CAP-EMPTY` Available;
+  `NEG-CAP-AMBIENT` / `RequireCapAmbientEmpty`; `DISC-CAP-AMBIENT` Available; `DISC-CAP-EMPTY` Unavailable;
+- M5v Linux no_new_privs verify + Require: `PR_GET_NO_NEW_PRIVS`,
+  `RequireNoNewPrivsSet`; `DISC-NO-NEW-PRIVS` Available; CapBnd residual;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

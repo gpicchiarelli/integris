@@ -59,8 +59,10 @@ closed unless allow-root open succeeds (`RequireArchiveFSPathAvailable`, M5t)
 and ArchiveFSReadWrite roles unless allow-root create succeeds
 (`RequireArchiveFSWriteAvailable`, M5t). On Linux, release mode also fails
 closed unless ambient capabilities are cleared (`RequireCapAmbientEmpty`,
-M5u; `PR_CAP_AMBIENT_CLEAR_ALL`; permitted/bounding + dedicated account
-residual). FreeBSD
+M5u; `PR_CAP_AMBIENT_CLEAR_ALL`) and `PR_NO_NEW_PRIVS` is set
+(`RequireNoNewPrivsSet`, M5v). Full empty capability sets / CapBnd drop remain
+a dedicated-account / `CAP_SETPCAP` residual (`DISC-CAP-EMPTY` Unavailable).
+FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down
 RestartOne by M3u; CapEnter auth-primary RestartOne by M3v; CapEnter M2j

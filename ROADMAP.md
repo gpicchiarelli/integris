@@ -1100,10 +1100,19 @@ Exit: archive allow-root positive Require green; `docs/daemon-m2a.md`.
   (`APPLY-CAP-AMBIENT`); `NegativeCapAmbient` uses `PR_CAP_AMBIENT_IS_SET`
   (Landlock-safe; no `/proc`);
 - release `Confine` calls `RequireCapAmbientEmpty` (Available or Skipped);
-- `DISC-CAP-EMPTY` Available with permitted/bounding + dedicated-account
-  residual; not an IC-1 claim.
+- `DISC-CAP-AMBIENT` Available; `DISC-CAP-EMPTY` Unavailable (CapBnd needs
+  `CAP_SETPCAP` / dedicated account); not an IC-1 claim.
 
 Exit: Linux ambient clear green; `docs/daemon-m2a.md`.
+
+## M5v — Linux no_new_privs verify + Require (landed engineering)
+
+- `APPLY-NO-NEW-PRIVS` verifies via `PR_GET_NO_NEW_PRIVS` after set;
+- `NegativeNoNewPrivs` + release `RequireNoNewPrivsSet` (Available or Skipped);
+- `DISC-NO-NEW-PRIVS` Available; CapBnd drop still residual (needs CAP_SETPCAP);
+  not an IC-1 claim.
+
+Exit: Linux no_new_privs verify green; `docs/daemon-m2a.md`.
 
 ## M1 — Executable reference kernels (in progress)
 
