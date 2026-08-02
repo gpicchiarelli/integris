@@ -42,8 +42,10 @@ is confirmed (`RequireCapModeAvailable`, M3m) and Capsicum
 `cap_rights_limit` findings are Available or Skipped
 (`RequireAllowRootLimitFinding` M3n, `RequireConferredLimitFinding` M3o) and
 ambient path open is denied (`RequireAmbientFSReadDenied`, M3q).
-FreeBSD supervised StrictLaunch push first cut under CapEnter is covered by
-M3p; StrictLaunch CapEnter RestartOne first cut by M3r. Provisional
+FreeBSD CapEnter leaves ambient AF_INET possible (`NEG-ROLE-NET` residual,
+M3s; jail ip-disable is not used with allow-root CapRightsLimit). FreeBSD
+supervised StrictLaunch push first cut under CapEnter is covered by M3p;
+StrictLaunch CapEnter RestartOne first cut by M3r. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.
 

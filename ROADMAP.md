@@ -491,6 +491,19 @@ Exit: product ambient FS-read deny post-condition green; `docs/daemon-m2a.md`.
 
 Exit: supervised CapEnter RestartOne first cut green; `docs/daemon-m2a.md`.
 
+## M3s — FreeBSD ambient AF_INET residual documented (landed engineering)
+
+- CapEnter does not deny `AF_INET` `socket()`/`connect()` (`NEG-ROLE-NET`
+  UnexpectedAllow after apply); product children keep allow-root
+  `CapRightsLimit` before CapEnter;
+- jail `ip4=disable` was evaluated and rejected for product use: it conflicts
+  with conferred archive FD rights-limit / StrictLaunch receive;
+- FreeBSD `TestM3sCapEnterLeavesAmbientAFINET` + `PROBE-JAIL-NOIP` Unavailable
+  residual; `RequireAmbientRoleNetFinding` retained for a future compatible
+  deny; not an IC-1 claim.
+
+Exit: FreeBSD ambient-socket residual explicit; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

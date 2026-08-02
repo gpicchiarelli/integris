@@ -22,6 +22,11 @@ func probeEngineering() []Finding {
 			ID: "PROBE-CAP-RIGHTS", Platform: plat, Control: "cap_rights_limit",
 			Status: StatusAvailable, Detail: "cap_rights_limit(2) available",
 		},
+		{
+			ID: "PROBE-JAIL-NOIP", Platform: plat, Control: "jail_set_ip_disable",
+			Status: StatusUnavailable,
+			Detail: "CapEnter does not deny AF_INET; jail ip-disable conflicts with allow-root cap_rights_limit (M3s residual)",
+		},
 	}
 }
 

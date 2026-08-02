@@ -168,7 +168,8 @@ func TestLaunchStubIPC(t *testing.T) {
 			t.Fatalf("expected NEG-ROLE-NET denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
 	case "freebsd":
-		// Capsicum is fd-only today; ambient socket() remains possible (NEG-ROLE-NET gap).
+		// CapEnter does not deny AF_INET; jail ip-disable conflicts with
+		// allow-root CapRightsLimit (M3s residual).
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS:denied_as_expected")) {
 			t.Fatalf("expected NEG-FS denial on %s: %q", runtime.GOOS, resp.Payload)
 		}

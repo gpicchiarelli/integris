@@ -216,8 +216,18 @@ func closeAll(files ...*os.File) {
 // On FreeBSD, limits conferred allow-root directory FDs before CapEnter (M3c);
 // release mode also requires capability mode via cap_getmode (M3m),
 // allow-root rights-limit success (M3n), conferred IPC/key rights-limit
+// success from ClaimChild (M3o; Skipped on non-FreeBSD), ambient path
+// open denial via NEG-FS-READ (M3q), and ambient AF_INET deny via
+// NEG-ROLE-NET (M3s; FreeBSD jail ip4/ip6=disable before CapEnter).
+// Confine applies OS confinement for this child. Engineering mode is
+// best-effort; release mode (M2k) fails closed if APPLY-* is unavailable.
+// On FreeBSD, limits conferred allow-root directory FDs before CapEnter (M3c);
+// release mode also requires capability mode via cap_getmode (M3m),
+// allow-root rights-limit success (M3n), conferred IPC/key rights-limit
 // success from ClaimChild (M3o; Skipped on non-FreeBSD), and ambient path
-// open denial via NEG-FS-READ (M3q).
+// open denial via NEG-FS-READ (M3q). Ambient AF_INET deny remains a FreeBSD
+// residual (M3s): CapEnter does not deny sockets; jail ip-disable conflicts
+// with allow-root CapRightsLimit.
 func (e ChildEnv) Confine() error {
 	allowRoots := confine.LimitAllowRootFDs(confine.RoleArchiveFSMode(e.Role), e.AllowRootFDs...)
 	r := confine.ApplyEngineeringOpts(e.Role, confine.ApplyOptions{

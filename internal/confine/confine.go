@@ -142,6 +142,22 @@ func RequireAmbientFSReadFinding(f Finding) error {
 	}
 }
 
+// RequireAmbientRoleNetFinding is retained for a future FreeBSD ambient-socket
+// deny that is compatible with allow-root CapRightsLimit (M3s residual:
+// CapEnter alone does not deny AF_INET; jail ip-disable conflicts with
+// conferred directory FD rights-limit). DeniedExpected or Skipped succeed.
+func RequireAmbientRoleNetFinding(f Finding) error {
+	if f.ID != "NEG-ROLE-NET" {
+		return &Error{Code: "confine", Message: "expected NEG-ROLE-NET finding"}
+	}
+	switch f.Status {
+	case StatusDeniedExpected, StatusSkipped:
+		return nil
+	default:
+		return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+	}
+}
+
 // HasUnexpectedAllow reports whether any finding is unexpected_allow.
 func (r Report) HasUnexpectedAllow() bool {
 	for _, f := range r.Findings {

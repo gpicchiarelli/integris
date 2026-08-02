@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M3r engineering increments)
+# Privilege-separated receive (M2a–M3s engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,8 +65,8 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M3r CapMode, Capsicum rights-limit, ambient FS-read deny, and CapEnter
-  RestartOne first cut on FreeBSD)
+  (M3m–M3s CapMode, Capsicum rights-limit, ambient FS-read deny, CapEnter
+  RestartOne first cut; FreeBSD ambient AF_INET residual documented on FreeBSD)
 - **M2l:** default key conferral is SCM-only — ExtraFiles carries IPC sockets plus
   a dedicated key-channel socketpair end (fd4); MAC/root/extra keys arrive via
   `SCM_RIGHTS` on that channel (`Handle.KeyChannel`). Legacy
@@ -152,6 +152,10 @@ ExtraPeer chain (one extra peer per child):
   serve under CapEnter; kill apply; net PID + listen addr survive;
   apply+journal+audit subtree respawns with M3m–M3q fail-closed confine;
   second push succeeds
+- **M3s:** FreeBSD ambient AF_INET residual — CapEnter does not deny sockets
+  (`NEG-ROLE-NET` UnexpectedAllow); jail ip-disable evaluated and rejected for
+  product children (conflicts with allow-root `CapRightsLimit`); residual probe
+  + CapEnter test; `RequireAmbientRoleNetFinding` kept for a future deny
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK
@@ -214,5 +218,5 @@ Library topology flags: `DisableAuth`, `DisableParser`, `DisableAudit`,
 
 ## Next increment (proposed)
 
-FreeBSD ambient socket / NEG-ROLE-NET hardening under CapEnter, broader
-product authz / PKI, or IC-1 evidence campaigns.
+FreeBSD ambient AF_INET deny compatible with allow-root CapRightsLimit,
+broader product authz / PKI, or IC-1 evidence campaigns.

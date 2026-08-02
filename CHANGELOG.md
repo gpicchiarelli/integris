@@ -130,6 +130,9 @@ is accepted.
 - M3r FreeBSD StrictLaunch CapEnter RestartOne first cut: persistent serve
   under CapEnter; kill apply; net PID + listen addr survive; second push
   succeeds with M3m–M3q fail-closed confine on replacement children;
+- M3s FreeBSD ambient AF_INET residual documented: CapEnter leaves
+  `NEG-ROLE-NET` UnexpectedAllow; jail ip-disable rejected for product use
+  (conflicts with allow-root `CapRightsLimit`); probe + CapEnter residual test;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

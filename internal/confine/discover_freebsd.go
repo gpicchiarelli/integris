@@ -10,6 +10,7 @@ func discoverPlatform() []Finding {
 		{ID: "DISC-CAPSICUM", Platform: plat, Control: "cap_enter", Status: StatusUnknown, Detail: "applied in child via confine.ApplyEngineering"},
 		{ID: "DISC-CAP-RIGHTS", Platform: plat, Control: "cap_rights_limit", Status: StatusUnknown, Detail: "LimitConferredFDs applies CAP_READ|WRITE|EVENT before cap_enter"},
 		{ID: "DISC-ALLOW-ROOT-FD", Platform: plat, Control: "conferred_directory_fds", Status: StatusAvailable, Detail: "launcher ExtraFiles + INTEGRIS_ALLOW_ROOT_FDS; LimitAllowRootFDs before cap_enter; NEG-FS-PATH/WRITE via openat"},
+		{ID: "DISC-JAIL-NOIP", Platform: plat, Control: "jail_set_ip_disable", Status: StatusUnavailable, Detail: "M3s residual: CapEnter leaves AF_INET; jail ip-disable conflicts with allow-root CapRightsLimit"},
 		{ID: "DISC-PREOPEN-FD", Platform: plat, Control: "preopened_descriptors", Status: StatusAvailable, Detail: "socketpair endpoints available via OpenSocketFabric"},
 		{ID: "DISC-KEY-FD", Platform: plat, Control: "sealed_mac_key_fd", Status: StatusUnknown, Detail: "launcher.CreateKeyFD uses anon-unlinked FD; FreeBSD memfd seals not wired yet"},
 		{ID: "DISC-SENDFILE", Platform: plat, Control: "sendfile", Status: StatusAvailable, Detail: "platform.SendFile uses sendfile(2) to a connected socket (socketpair harness; INT-IC4-0001)"},
