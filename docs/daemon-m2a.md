@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M5p engineering increments)
+# Privilege-separated receive (M2a–M5q engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,7 +65,7 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M5p CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  (M3m–M5q CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
   ROLE-NET deny on non-FreeBSD, CapEnter/Seatbelt/Landlock/pledge StrictLaunch
   push, RestartOne, and peer deny/admit; FreeBSD ambient AF_INET residual
   documented on FreeBSD)
@@ -149,7 +149,8 @@ ExtraPeer chain (one extra peer per child):
   AllowRoots acks assert `|NEG-CAP-MODE:available` (apply/index/journal/audit)
 - **M3q:** release-mode `Confine` fails closed unless ambient path open is
   denied (`RequireAmbientFSReadDenied` / `NEG-FS-READ`); FreeBSD AllowRoots
-  stubs also assert `|NEG-FS-READ:denied_as_expected` beside openat path allow
+  stubs also assert `|NEG-FS-READ:denied_as_expected` beside openat path allow;
+  M5q maps missing `/etc/hosts` to Unavailable (not DeniedExpected)
 - **M3r:** FreeBSD StrictLaunch CapEnter RestartOne first cut — persistent
   serve under CapEnter; kill apply; net PID + listen addr survive;
   apply+journal+audit subtree respawns with M3m–M3q fail-closed confine;
@@ -310,6 +311,8 @@ ExtraPeer chain (one extra peer per child):
   on `NEG-EXEC` in release `Confine` (all confined ports incl. FreeBSD)
 - **M5p:** Release ambient FS-OPEN deny fail-closed — `RequireAmbientFSOpenDenied`
   on `NEG-FS-OPEN` (unique probe; `EEXIST` → Unavailable)
+- **M5q:** NEG-FS-READ missing-probe honesty — missing `/etc/hosts` →
+  Unavailable (not DeniedExpected); closes hosts-less false-pass of M3q
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

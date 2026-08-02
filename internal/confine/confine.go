@@ -124,7 +124,9 @@ func RequireConferredLimitFinding(f Finding) error {
 }
 
 // RequireAmbientFSReadDenied fails closed when ambient path open is still
-// allowed after apply (M3q). DeniedExpected or Skipped succeed.
+// allowed after apply (M3q). DeniedExpected or Skipped succeed. Unavailable
+// (e.g. missing /etc/hosts probe target, M5q) refuses — infrastructure failure
+// must not look like confinement deny.
 func RequireAmbientFSReadDenied() error {
 	return RequireAmbientFSReadFinding(NegativeFSRead())
 }
