@@ -44,7 +44,7 @@
     "NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET + role-semantic NEG-* covering complete inventory MustNot for all nine roles via role stub",
     "engineering: Landlock/unveil/Seatbelt path allow-roots for Apply/Index via Runtime.AllowRoots; role-net deny; Capsicum fd-only",
     "NEG-FS/FS-READ/FS-PATH/FS-WRITE/EXEC/PTRACE/ROLE-NET + role-semantic NEG-* covering complete inventory MustNot for all nine roles via role stub; hostile IPC refuse matrix (forged MAC/truncation/sequence/role/nonce)",
-    "MAC key via SCM_RIGHTS default (sealed memfd/anon-unlinked FD); KeyViaExtraFiles opts into legacy fd4",
+    "MAC key via SCM_RIGHTS default (sealed memfd on Linux/FreeBSD; anon-unlinked on Darwin/OpenBSD); KeyViaExtraFiles opts into legacy fd4",
     "Journal/Audit path allow-roots landed; other non-archive roles / FreeBSD conferred directory FDs still open",
     "broader path allow-lists beyond archive caps still open",
     "Runtime.RestartChild + RestartPair (KeyViaExtraFiles dual-live); in-place peer FD rebind still open",

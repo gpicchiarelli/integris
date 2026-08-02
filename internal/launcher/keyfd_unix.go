@@ -1,4 +1,4 @@
-//go:build unix && !linux
+//go:build unix && !linux && !freebsd
 
 package launcher
 
@@ -9,7 +9,8 @@ import (
 )
 
 // CreateKeyFD materializes key bytes in an unlinked anonymous file opened
-// read-only. Not as strong as Linux memfd seals; residual for non-Linux Unix.
+// read-only. Not as strong as Linux/FreeBSD memfd seals; residual for
+// Darwin/OpenBSD until a sealed anonymous FD path lands.
 func CreateKeyFD(key []byte) (*os.File, KeyTransport, error) {
 	// 16..256: MAC keys. Up to 8KiB: M2i peer keyring blobs on RootKey FD.
 	if len(key) < 16 || len(key) > 8<<10 {

@@ -504,6 +504,16 @@ Exit: supervised CapEnter RestartOne first cut green; `docs/daemon-m2a.md`.
 
 Exit: FreeBSD ambient-socket residual explicit; `docs/daemon-m2a.md`.
 
+## M3t — FreeBSD sealed MAC key FD (landed engineering)
+
+- FreeBSD `CreateKeyFD` uses `shm_open2(SHM_ANON)` + `F_ADD_SEALS`
+  (`F_SEAL_WRITE|SHRINK|GROW|SEAL`), same transport label as Linux
+  (`memfd-sealed`); pure Go / `CGO_ENABLED=0`;
+- `DISC-KEY-FD` Available on FreeBSD; Darwin/OpenBSD remain anon-unlinked
+  residual; not an IC-1 claim.
+
+Exit: FreeBSD sealed key FD green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
@@ -559,8 +569,8 @@ differential host-dependent; `platform.SendFile` sendfile→socket harness on
 Darwin/Linux/FreeBSD, OpenBSD unavailable);
 differential host-dependent; `platform.VNodeWatch` kqueue VNODE notify
 harness on Darwin/FreeBSD/OpenBSD);
-sealed MAC key FD (Linux memfd; anon-unlinked
-elsewhere) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
+sealed MAC key FD (Linux/FreeBSD sealed memfd-equivalent; Darwin/OpenBSD
+anon-unlinked residual) with SCM_RIGHTS default (legacy ExtraFiles fd4 opt-in); provisional session AEAD with suite
 negotiation, HMAC peer-auth (`i2r`+`r2i`), and transcript-bound traffic keys
 (IP-C-0002). Finished handshake/PQ and IC-1 review remain open.
 
