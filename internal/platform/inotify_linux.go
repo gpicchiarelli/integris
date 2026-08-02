@@ -4,9 +4,9 @@ package platform
 
 import (
 	"context"
+	"encoding/binary"
 	"fmt"
 	"time"
-	"unsafe"
 
 	"golang.org/x/sys/unix"
 )
@@ -95,14 +95,15 @@ func parseInotifyEvents(buf []byte, want int) (VNodeEvent, bool) {
 	var combined int
 	offset := 0
 	for offset+unix.SizeofInotifyEvent <= len(buf) {
-		raw := (*unix.InotifyEvent)(unsafe.Pointer(&buf[offset]))
-		nameLen := int(raw.Len)
+		// Layout matches unix.InotifyEvent (wd, mask, cookie, len) on LE Linux.
+		mask := binary.LittleEndian.Uint32(buf[offset+4 : offset+8])
+		nameLen := int(binary.LittleEndian.Uint32(buf[offset+12 : offset+16]))
 		offset += unix.SizeofInotifyEvent + nameLen
 		if offset > len(buf) {
 			break
 		}
-		n := notesFromInotify(raw.Mask) & want
-		if n == 0 && raw.Mask&unix.IN_IGNORED != 0 && want&VNodeNoteDelete != 0 {
+		n := notesFromInotify(mask) & want
+		if n == 0 && mask&unix.IN_IGNORED != 0 && want&VNodeNoteDelete != 0 {
 			n = VNodeNoteDelete
 		}
 		combined |= n
