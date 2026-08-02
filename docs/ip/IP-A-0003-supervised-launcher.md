@@ -97,7 +97,8 @@ profile defect.
   parser-down M4q, and Linux StrictLaunch Landlock+seccomp RestartOne
   auth-primary M4r, and Linux StrictLaunch Landlock+seccomp RestartOne auth
   ExtraPeer M4s, and Linux StrictLaunch Landlock+seccomp RestartOne audit
-  ExtraPeer M4t); it is not a
+  ExtraPeer M4t, and Linux StrictLaunch Landlock+seccomp peer-key Once push
+  M4u); it is not a
   product
   IC-1 release claim.
 
@@ -179,7 +180,8 @@ directory owned for the test/run.
   StrictLaunch Landlock+seccomp RestartOne parser-down landed in M4q; Linux
   StrictLaunch Landlock+seccomp RestartOne auth-primary landed in M4r; Linux
   StrictLaunch Landlock+seccomp RestartOne auth ExtraPeer landed in M4s; Linux
-  StrictLaunch Landlock+seccomp RestartOne audit ExtraPeer landed in M4t).
+  StrictLaunch Landlock+seccomp RestartOne audit ExtraPeer landed in M4t; Linux
+  StrictLaunch Landlock+seccomp peer-key Once push landed in M4u).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
