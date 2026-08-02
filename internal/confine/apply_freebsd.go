@@ -78,7 +78,9 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	_ = role
 	plat := runtime.GOOS + "/" + runtime.GOARCH
 	// RLIMIT_CORE before CapEnter (M6a): setrlimit remains available pre-mode.
-	out := []Finding{applyRlimitCoreFinding(plat)}
+	// PROC_TRACE_CTL_DISABLE before CapEnter (M6c): anti-trace/core parity
+	// with Linux dumpable; STATUS verify process-wide.
+	out := []Finding{applyRlimitCoreFinding(plat), applyTraceCtlFinding(plat)}
 	if err := unix.CapEnter(); err != nil {
 		return append(out, Finding{
 			ID: "APPLY-CAPSICUM", Platform: plat, Control: "cap_enter",

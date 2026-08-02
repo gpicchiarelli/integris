@@ -332,6 +332,7 @@ func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions, fsRe
 		NegativeSeccompFilter(), // M5w: Linux SECCOMP_MODE_FILTER; skipped elsewhere
 		NegativeDumpable(),      // M5x: Linux PR_DUMPABLE clear; skipped elsewhere
 		NegativeRlimitCore(),    // M5z/M6a: Unix RLIMIT_CORE=0; skipped non-Unix
+		NegativeTraceCtl(),      // M6c: FreeBSD PROC_TRACE_STATUS; skipped elsewhere
 		NegativeFSOpen(),
 		NegativeFSRead(fsReadProbeExisted),
 		NegativeFSPath(role, opts),
@@ -359,6 +360,8 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-DUMPABLE:")
 		case "NEG-RLIMIT-CORE":
 			b.WriteString("|NEG-RLIMIT-CORE:")
+		case "NEG-TRACE-CTL":
+			b.WriteString("|NEG-TRACE-CTL:")
 		case "NEG-FS-OPEN":
 			b.WriteString("|NEG-FS:")
 		case "NEG-FS-READ":

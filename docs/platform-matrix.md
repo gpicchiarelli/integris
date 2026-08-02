@@ -18,7 +18,7 @@ path on a capable platform.
 | Platform | Required composition | Capability discovery | Known residual risk |
 |---|---|---|---|
 | OpenBSD | dedicated account, pre-opened descriptors, `unveil`, then locked `unveil`, monotonically reduced `pledge` promises | startup self-test and child-specific negative probes | syscall categories remain broader than individual object capabilities |
-| FreeBSD | dedicated account, pre-opened capability descriptors, `cap_rights_limit`, Capsicum capability mode, helpers for justified global lookup | rights query plus negative probes after `cap_enter`; CapRightsGet asserts `CAP_FCNTL`/`CAP_IOCTL` absent (M6b) | kernel and helper compromise; ambient AF_INET residual (M3s) |
+| FreeBSD | dedicated account, pre-opened capability descriptors, `cap_rights_limit`, Capsicum capability mode, helpers for justified global lookup | rights query plus negative probes after `cap_enter`; CapRightsGet asserts `CAP_FCNTL`/`CAP_IOCTL` absent (M6b); `PROC_TRACE_CTL_DISABLE` + STATUS verify (M6c) | kernel and helper compromise; ambient AF_INET residual (M3s) |
 | Linux | dedicated account, `no_new_privs`, empty capability sets, Landlock, seccomp-BPF, service-manager hardening, optional namespaces and administrator MAC | Landlock ABI and seccomp architecture check before policy installation | Landlock ABI/filesystem variation; seccomp filters syscalls, not object semantics |
 | macOS | dedicated launchd identities where deployable, explicit inherited descriptors, Keychain identity handles, code signing, Hardened Runtime, notarized installer; App Sandbox only where technically compatible; engineering children apply Seatbelt `sandbox_init` (cgo) | signature/entitlement inspection, Seatbelt apply probe, and runtime negative probes | no claimed equivalence to capability mode; Seatbelt ≠ App Sandbox; user-data consent and sandbox behavior vary by deployment |
 
@@ -34,7 +34,7 @@ capability clear (M5u) + seccomp denylist with TSYNC (M5w) + dumpable
 clear (M5x) + RLIMIT_CORE=0 (M5z/M6a Unix-wide);
 OpenBSD role-parameterized `pledge`/`unveil` allow-roots; FreeBSD
 `cap_rights_limit` then `cap_enter` with conferred allow-root directory FDs
-for Apply/Index/Journal/Audit (M3c product claim; CapRightsGet verify M5y/M6b); Darwin Seatbelt with deny
+for Apply/Index/Journal/Audit (M3c product claim; CapRightsGet verify M5y/M6b; PROC_TRACE_CTL M6c); Darwin Seatbelt with deny
 ambient path read/write except EvalSymlinks'd allow-roots, and `deny network*`
 unless net role). Role stubs report `NEG-CAP-MODE` (FreeBSD `cap_getmode`),
 `NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`, `NEG-FS-WRITE`, `NEG-EXEC`,
@@ -73,7 +73,9 @@ residual (`DISC-CAP-EMPTY` Unavailable). Landlock is applied and discoverable
 `restrict_self` (residual). `NEG-PTRACE` remains
 observational (Yama self-attach is non-discriminative). On Darwin/OpenBSD/
 FreeBSD, release mode also fails closed unless `RLIMIT_CORE` is zero
-(`RequireRlimitCoreZero`, M6a).
+(`RequireRlimitCoreZero`, M6a). On FreeBSD, release mode also fails closed
+unless `PROC_TRACE_STATUS` is `-1` after `PROC_TRACE_CTL_DISABLE`
+(`RequireTraceCtlDisabled`, M6c).
 FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down
