@@ -222,6 +222,9 @@ is accepted.
 - M4v Linux StrictLaunch Landlock+seccomp peer deny/admit: unknown peer and
   wrong-key rejected without destination mutation; valid peer push admits with
   `auth.peer.deny` + `auth.peer.admit` (M4b/M4l Linux parity);
+- M4w Linux StrictLaunch Landlock+seccomp peer apply RestartOne: peer keyring;
+  kill apply after first peer push; net+auth+index + listen survive;
+  apply+journal+audit respawn; ≥2 `auth.peer.admit` (M3z/M4m Linux parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
