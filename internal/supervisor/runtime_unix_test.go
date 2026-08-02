@@ -128,9 +128,6 @@ func TestRuntimeStartChildIPC(t *testing.T) {
 		if !bytes.Contains(resp.Payload, []byte("|NEG-EXEC:denied_as_expected")) {
 			t.Fatalf("expected NEG-EXEC denial on %s: %q", runtime.GOOS, resp.Payload)
 		}
-		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
-			t.Fatalf("expected NEG-ROLE-NET denial on freebsd: %q", resp.Payload)
-		}
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {
 		t.Fatal(err)
@@ -416,9 +413,6 @@ func TestRuntimeStartChildAllowRoots(t *testing.T) {
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-WRITE:available")) {
 			t.Fatalf("expected NEG-FS-WRITE available for apply on freebsd: %q", resp.Payload)
 		}
-		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
-			t.Fatalf("expected NEG-ROLE-NET denial on freebsd: %q", resp.Payload)
-		}
 	}
 	if err := rt.WaitChild(authority.RoleApply); err != nil {
 		t.Fatal(err)
@@ -532,9 +526,6 @@ func TestRuntimeStartChildAllowRootsIndex(t *testing.T) {
 		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-WRITE:denied_as_expected")) {
 			t.Fatalf("expected NEG-FS-WRITE denial for index on freebsd: %q", resp.Payload)
-		}
-		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
-			t.Fatalf("expected NEG-ROLE-NET denial on freebsd: %q", resp.Payload)
 		}
 	}
 	if err := rt.WaitChild(authority.RoleIndex); err != nil {
@@ -651,9 +642,6 @@ func TestRuntimeStartChildAllowRootsJournal(t *testing.T) {
 		}
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-WRITE:available")) {
 			t.Fatalf("expected NEG-FS-WRITE available for journal on freebsd: %q", resp.Payload)
-		}
-		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
-			t.Fatalf("expected NEG-ROLE-NET denial on freebsd: %q", resp.Payload)
 		}
 	}
 	if err := rt.WaitChild(authority.RoleJournal); err != nil {
@@ -776,9 +764,6 @@ func TestRuntimeStartChildAllowRootsAudit(t *testing.T) {
 		if !bytes.Contains(resp.Payload, []byte("|NEG-FS-WRITE:denied_as_expected")) {
 			t.Fatalf("expected NEG-FS-WRITE denial for audit on freebsd: %q", resp.Payload)
 		}
-		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
-			t.Fatalf("expected NEG-ROLE-NET denial on freebsd: %q", resp.Payload)
-		}
 	}
 	if err := rt.WaitChild(authority.RoleAudit); err != nil {
 		t.Fatal(err)
@@ -878,9 +863,6 @@ func TestRuntimeRestartChildAllowRoots(t *testing.T) {
 			if !bytes.Contains(resp.Payload, []byte("|NEG-FS-PATH:available")) {
 				t.Fatalf("expected NEG-FS-PATH available on freebsd via conferred dir fd after %s: %q", label, resp.Payload)
 			}
-			if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
-				t.Fatalf("expected NEG-ROLE-NET denial after %s on freebsd: %q", label, resp.Payload)
-			}
 		}
 	}
 
@@ -973,7 +955,7 @@ func TestRuntimeStartChildAuthAccept(t *testing.T) {
 		t.Fatalf("missing NEG-AUTH-PUB in %q", resp.Payload)
 	}
 	switch runtime.GOOS {
-	case "darwin", "linux", "openbsd", "freebsd":
+	case "darwin", "linux", "openbsd":
 		if !bytes.Contains(resp.Payload, []byte("|NEG-ROLE-NET:denied_as_expected")) {
 			t.Fatalf("expected NEG-ROLE-NET denial on %s: %q", runtime.GOOS, resp.Payload)
 		}

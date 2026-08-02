@@ -176,7 +176,7 @@ including dual-live StartPair, selective RestartOne with exit-channel drain,
 FreeBSD allow-root directory FD claim, CapEnter-oriented openat for
 index/apply/journal/audit (including journal bootstrap), CapEnter receive-chain
 proof, role-stub NEG-CAP-MODE CapEnter probes, StrictLaunch CapEnter
-RestartOne first cut, and FreeBSD jail ambient AF_INET deny for non-net roles).
+RestartOne first cut, and FreeBSD ambient AF_INET residual documentation).
 PSK auth only; not release PKI; not an IC-1 production claim.
 
 See docs/daemon-m2a.md.

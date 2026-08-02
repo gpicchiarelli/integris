@@ -28,14 +28,6 @@ func TestRequireApplyAvailable(t *testing.T) {
 		t.Fatal("expected skipped refusal")
 	}
 
-	allowSkip := confine.Report{Findings: []confine.Finding{
-		{ID: "APPLY-CAPSICUM", Status: confine.StatusAvailable, Detail: "ok"},
-		{ID: "APPLY-CAP-ALLOW-ROOTS", Status: confine.StatusSkipped, Detail: "nofds"},
-	}}
-	if err := allowSkip.RequireApplyAvailable(); err != nil {
-		t.Fatal(err)
-	}
-
 	empty := confine.Report{}
 	if err := empty.RequireApplyAvailable(); err == nil {
 		t.Fatal("expected empty refusal")

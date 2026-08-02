@@ -73,7 +73,7 @@ func run() error {
 	rootFDs := launcher.ClaimAllowRootFDs(os.Getenv(launcher.EnvAllowRootFDs))
 	defer launcher.CloseAllowRootFDs(rootFDs)
 	opts.AllowRootFDs = rootFDs
-	// FreeBSD ApplyEngineeringOpts: jail → LimitAllowRootFDs → CapEnter (M3s).
+	_ = confine.LimitAllowRootFDs(confine.RoleArchiveFSMode(role), rootFDs...)
 	_ = confine.ApplyEngineeringOpts(role, opts)
 	negFindings := confine.NegativeEngineeringOpts(role, opts)
 	negFindings = append(negFindings, confine.NegativeRoleSemantic(confine.RoleProbeInput{

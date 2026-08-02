@@ -9,8 +9,6 @@ package confine
 import (
 	"runtime"
 	"sort"
-
-	"github.com/gpicchiarelli/integris/internal/authority"
 )
 
 // Status classifies a probe outcome.
@@ -66,14 +64,7 @@ func (r Report) RequireApplyAvailable() error {
 		}
 		sawApply = true
 		switch f.Status {
-		case StatusUnavailable:
-			return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
-		case StatusSkipped:
-			// FreeBSD LimitAllowRootFDs reports Skipped when no FDs; checked
-			// separately via RequireAllowRootLimitFinding (allows Skipped).
-			if f.ID == "APPLY-CAP-ALLOW-ROOTS" {
-				continue
-			}
+		case StatusUnavailable, StatusSkipped:
 			return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
 		}
 	}
@@ -151,14 +142,10 @@ func RequireAmbientFSReadFinding(f Finding) error {
 	}
 }
 
-// RequireAmbientRoleNetDenied fails closed when ambient AF_INET socket use is
-// still allowed after apply for roles that must not hold CapNetworkSockets
-// (M3s). DeniedExpected or Skipped succeed.
-func RequireAmbientRoleNetDenied(role authority.ProcessRole) error {
-	return RequireAmbientRoleNetFinding(NegativeRoleNet(role))
-}
-
-// RequireAmbientRoleNetFinding is the testable core of RequireAmbientRoleNetDenied.
+// RequireAmbientRoleNetFinding is retained for a future FreeBSD ambient-socket
+// deny that is compatible with allow-root CapRightsLimit (M3s residual:
+// CapEnter alone does not deny AF_INET; jail ip-disable conflicts with
+// conferred directory FD rights-limit). DeniedExpected or Skipped succeed.
 func RequireAmbientRoleNetFinding(f Finding) error {
 	if f.ID != "NEG-ROLE-NET" {
 		return &Error{Code: "confine", Message: "expected NEG-ROLE-NET finding"}

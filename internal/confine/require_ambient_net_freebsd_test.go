@@ -3,7 +3,6 @@
 package confine_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
@@ -11,25 +10,25 @@ import (
 	"github.com/gpicchiarelli/integris/internal/launcher"
 )
 
-func TestRequireAmbientRoleNetDeniedAfterJailCapEnter(t *testing.T) {
+// TestM3sCapEnterLeavesAmbientAFINET documents the FreeBSD residual: after
+// CapEnter, AF_INET socket/connect remains possible (UnexpectedAllow). Jail
+// ip-disable is not used in product children because it conflicts with
+// allow-root CapRightsLimit.
+func TestM3sCapEnterLeavesAmbientAFINET(t *testing.T) {
 	if !launcher.InTestSubprocess(t) {
 		return
 	}
-	if os.Geteuid() != 0 {
-		t.Skip("jail_set(2) for ip4/ip6=disable requires root")
-	}
 	role := authority.RoleApply
-	if err := confine.RequireAmbientRoleNetDenied(role); err == nil {
-		t.Fatal("expected refuse before jail+CapEnter")
+	before := confine.NegativeRoleNet(role)
+	if before.Status != confine.StatusUnexpectedAllow {
+		t.Fatalf("expected ambient allow before CapEnter, got %+v", before)
 	}
 	r := confine.ApplyEngineering(role)
 	if err := r.RequireApplyAvailable(); err != nil {
 		t.Fatal(err)
 	}
-	if err := confine.RequireAmbientRoleNetDenied(role); err != nil {
-		t.Fatal(err)
-	}
-	if err := confine.RequireAmbientRoleNetDenied(authority.RoleNet); err != nil {
-		t.Fatal(err)
+	after := confine.NegativeRoleNet(role)
+	if after.Status != confine.StatusUnexpectedAllow {
+		t.Fatalf("expected CapEnter residual UnexpectedAllow, got %+v", after)
 	}
 }

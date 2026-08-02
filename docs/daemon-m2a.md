@@ -66,7 +66,7 @@ ExtraPeer chain (one extra peer per child):
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
   (M3m–M3s CapMode, Capsicum rights-limit, ambient FS-read deny, CapEnter
-  RestartOne first cut, and FreeBSD jail ambient AF_INET deny on FreeBSD)
+  RestartOne first cut; FreeBSD ambient AF_INET residual documented on FreeBSD)
 - **M2l:** default key conferral is SCM-only — ExtraFiles carries IPC sockets plus
   a dedicated key-channel socketpair end (fd4); MAC/root/extra keys arrive via
   `SCM_RIGHTS` on that channel (`Handle.KeyChannel`). Legacy
@@ -152,10 +152,10 @@ ExtraPeer chain (one extra peer per child):
   serve under CapEnter; kill apply; net PID + listen addr survive;
   apply+journal+audit subtree respawns with M3m–M3q fail-closed confine;
   second push succeeds
-- **M3s:** FreeBSD non-net roles attach a non-persistent jail with
-  `ip4=disable`/`ip6=disable` before CapEnter (`APPLY-JAIL`); release-mode
-  `Confine` requires ambient AF_INET deny (`RequireAmbientRoleNetDenied` /
-  `NEG-ROLE-NET`); CapEnter alone does not deny sockets
+- **M3s:** FreeBSD ambient AF_INET residual — CapEnter does not deny sockets
+  (`NEG-ROLE-NET` UnexpectedAllow); jail ip-disable evaluated and rejected for
+  product children (conflicts with allow-root `CapRightsLimit`); residual probe
+  + CapEnter test; `RequireAmbientRoleNetFinding` kept for a future deny
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK
@@ -218,4 +218,5 @@ Library topology flags: `DisableAuth`, `DisableParser`, `DisableAudit`,
 
 ## Next increment (proposed)
 
-Broader product authz / PKI, or IC-1 evidence campaigns.
+FreeBSD ambient AF_INET deny compatible with allow-root CapRightsLimit,
+broader product authz / PKI, or IC-1 evidence campaigns.
