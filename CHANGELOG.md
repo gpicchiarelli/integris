@@ -168,6 +168,9 @@ is accepted.
   FreeBSD remains a no-op (M3s CapEnter residual);
 - M4e Darwin StrictLaunch Seatbelt push first cut: StrictLaunch Once under
   `sandbox_init` completes push with journal/audit/plan (M3p Darwin parity);
+- M4f Darwin StrictLaunch Seatbelt RestartOne apply: kill apply after first
+  push; net PID + listen survive; apply+journal+audit respawn; second push
+  succeeds (M3r Darwin parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
