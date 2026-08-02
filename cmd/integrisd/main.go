@@ -168,7 +168,7 @@ options:
   -peer-key ID=PATH   per-peer PSK allow-list entry (repeatable; M2i)
   -strict-launch      release-shaped launch (full chain; fail-closed confine; M2k)
 
-M2a–M5v engineering privilege-separated receive daemon
+M2a–M5w engineering privilege-separated receive daemon
 (eight supervised roles + optional per-peer PSK admission in integrisd-auth;
 admit/deny audit events when using -peer-key; -strict-launch for fail-closed
 confinement; SCM-only key conferral on a dedicated key channel by default,

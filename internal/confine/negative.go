@@ -326,9 +326,10 @@ func NegativeEngineering(role authority.ProcessRole, fsReadProbeExisted bool) []
 // fsReadProbeExisted must be AmbientFSReadProbeExisted before apply (M5r).
 func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions, fsReadProbeExisted bool) []Finding {
 	return []Finding{
-		NegativeCapMode(),    // M3k: FreeBSD cap_getmode; skipped elsewhere
-		NegativeCapAmbient(), // M5u: Linux CapAmb empty; skipped elsewhere
-		NegativeNoNewPrivs(), // M5v: Linux PR_NO_NEW_PRIVS; skipped elsewhere
+		NegativeCapMode(),       // M3k: FreeBSD cap_getmode; skipped elsewhere
+		NegativeCapAmbient(),    // M5u: Linux CapAmb empty; skipped elsewhere
+		NegativeNoNewPrivs(),    // M5v: Linux PR_NO_NEW_PRIVS; skipped elsewhere
+		NegativeSeccompFilter(), // M5w: Linux SECCOMP_MODE_FILTER; skipped elsewhere
 		NegativeFSOpen(),
 		NegativeFSRead(fsReadProbeExisted),
 		NegativeFSPath(role, opts),
@@ -350,6 +351,8 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-CAP-AMBIENT:")
 		case "NEG-NO-NEW-PRIVS":
 			b.WriteString("|NEG-NO-NEW-PRIVS:")
+		case "NEG-SECCOMP":
+			b.WriteString("|NEG-SECCOMP:")
 		case "NEG-FS-OPEN":
 			b.WriteString("|NEG-FS:")
 		case "NEG-FS-READ":
