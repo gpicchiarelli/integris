@@ -108,7 +108,8 @@ profile defect.
   pledge+unveil RestartOne auth ExtraPeer M5c, and OpenBSD StrictLaunch
   pledge+unveil RestartOne audit ExtraPeer M5d, and OpenBSD StrictLaunch
   pledge+unveil peer-key Once push M5e, and OpenBSD StrictLaunch
-  pledge+unveil peer deny/admit M5f); it is not a
+  pledge+unveil peer deny/admit M5f, and OpenBSD StrictLaunch
+  pledge+unveil peer apply RestartOne M5g); it is not a
   product
   IC-1 release claim.
 
@@ -202,7 +203,8 @@ directory owned for the test/run.
   StrictLaunch pledge+unveil RestartOne auth ExtraPeer landed in M5c; OpenBSD
   StrictLaunch pledge+unveil RestartOne audit ExtraPeer landed in M5d; OpenBSD
   StrictLaunch pledge+unveil peer-key Once push landed in M5e; OpenBSD
-  StrictLaunch pledge+unveil peer deny/admit landed in M5f).
+  StrictLaunch pledge+unveil peer deny/admit landed in M5f; OpenBSD
+  StrictLaunch pledge+unveil peer apply RestartOne landed in M5g).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

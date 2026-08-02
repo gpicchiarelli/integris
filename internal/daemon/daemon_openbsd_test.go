@@ -853,3 +853,127 @@ func TestM5fStrictLaunchPledgePeerDenyAdmit(t *testing.T) {
 		t.Fatalf("audit missing auth.peer.admit under pledge: %q", auditRaw)
 	}
 }
+
+// TestM5gStrictLaunchPledgeRestartOneApplyPeer is OpenBSD pledge+unveil
+// StrictLaunch coverage for M3r under M2j: peer keyring; kill apply after the
+// first peer push; net+auth+index survive; apply+journal+audit respawn under
+// M3q/M4d fail-closed confine; second peer push admits again (M3z/M4m/M4w
+// OpenBSD parity).
+func TestM5gStrictLaunchPledgeRestartOneApplyPeer(t *testing.T) {
+	bin := buildIntegrisd(t)
+	alice := make([]byte, remotesync.RootKeySize)
+	if _, err := rand.Read(alice); err != nil {
+		t.Fatal(err)
+	}
+	dst := t.TempDir()
+	ready := make(chan string, 4)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	srv, err := daemon.Start(ctx, daemon.ServeOptions{
+		Addr:         "127.0.0.1:0",
+		Destination:  dst,
+		Peers:        remotesync.PeerKeyring{"alice": alice},
+		Once:         false,
+		MaxRestarts:  2,
+		StrictLaunch: true,
+		Executable:   bin,
+		Ready:        ready,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = srv.Close() }()
+
+	addr1 := <-ready
+	netPID, ok := srv.ChildPID(authority.RoleNet)
+	if !ok || netPID == 0 {
+		t.Fatal("missing net PID")
+	}
+	authPID, ok := srv.ChildPID(authority.RoleAuth)
+	if !ok || authPID == 0 {
+		t.Fatal("missing auth PID")
+	}
+	indexPID, ok := srv.ChildPID(authority.RoleIndex)
+	if !ok || indexPID == 0 {
+		t.Fatal("missing index PID")
+	}
+
+	src1 := t.TempDir()
+	mustWrite(t, filepath.Join(src1, "before.txt"), "before-m5g-pledge")
+	if _, err := remotesync.Push(remotesync.PushOptions{
+		Addr: addr1, Source: src1, RootKey: alice, PeerID: "alice",
+	}); err != nil {
+		t.Fatalf("first push: %v", err)
+	}
+	assertFile(t, filepath.Join(dst, "before.txt"), "before-m5g-pledge")
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "local.jrn")); err != nil {
+		t.Fatalf("journal before peer apply RestartOne: %v", err)
+	}
+
+	if err := srv.KillRole(authority.RoleApply); err != nil {
+		t.Fatal(err)
+	}
+
+	var addr2 string
+	select {
+	case addr2 = <-ready:
+	case <-time.After(45 * time.Second):
+		t.Fatal("timeout waiting for peer apply RestartOne ready under pledge StrictLaunch")
+	}
+	if addr2 != addr1 {
+		t.Fatalf("listen addr changed: %q → %q", addr1, addr2)
+	}
+	netPID2, ok := srv.ChildPID(authority.RoleNet)
+	if !ok || netPID2 != netPID {
+		t.Fatalf("net PID changed: %d → %d", netPID, netPID2)
+	}
+	authPID2, ok := srv.ChildPID(authority.RoleAuth)
+	if !ok || authPID2 != authPID {
+		t.Fatalf("auth PID changed: %d → %d", authPID, authPID2)
+	}
+	indexPID2, ok := srv.ChildPID(authority.RoleIndex)
+	if !ok || indexPID2 != indexPID {
+		t.Fatalf("index PID changed: %d → %d", indexPID, indexPID2)
+	}
+	if _, ok := srv.ChildPID(authority.RoleApply); !ok {
+		t.Fatal("apply not restarted")
+	}
+	if _, ok := srv.ChildPID(authority.RoleJournal); !ok {
+		t.Fatal("journal not restarted")
+	}
+	if _, ok := srv.ChildPID(authority.RoleAudit); !ok {
+		t.Fatal("audit not restarted")
+	}
+	st := srv.Status()
+	if st.Restarts < 1 {
+		t.Fatalf("expected restart count, status=%+v", st)
+	}
+
+	src2 := t.TempDir()
+	mustWrite(t, filepath.Join(src2, "after.txt"), "after-m5g-pledge")
+	res := pushAfterRestart(t, remotesync.PushOptions{
+		Addr: addr2, Source: src2, RootKey: alice, PeerID: "alice",
+	})
+	if res.Outcome != "success" {
+		t.Fatalf("%+v", res)
+	}
+	assertFile(t, filepath.Join(dst, "before.txt"), "before-m5g-pledge")
+	assertFile(t, filepath.Join(dst, "after.txt"), "after-m5g-pledge")
+
+	deadline := time.Now().Add(5 * time.Second)
+	var auditRaw []byte
+	for time.Now().Before(deadline) {
+		auditRaw, err = os.ReadFile(filepath.Join(dst, ".integris", "audit.events"))
+		if err == nil && bytes.Count(auditRaw, []byte("auth.peer.admit")) >= 2 {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	if bytes.Count(auditRaw, []byte("auth.peer.admit")) < 2 {
+		t.Fatalf("expected ≥2 auth.peer.admit after peer apply RestartOne under pledge: %q", auditRaw)
+	}
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "last-plan.json")); err != nil {
+		t.Fatalf("plan snapshot after peer apply RestartOne: %v", err)
+	}
+}

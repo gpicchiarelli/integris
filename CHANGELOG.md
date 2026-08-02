@@ -258,6 +258,10 @@ is accepted.
 - M5f OpenBSD StrictLaunch pledge+unveil peer deny/admit: unknown peer and
   wrong-key rejected without destination mutation; valid peer push admits with
   `auth.peer.deny` + `auth.peer.admit` (M4b/M4l/M4v OpenBSD parity);
+- M5g OpenBSD StrictLaunch pledge+unveil peer apply RestartOne: peer keyring;
+  kill apply after first peer push; net+auth+index + listen survive;
+  apply+journal+audit respawn; ≥2 `auth.peer.admit` (M3z/M4m/M4w OpenBSD
+  parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
