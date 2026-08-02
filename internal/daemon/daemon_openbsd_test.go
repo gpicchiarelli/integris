@@ -555,3 +555,130 @@ func TestM5cStrictLaunchPledgeRestartOneAuthPeerExtraPeer(t *testing.T) {
 		t.Fatalf("plan snapshot after peer-auth RestartOne: %v", err)
 	}
 }
+
+// TestM5dStrictLaunchPledgeRestartOneAuditAuthExtraPeer is OpenBSD
+// pledge+unveil StrictLaunch coverage for M3b: peer keyring; kill audit after
+// the first push; auth+net+parser+plan+index survive; apply+journal+audit
+// respawn with auth ExtraPeer→audit rebind under M3q/M4d fail-closed confine;
+// second peer push admits again (M3x/M4j/M4t OpenBSD parity).
+func TestM5dStrictLaunchPledgeRestartOneAuditAuthExtraPeer(t *testing.T) {
+	bin := buildIntegrisd(t)
+	alice := make([]byte, remotesync.RootKeySize)
+	if _, err := rand.Read(alice); err != nil {
+		t.Fatal(err)
+	}
+	dst := t.TempDir()
+	ready := make(chan string, 4)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	survivors := []authority.ProcessRole{
+		authority.RoleAuth, authority.RoleNet, authority.RoleParser,
+		authority.RolePlan, authority.RoleIndex,
+	}
+	srv, err := daemon.Start(ctx, daemon.ServeOptions{
+		Addr:         "127.0.0.1:0",
+		Destination:  dst,
+		Peers:        remotesync.PeerKeyring{"alice": alice},
+		Once:         false,
+		MaxRestarts:  2,
+		StrictLaunch: true,
+		Executable:   bin,
+		Ready:        ready,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = srv.Close() }()
+
+	addr1 := <-ready
+	survivorPIDs := make(map[authority.ProcessRole]int, len(survivors))
+	for _, role := range survivors {
+		pid, ok := srv.ChildPID(role)
+		if !ok || pid == 0 {
+			t.Fatalf("missing %s PID", role)
+		}
+		survivorPIDs[role] = pid
+	}
+	auditPID, ok := srv.ChildPID(authority.RoleAudit)
+	if !ok || auditPID == 0 {
+		t.Fatal("missing audit PID")
+	}
+
+	src1 := t.TempDir()
+	mustWrite(t, filepath.Join(src1, "before.txt"), "before-m5d-pledge")
+	if _, err := remotesync.Push(remotesync.PushOptions{
+		Addr: addr1, Source: src1, RootKey: alice, PeerID: "alice",
+	}); err != nil {
+		t.Fatalf("first push: %v", err)
+	}
+	assertFile(t, filepath.Join(dst, "before.txt"), "before-m5d-pledge")
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "local.jrn")); err != nil {
+		t.Fatalf("journal before audit ExtraPeer RestartOne: %v", err)
+	}
+
+	if err := srv.KillRole(authority.RoleAudit); err != nil {
+		t.Fatal(err)
+	}
+
+	var addr2 string
+	select {
+	case addr2 = <-ready:
+	case <-time.After(45 * time.Second):
+		t.Fatal("timeout waiting for audit ExtraPeer RestartOne ready under pledge StrictLaunch")
+	}
+	if addr2 != addr1 {
+		t.Fatalf("listen addr changed: %q → %q", addr1, addr2)
+	}
+	for role, want := range survivorPIDs {
+		got, ok := srv.ChildPID(role)
+		if !ok || got != want {
+			t.Fatalf("%s PID changed: %d → %d", role, want, got)
+		}
+	}
+	auditPID2, ok := srv.ChildPID(authority.RoleAudit)
+	if !ok || auditPID2 == 0 {
+		t.Fatal("audit not restarted")
+	}
+	if auditPID2 == auditPID {
+		t.Fatal("audit PID unchanged after kill")
+	}
+	for _, role := range []authority.ProcessRole{
+		authority.RoleApply, authority.RoleJournal,
+	} {
+		if _, ok := srv.ChildPID(role); !ok {
+			t.Fatalf("%s not restarted", role)
+		}
+	}
+	st := srv.Status()
+	if st.Restarts < 1 {
+		t.Fatalf("expected restart count, status=%+v", st)
+	}
+
+	src2 := t.TempDir()
+	mustWrite(t, filepath.Join(src2, "after.txt"), "after-m5d-pledge")
+	res := pushAfterRestart(t, remotesync.PushOptions{
+		Addr: addr2, Source: src2, RootKey: alice, PeerID: "alice",
+	})
+	if res.Outcome != "success" {
+		t.Fatalf("%+v", res)
+	}
+	assertFile(t, filepath.Join(dst, "before.txt"), "before-m5d-pledge")
+	assertFile(t, filepath.Join(dst, "after.txt"), "after-m5d-pledge")
+
+	deadline := time.Now().Add(5 * time.Second)
+	var auditRaw []byte
+	for time.Now().Before(deadline) {
+		auditRaw, err = os.ReadFile(filepath.Join(dst, ".integris", "audit.events"))
+		if err == nil && bytes.Count(auditRaw, []byte("auth.peer.admit")) >= 2 {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	if bytes.Count(auditRaw, []byte("auth.peer.admit")) < 2 {
+		t.Fatalf("expected ≥2 auth.peer.admit after audit ExtraPeer rebind under pledge: %q", auditRaw)
+	}
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "last-plan.json")); err != nil {
+		t.Fatalf("plan snapshot after audit ExtraPeer RestartOne: %v", err)
+	}
+}

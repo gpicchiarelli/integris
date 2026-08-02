@@ -921,6 +921,18 @@ Exit: supervised OpenBSD pledge StrictLaunch RestartOne auth-primary green;
 Exit: supervised OpenBSD pledge StrictLaunch RestartOne auth ExtraPeer green;
 `docs/daemon-m2a.md`.
 
+## M5d — OpenBSD StrictLaunch pledge+unveil RestartOne audit ExtraPeer (landed engineering)
+
+- OpenBSD `TestM5dStrictLaunchPledgeRestartOneAuditAuthExtraPeer`: peer
+  keyring StrictLaunch; kill audit after first peer push; auth+net+parser+
+  plan+index and listen survive; apply+journal+audit respawn with auth
+  ExtraPeer→audit rebind under M3q/M4d fail-closed confine; ≥2
+  `auth.peer.admit` (M3x/M4j/M4t OpenBSD parity);
+- OpenBSD CI `-run` includes M5d; not an IC-1 claim.
+
+Exit: supervised OpenBSD pledge StrictLaunch RestartOne audit ExtraPeer green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
