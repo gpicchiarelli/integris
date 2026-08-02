@@ -1015,6 +1015,15 @@ Exit: OpenBSD full-suite CI green; `docs/daemon-m2a.md`.
 
 Exit: product AllowRoots normalize green; `docs/daemon-m2a.md`.
 
+## M5m — Parent-side AllowRoots normalize-before-spawn (landed engineering)
+
+- `launcher.Start` EvalSymlinks allow-roots fail-closed before env + FD
+  open; `Runtime.allowRootsFor` normalizes and writes back for RestartChild;
+  `Serve` canonicalizes destination before seeding AllowRoots;
+- Completes stub → child (M5l) → parent spawn fail-closed; not an IC-1 claim.
+
+Exit: parent AllowRoots normalize green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

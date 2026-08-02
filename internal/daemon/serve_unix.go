@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
+	"github.com/gpicchiarelli/integris/internal/confine"
 	"github.com/gpicchiarelli/integris/internal/ipc"
 	"github.com/gpicchiarelli/integris/internal/launcher"
 	"github.com/gpicchiarelli/integris/internal/remotesync"
@@ -143,6 +144,12 @@ func Start(ctx context.Context, opts ServeOptions) (*Server, error) {
 	if err := os.MkdirAll(dest, 0o755); err != nil {
 		return nil, err
 	}
+	// M5m: canonical destination before AllowRoots / RestartChild reuse.
+	normDest, err := confine.NormalizeAllowRoots([]string{dest})
+	if err != nil {
+		return nil, err
+	}
+	dest = normDest[0]
 	addr := opts.Addr
 	if addr == "" {
 		addr = "127.0.0.1:0"

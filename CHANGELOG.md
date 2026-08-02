@@ -275,6 +275,8 @@ is accepted.
   (FreeBSD parity; includes RestartOne matrix);
 - M5l product AllowRoots normalize-before-apply: `ClaimChild` EvalSymlinks
   fail-closed (stub parity) so role path ops match confine;
+- M5m parent-side AllowRoots normalize-before-spawn: `launcher.Start` +
+  `Runtime.allowRootsFor` + Serve dest canonicalize fail-closed;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

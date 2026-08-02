@@ -111,7 +111,9 @@ type Request struct {
 	// Confer and SlotKinds are non-secret inventory labels for role-semantic probes.
 	Confer    []authority.Capability
 	SlotKinds []string
-	// AllowRoots are absolute archive path allow-list entries (EvalSymlinks in child).
+	// AllowRoots are absolute archive path allow-list entries. Start
+	// EvalSymlinks them fail-closed before env/FD conferral (M5m); children
+	// also normalize (M5l / stub).
 	AllowRoots []string
 	// StubMode selects role-stub IPC behavior (respond default, or initiate).
 	StubMode    string
