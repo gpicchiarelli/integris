@@ -965,6 +965,18 @@ Exit: supervised OpenBSD pledge StrictLaunch peer deny/admit green;
 Exit: supervised OpenBSD pledge StrictLaunch peer apply RestartOne green;
 `docs/daemon-m2a.md`.
 
+## M5h — OpenBSD StrictLaunch pledge+unveil peer parser-down RestartOne (landed engineering)
+
+- OpenBSD `TestM5hStrictLaunchPledgeRestartOneParserDownPeer`: peer keyring
+  StrictLaunch; kill parser after first peer push; net+auth and listen
+  survive; parser→plan→index→apply→journal→audit respawn under M3q/M4d
+  fail-closed confine; ≥2 `auth.peer.admit` (M4a/M4n/M4x OpenBSD parity);
+- Completes the OpenBSD pledge+unveil StrictLaunch campaign (M4y–M5h) as
+  Darwin Seatbelt M4e–M4n and Linux Landlock M4o–M4x parity; not an IC-1 claim.
+
+Exit: supervised OpenBSD pledge StrictLaunch peer parser-down RestartOne green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
