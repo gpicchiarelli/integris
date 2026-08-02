@@ -8,6 +8,9 @@ import (
 // VNodeWatchMechanismKqueue is reported when EVFILT_VNODE watches are native.
 const VNodeWatchMechanismKqueue = "kqueue"
 
+// VNodeWatchMechanismInotify is reported when Linux inotify watches are native.
+const VNodeWatchMechanismInotify = "inotify"
+
 // VNode note flags (subset of NOTE_*). Combined with bitwise OR.
 const (
 	VNodeNoteDelete = 1 << iota
@@ -24,15 +27,16 @@ type vnodeWatch interface {
 	close() error
 }
 
-// VNodeWatch is an open kqueue-backed watch on a single path (INT-IC4-0001
-// notification class). Close releases the kqueue and watched descriptor.
+// VNodeWatch is an open native watch on a single path (INT-IC4-0001
+// notification class): kqueue EVFILT_VNODE on BSD/Darwin, inotify on Linux.
+// Close releases the watch descriptors.
 type VNodeWatch struct {
 	impl vnodeWatch
 }
 
-// OpenVNodeWatch opens path and registers EVFILT_VNODE for the requested notes
-// (VNodeNoteWrite and/or VNodeNoteDelete). notes must be non-zero. On platforms
-// without kqueue (Linux), returns an error.
+// OpenVNodeWatch opens path and registers native vnode notes for the requested
+// notes (VNodeNoteWrite and/or VNodeNoteDelete). notes must be non-zero. On
+// platforms without a native adapter, returns an error.
 func OpenVNodeWatch(path string, notes int) (*VNodeWatch, error) {
 	if path == "" {
 		return nil, fmt.Errorf("platform: empty VNodeWatch path")
@@ -63,15 +67,12 @@ func (w *VNodeWatch) Close() error {
 	return w.impl.close()
 }
 
-// VNodeWatchSupported reports whether this port exposes kqueue VNODE watches.
+// VNodeWatchSupported reports whether this port exposes native vnode watches.
 func VNodeWatchSupported() bool {
 	return vnodeWatchSupported()
 }
 
 // VNodeWatchMechanism names the native notifier, or empty when unsupported.
 func VNodeWatchMechanism() string {
-	if !vnodeWatchSupported() {
-		return ""
-	}
-	return VNodeWatchMechanismKqueue
+	return vnodeWatchMechanism()
 }

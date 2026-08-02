@@ -1024,6 +1024,17 @@ Exit: product AllowRoots normalize green; `docs/daemon-m2a.md`.
 
 Exit: parent AllowRoots normalize green; `docs/daemon-m2a.md`.
 
+## M5n — Linux inotify VNodeWatch first cut (landed engineering)
+
+- `platform.VNodeWatch` on Linux via `inotify` (`IN_MODIFY`/`IN_CLOSE_WRITE`,
+  `IN_DELETE_SELF`); `VNodeWatchMechanismInotify`; write/delete harness
+  mirrors BSD kqueue tests; `DISC-INOTIFY` Available (`DISC-KQUEUE` remains
+  Unavailable — kqueue absent);
+- Closes Linux notification residual in INT-IC4-0001 inventory; not an IC-1
+  claim. Out of scope: fanotify, recursive watches, daemon consumer.
+
+Exit: Linux inotify VNodeWatch green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
