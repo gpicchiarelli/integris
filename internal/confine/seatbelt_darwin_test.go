@@ -41,6 +41,9 @@ func TestSeatbeltAllowRootAndDeniesAmbient(t *testing.T) {
 	if neg.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-FS outside root: %+v", neg)
 	}
+	if err := confine.RequireAmbientFSOpenDenied(); err != nil {
+		t.Fatal(err)
+	}
 	rd := confine.NegativeFSRead()
 	if rd.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-FS-READ: %+v", rd)

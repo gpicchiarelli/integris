@@ -142,6 +142,20 @@ func RequireAmbientFSReadFinding(f Finding) error {
 	}
 }
 
+// RequireAmbientFSOpenFinding is the testable core of RequireAmbientFSOpenDenied
+// (M5p). DeniedExpected or Skipped succeed.
+func RequireAmbientFSOpenFinding(f Finding) error {
+	if f.ID != "NEG-FS-OPEN" {
+		return &Error{Code: "confine", Message: "expected NEG-FS-OPEN finding"}
+	}
+	switch f.Status {
+	case StatusDeniedExpected, StatusSkipped:
+		return nil
+	default:
+		return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+	}
+}
+
 // RequireAmbientRoleNetFinding is the testable core of
 // RequireAmbientRoleNetDenied (M4d). DeniedExpected or Skipped succeed.
 // FreeBSD CapEnter still leaves AF_INET (M3s); release Confine skips the

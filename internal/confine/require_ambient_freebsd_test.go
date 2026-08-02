@@ -26,3 +26,20 @@ func TestRequireAmbientFSReadDeniedAfterCapEnter(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestRequireAmbientFSOpenDeniedAfterCapEnter(t *testing.T) {
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
+	if confine.NegativeCapMode().Status != confine.StatusAvailable {
+		if err := confine.RequireAmbientFSOpenDenied(); err == nil {
+			t.Fatal("expected refuse before CapEnter")
+		}
+		if err := unix.CapEnter(); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if err := confine.RequireAmbientFSOpenDenied(); err != nil {
+		t.Fatal(err)
+	}
+}

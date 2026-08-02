@@ -22,7 +22,7 @@ Linux, and
 .Sy Status :
 an engineering preview binary exists for
 .Cm serve
-.Pq M2a Ns – Ns M5o :
+.Pq M2a Ns – Ns M5p :
 privilege-separated eight-role receive chain —
 .Nm Ns -auth ,
 .Nm Ns -parser ,
@@ -81,6 +81,8 @@ and non-FreeBSD release ambient ROLE-NET deny
 .Pq M4d ,
 and release ambient EXEC deny
 .Pq M5o ,
+and release ambient FS-OPEN deny
+.Pq M5p ,
 and Darwin StrictLaunch Seatbelt push first cut
 .Pq M4e ,
 and Darwin StrictLaunch Seatbelt RestartOne apply
@@ -154,7 +156,9 @@ and parent-side AllowRoots normalize-before-spawn
 and Linux inotify VNodeWatch first cut
 .Pq M5n ,
 and release ambient EXEC deny fail-closed
-.Pq M5o .
+.Pq M5o ,
+and release ambient FS-OPEN deny fail-closed
+.Pq M5p .
 Default key conferral is SCM-only on a dedicated key channel
 .Pq M2l .
 It is not the release product daemon, not PKI, and not the full nine-role
