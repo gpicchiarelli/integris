@@ -31,7 +31,7 @@ Engineering scaffold: `internal/confine` probes and applies best-effort child
 confinement (`ApplyEngineeringOpts(role, opts)`: Linux Landlock with optional
 path_beneath allow-roots for Apply/Index + `no_new_privs` + ambient
 capability clear (M5u) + seccomp denylist with TSYNC (M5w) + dumpable
-clear (M5x) + RLIMIT_CORE=0 (M5z);
+clear (M5x) + RLIMIT_CORE=0 (M5z/M6a Unix-wide);
 OpenBSD role-parameterized `pledge`/`unveil` allow-roots; FreeBSD
 `cap_rights_limit` then `cap_enter` with conferred allow-root directory FDs
 for Apply/Index/Journal/Audit (M3c product claim; CapRightsGet verify M5y); Darwin Seatbelt with deny
@@ -65,12 +65,15 @@ M5u; `PR_CAP_AMBIENT_CLEAR_ALL`), `PR_NO_NEW_PRIVS` is set
 (`RequireNoNewPrivsSet`, M5v), seccomp is in FILTER mode after
 process-wide TSYNC install (`RequireSeccompFilter`, M5w), and dumpable is
 cleared (`RequireDumpableClear`, M5x; `PR_SET_DUMPABLE(0)`), and
-`RLIMIT_CORE` soft=hard=0 (`RequireRlimitCoreZero`, M5z). Full empty
+`RLIMIT_CORE` soft=hard=0 (`RequireRlimitCoreZero`, M5z Linux / M6a
+Unix-wide). Full empty
 capability sets / CapBnd drop remain a dedicated-account / `CAP_SETPCAP`
 residual (`DISC-CAP-EMPTY` Unavailable). Landlock is applied and discoverable
 (`DISC-LANDLOCK` Available) but remains per-thread for threads created before
 `restrict_self` (residual). `NEG-PTRACE` remains
-observational (Yama self-attach is non-discriminative).
+observational (Yama self-attach is non-discriminative). On Darwin/OpenBSD/
+FreeBSD, release mode also fails closed unless `RLIMIT_CORE` is zero
+(`RequireRlimitCoreZero`, M6a).
 FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down

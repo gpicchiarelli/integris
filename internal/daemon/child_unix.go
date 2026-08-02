@@ -236,7 +236,7 @@ func closeAll(files ...*os.File) {
 // PR_NO_NEW_PRIVS verify via APPLY-NO-NEW-PRIVS + NEG-NO-NEW-PRIVS (M5v),
 // Linux seccomp FILTER+TSYNC via APPLY-SECCOMP + NEG-SECCOMP (M5w),
 // Linux dumpable clear via APPLY-DUMPABLE + NEG-DUMPABLE (M5x),
-// and Linux RLIMIT_CORE=0 via APPLY-RLIMIT-CORE + NEG-RLIMIT-CORE (M5z).
+// and Unix RLIMIT_CORE=0 via APPLY-RLIMIT-CORE + NEG-RLIMIT-CORE (M5z/M6a).
 func (e ChildEnv) Confine() error {
 	// Capture before ApplyEngineering: OpenBSD unveil may return ENOENT for
 	// non-unveiled paths, indistinguishable from a missing probe target (M5r).

@@ -1,9 +1,9 @@
 package confine
 
-// RequireRlimitCoreZero fails closed when Linux RLIMIT_CORE soft or hard is
-// non-zero after apply (M5z). Available or Skipped succeed (Skipped on
-// non-Linux). Complements APPLY-RLIMIT-CORE in RequireApplyAvailable with a
-// getrlimit probe.
+// RequireRlimitCoreZero fails closed when Unix RLIMIT_CORE soft or hard is
+// non-zero after apply (M5z Linux; M6a Darwin/OpenBSD/FreeBSD). Available or
+// Skipped succeed (Skipped on non-Unix). Complements APPLY-RLIMIT-CORE in
+// RequireApplyAvailable with a getrlimit probe.
 //
 // Call only after ApplyEngineering in a child.
 func RequireRlimitCoreZero() error {
