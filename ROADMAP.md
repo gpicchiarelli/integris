@@ -679,6 +679,17 @@ Exit: supervised Darwin Seatbelt auth-primary RestartOne green;
 Exit: supervised Darwin Seatbelt auth ExtraPeer RestartOne green;
 `docs/daemon-m2a.md`.
 
+## M4j — Darwin StrictLaunch Seatbelt audit ExtraPeer RestartOne (landed engineering)
+
+- Darwin `TestM4jStrictLaunchSeatbeltRestartOneAuditAuthExtraPeer`: peer
+  keyring StrictLaunch under Seatbelt; kill audit after first push; auth+net+
+  parser+plan+index + listen survive; apply+journal+audit respawn with auth
+  ExtraPeer→audit rebind; ≥2 `auth.peer.admit` (M3x Darwin parity);
+- not an IC-1 claim.
+
+Exit: supervised Darwin Seatbelt audit ExtraPeer RestartOne green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
