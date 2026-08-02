@@ -91,7 +91,8 @@ profile defect.
   Seatbelt audit ExtraPeer RestartOne M4j, and Darwin StrictLaunch Seatbelt
   peer-key Once push M4k, and Darwin StrictLaunch Seatbelt peer deny/admit
   M4l, Darwin StrictLaunch Seatbelt peer apply RestartOne M4m, and Darwin
-  StrictLaunch Seatbelt peer parser-down RestartOne M4n); it is not a
+  StrictLaunch Seatbelt peer parser-down RestartOne M4n, and Linux StrictLaunch
+  Landlock+seccomp push first cut M4o); it is not a
   product
   IC-1 release claim.
 
@@ -167,7 +168,8 @@ directory owned for the test/run.
   ExtraPeer RestartOne landed in M4j; Darwin StrictLaunch Seatbelt peer-key
   Once push landed in M4k; Darwin StrictLaunch Seatbelt peer deny/admit landed
   in M4l; Darwin StrictLaunch Seatbelt peer apply RestartOne landed in M4m;
-  Darwin StrictLaunch Seatbelt peer parser-down RestartOne landed in M4n).
+  Darwin StrictLaunch Seatbelt peer parser-down RestartOne landed in M4n;
+  Linux StrictLaunch Landlock+seccomp push first cut landed in M4o).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
