@@ -165,9 +165,10 @@ func runNet(env ChildEnv) error {
 		if once {
 			return sessErr
 		}
-		if sessErr != nil && remotesync.IsKind(sessErr, remotesync.KindTransport) {
-			return sessErr
-		}
+		// Persistent serve: a single-connection transport fault (peer reset,
+		// aborted dial, apply IPC EOF during RestartOne) must not tear down
+		// the listen socket.
+		_ = sessErr
 	}
 }
 

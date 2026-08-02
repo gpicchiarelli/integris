@@ -494,17 +494,29 @@ func (s *Server) supervise(parent, runCtx context.Context) {
 				// M3j: drop cascade exits buffered while waiting for killed
 				// siblings so they do not burn the restart budget as "new" deaths.
 				flushExitPending(exitCh)
-				for _, r := range armed {
-					s.armWatcher(r, exitCh)
+				// If the listen role died during RestartOne, fall through to a
+				// full fleet restart instead of republishing a dead address.
+				if !s.childAlive(authority.RoleNet) {
+					// RestartOne already incremented the budget; continue to
+					// full respawn below without a second increment.
+					s.mu.Lock()
+					if s.restarts > 0 {
+						s.restarts--
+					}
+					s.mu.Unlock()
+				} else {
+					for _, r := range armed {
+						s.armWatcher(r, exitCh)
+					}
+					s.mu.Lock()
+					addr := s.listenAddr
+					readyCh := s.opts.Ready
+					s.mu.Unlock()
+					if readyCh != nil && addr != "" {
+						readyCh <- addr
+					}
+					continue
 				}
-				s.mu.Lock()
-				addr := s.listenAddr
-				readyCh := s.opts.Ready
-				s.mu.Unlock()
-				if readyCh != nil && addr != "" {
-					readyCh <- addr
-				}
-				continue
 			}
 
 			// Full fleet restart; each Handle is Wait'd once by its watcher.

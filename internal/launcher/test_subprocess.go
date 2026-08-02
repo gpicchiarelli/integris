@@ -15,6 +15,7 @@ const testChildEnv = "INTEGRIS_TEST_CHILD"
 //
 // Parent: re-runs only t.Name(), waits, fails t on child error, returns false.
 // Child (INTEGRIS_TEST_CHILD=1): returns true so the caller runs the test body.
+// CapEnter tests must also call SkipSubprocessCleanupOnSuccess before CapEnter.
 func InTestSubprocess(t *testing.T) bool {
 	t.Helper()
 	if os.Getenv(testChildEnv) == "1" {
@@ -22,7 +23,7 @@ func InTestSubprocess(t *testing.T) bool {
 	}
 
 	args := append([]string{"-test.run", fmt.Sprintf("^%s$", t.Name())}, forwardedTestArgs()...)
-	cmd := exec.Command(os.Args[0], args...)
+	cmd := exec.Command(os.Args[0], args...) // #nosec G702 -- intentional re-exec of the test binary
 	cmd.Env = append(os.Environ(), testChildEnv+"=1")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -30,6 +31,21 @@ func InTestSubprocess(t *testing.T) bool {
 		t.Fatalf("subprocess %s: %v", t.Name(), err)
 	}
 	return false
+}
+
+// SkipSubprocessCleanupOnSuccess exits a CapEnter subprocess test before t.TempDir
+// cleanups run (ambient /tmp access is denied after unix.CapEnter). Call after all
+// t.TempDir setup and immediately before unix.CapEnter.
+func SkipSubprocessCleanupOnSuccess(t *testing.T) {
+	t.Helper()
+	if os.Getenv(testChildEnv) != "1" {
+		return
+	}
+	t.Cleanup(func() {
+		if !t.Failed() {
+			os.Exit(0)
+		}
+	})
 }
 
 func forwardedTestArgs() []string {

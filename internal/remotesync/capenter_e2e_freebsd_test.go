@@ -46,6 +46,7 @@ func TestReceiveOpenatChainAfterCapEnter(t *testing.T) {
 	if err := unix.CapRightsLimit(dir.Fd(), rights); err != nil {
 		t.Fatal(err)
 	}
+	launcher.SkipSubprocessCleanupOnSuccess(t)
 	if err := unix.CapEnter(); err != nil {
 		t.Fatal(err)
 	}
