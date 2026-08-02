@@ -887,6 +887,17 @@ Exit: supervised OpenBSD pledge StrictLaunch push first cut green;
 Exit: supervised OpenBSD pledge StrictLaunch RestartOne apply green;
 `docs/daemon-m2a.md`.
 
+## M5a — OpenBSD StrictLaunch pledge+unveil RestartOne parser-down (landed engineering)
+
+- OpenBSD `TestM5aStrictLaunchPledgeRestartOneParserDown`: StrictLaunch
+  persistent serve; kill parser after first push; net+auth and listen survive;
+  parser→plan→index→apply→journal→audit respawn under M3q/M4d fail-closed
+  confine; second push succeeds (M3u/M4g/M4q OpenBSD parity);
+- OpenBSD CI `-run` includes M5a; not an IC-1 claim.
+
+Exit: supervised OpenBSD pledge StrictLaunch RestartOne parser-down green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
