@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M3x engineering increments)
+# Privilege-separated receive (M2a–M3y engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,7 +65,7 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M3x CapMode, Capsicum rights-limit, ambient FS-read deny, CapEnter
+  (M3m–M3y CapMode, Capsicum rights-limit, ambient FS-read deny, CapEnter
   RestartOne first cut; FreeBSD ambient AF_INET residual documented on FreeBSD)
 - **M2l:** default key conferral is SCM-only — ExtraFiles carries IPC sockets plus
   a dedicated key-channel socketpair end (fd4); MAC/root/extra keys arrive via
@@ -173,6 +173,9 @@ ExtraPeer chain (one extra peer per child):
   keyring; kill audit; auth+upstream + listen survive; apply+journal+audit
   respawn with auth ExtraPeer→audit rebind; ≥2 `auth.peer.admit` (M3b under
   CapEnter)
+- **M3y:** FreeBSD StrictLaunch CapEnter M2j peer-key push — StrictLaunch Once
+  with peer keyring under CapEnter; peer push succeeds with journal/audit/plan
+  and ≥1 `auth.peer.admit` (M3p + M2j)
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK
