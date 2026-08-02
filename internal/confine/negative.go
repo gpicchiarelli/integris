@@ -192,6 +192,13 @@ func NegativeFSPathWrite(role authority.ProcessRole, opts ApplyOptions) Finding 
 		}
 	}
 	p := filepath.Join(norm[0], "integris-neg-fs-write")
+	if runtime.GOOS == "openbsd" && mode == ArchiveFSReadonly {
+		// O_CREATE/O_WRONLY without wpath aborts under pledge.
+		return Finding{
+			ID: "NEG-FS-WRITE", Platform: plat, Control: "path_allow_list_write",
+			Status: StatusDeniedExpected, Detail: "pledge omits wpath for readonly archive role",
+		}
+	}
 	f, err := os.OpenFile(p, os.O_CREATE|os.O_WRONLY|os.O_EXCL, 0o600)
 	if mode == ArchiveFSReadonly {
 		if err == nil {
