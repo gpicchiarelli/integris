@@ -842,6 +842,20 @@ Exit: supervised Linux Landlock StrictLaunch peer deny/admit green;
 Exit: supervised Linux Landlock StrictLaunch peer apply RestartOne green;
 `docs/daemon-m2a.md`.
 
+## M4x — Linux StrictLaunch Landlock+seccomp peer parser-down RestartOne (landed engineering)
+
+- Linux `TestM4xStrictLaunchLandlockRestartOneParserDownPeer`: StrictLaunch
+  persistent serve with peer keyring under Landlock+seccomp; kill parser after
+  first peer push; net+auth + listen survive;
+  parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit`
+  (M4a/M4n Linux parity);
+- Completes the Linux Landlock StrictLaunch campaign (M4o–M4x) as Darwin
+  Seatbelt M4e–M4n parity; FreeBSD CapEnter peer parser-down remains M4a; not
+  an IC-1 claim.
+
+Exit: supervised Linux Landlock StrictLaunch peer parser-down RestartOne green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
