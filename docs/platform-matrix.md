@@ -51,7 +51,9 @@ M3s; jail ip-disable is not used with allow-root CapRightsLimit;
 closed unless ambient process exec is denied (`RequireAmbientExecDenied`,
 M5o) on all confined ports (including FreeBSD CapEnter). Release mode also
 fails closed unless ambient path create outside allow-roots is denied
-(`RequireAmbientFSOpenDenied`, M5p). FreeBSD
+(`RequireAmbientFSOpenDenied`, M5p). ArchiveFSReadonly roles (Index/Audit)
+fail closed unless allow-root create is denied (`RequireArchiveFSWriteDenied`,
+M5s; unique probe path; `EEXIST` → Unavailable). FreeBSD
 supervised StrictLaunch push first cut under CapEnter is covered by M3p;
 StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down
 RestartOne by M3u; CapEnter auth-primary RestartOne by M3v; CapEnter M2j

@@ -1076,6 +1076,15 @@ Exit: NEG-FS-READ probe honesty green; `docs/daemon-m2a.md`.
 
 Exit: OpenBSD StrictLaunch green with hosts-less honesty retained; `docs/daemon-m2a.md`.
 
+## M5s — NEG-FS-WRITE unique probe + readonly Require (landed engineering)
+
+- `NegativeFSPathWrite` uses a unique nonce path (FreeBSD `openat` twin);
+  `EEXIST` → `StatusUnavailable` for ArchiveFSReadonly (M5p EEXIST twin);
+- release `Confine` calls `RequireArchiveFSWriteDenied` for Index/Audit
+  (DeniedExpected or Skipped; Unavailable refuses); not an IC-1 claim.
+
+Exit: archive-readonly write deny green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

@@ -9,14 +9,14 @@ import (
 
 	"github.com/gpicchiarelli/integris/internal/authority"
 	"github.com/gpicchiarelli/integris/internal/confine"
+	"github.com/gpicchiarelli/integris/internal/launcher"
 )
 
 func TestSeatbeltAllowRootAndDeniesAmbient(t *testing.T) {
-	root, err := os.MkdirTemp("", "integris-sb-allow-*")
-	if err != nil {
-		t.Fatal(err)
+	if !launcher.InTestSubprocess(t) {
+		return
 	}
-	// Seatbelt remains active for the process; do not rely on testing.TempDir cleanup.
+	root := launcher.CapEnterTempDir(t)
 	norm, err := confine.NormalizeAllowRoots([]string{root})
 	if err != nil {
 		t.Fatal(err)
@@ -72,6 +72,29 @@ func TestSeatbeltAllowRootAndDeniesAmbient(t *testing.T) {
 		t.Fatal(err)
 	}
 	if err := confine.RequireAmbientExecDenied(); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestSeatbeltIndexDeniesAllowRootWrite(t *testing.T) {
+	if !launcher.InTestSubprocess(t) {
+		return
+	}
+	root := launcher.CapEnterTempDir(t)
+	norm, err := confine.NormalizeAllowRoots([]string{root})
+	if err != nil {
+		t.Fatal(err)
+	}
+	opts := confine.ApplyOptions{AllowRoots: norm}
+	r := confine.ApplyEngineeringOpts(authority.RoleIndex, opts)
+	if len(r.Findings) == 0 || r.Findings[0].Status != confine.StatusAvailable {
+		t.Fatalf("apply: %+v", r.Findings)
+	}
+	wr := confine.NegativeFSPathWrite(authority.RoleIndex, opts)
+	if wr.Status != confine.StatusDeniedExpected {
+		t.Fatalf("NEG-FS-WRITE index: %+v", wr)
+	}
+	if err := confine.RequireArchiveFSWriteDenied(authority.RoleIndex, opts); err != nil {
 		t.Fatal(err)
 	}
 }
