@@ -1136,6 +1136,16 @@ Exit: Linux seccomp TSYNC verify green; `docs/daemon-m2a.md`.
 
 Exit: Linux dumpable clear green; `docs/daemon-m2a.md`.
 
+## M5y — FreeBSD CapRightsGet verify (landed engineering)
+
+- `LimitConferredFDs` / `LimitAllowRootFDs` fail closed unless
+  `CapRightsGet` shows expected rights present and sentinel rights absent
+  (`CapRightsIsSet(want)` alone is insufficient on an unlimited FD);
+- `DISC-CAPSICUM` / `DISC-CAP-RIGHTS` Available; M3s AF_INET /
+  `DISC-JAIL-NOIP` residual unchanged; not an IC-1 claim.
+
+Exit: FreeBSD CapRightsGet verify green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

@@ -31,9 +31,15 @@ func probeEngineering() []Finding {
 }
 
 // LimitConferredFDs reduces IPC/key fds to read/write/event before CapEnter.
+// After CapRightsLimit, CapRightsGet must show the expected rights present and
+// a sentinel absent (M5y); Limit errno alone is not sufficient.
 func LimitConferredFDs(files ...*os.File) Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
-	rights, err := unix.CapRightsInit([]uint64{unix.CAP_READ, unix.CAP_WRITE, unix.CAP_EVENT})
+	want := []uint64{unix.CAP_READ, unix.CAP_WRITE, unix.CAP_EVENT}
+	// Sentinels not in want: prove Limit reduced the mask (IsSet(want) alone
+	// passes on an unlimited FD).
+	absent := []uint64{unix.CAP_FEXECVE, unix.CAP_ACCEPT, unix.CAP_BIND}
+	rights, err := unix.CapRightsInit(want)
 	if err != nil {
 		return Finding{
 			ID: "APPLY-CAP-RIGHTS", Platform: plat, Control: "cap_rights_limit",
@@ -50,10 +56,16 @@ func LimitConferredFDs(files ...*os.File) Finding {
 				Status: StatusUnavailable, Detail: err.Error(),
 			}
 		}
+		if err := verifyCapRightsLimited(f.Fd(), want, absent); err != nil {
+			return Finding{
+				ID: "APPLY-CAP-RIGHTS", Platform: plat, Control: "cap_rights_limit",
+				Status: StatusUnavailable, Detail: "verify: " + err.Error(),
+			}
+		}
 	}
 	return Finding{
 		ID: "APPLY-CAP-RIGHTS", Platform: plat, Control: "cap_rights_limit",
-		Status: StatusAvailable, Detail: "CAP_READ|CAP_WRITE|CAP_EVENT on conferred fds",
+		Status: StatusAvailable, Detail: "CAP_READ|CAP_WRITE|CAP_EVENT on conferred fds; CapRightsGet verified",
 	}
 }
 

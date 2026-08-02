@@ -34,7 +34,7 @@ capability clear (M5u) + seccomp denylist with TSYNC (M5w) + dumpable
 clear (M5x);
 OpenBSD role-parameterized `pledge`/`unveil` allow-roots; FreeBSD
 `cap_rights_limit` then `cap_enter` with conferred allow-root directory FDs
-for Apply/Index/Journal/Audit (M3c product claim); Darwin Seatbelt with deny
+for Apply/Index/Journal/Audit (M3c product claim; CapRightsGet verify M5y); Darwin Seatbelt with deny
 ambient path read/write except EvalSymlinks'd allow-roots, and `deny network*`
 unless net role). Role stubs report `NEG-CAP-MODE` (FreeBSD `cap_getmode`),
 `NEG-FS-OPEN`, `NEG-FS-READ`, `NEG-FS-PATH`, `NEG-FS-WRITE`, `NEG-EXEC`,
@@ -42,7 +42,8 @@ unless net role). Role stubs report `NEG-CAP-MODE` (FreeBSD `cap_getmode`),
 `INTEGRIS_LAUNCH_MODE=release` also fail closed unless FreeBSD capability mode
 is confirmed (`RequireCapModeAvailable`, M3m) and Capsicum
 `cap_rights_limit` findings are Available or Skipped
-(`RequireAllowRootLimitFinding` M3n, `RequireConferredLimitFinding` M3o) and
+(`RequireAllowRootLimitFinding` M3n, `RequireConferredLimitFinding` M3o;
+CapRightsGet want+absent verify M5y) and
 ambient path open is denied (`RequireAmbientFSReadDenied`, M3q) and ambient
 path create outside allow-roots is denied (`RequireAmbientFSOpenDenied`, M5p).
 On Linux/Darwin/OpenBSD, release mode also fails closed unless ambient
