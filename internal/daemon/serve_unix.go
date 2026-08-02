@@ -491,6 +491,11 @@ func (s *Server) supervise(parent, runCtx context.Context) {
 			restarts := s.restarts
 			s.mu.Unlock()
 
+			// Cascade exits (parser kill → plan/index/apply EOF) can arrive out of
+			// order; escalate to the most upstream dead role before choosing a
+			// RestartOne strategy so we never SendPeerFD to a dying KeyChannel.
+			role = s.escalateRestartTrigger(role, exitCh)
+
 			// M2o–M2r: selective RestartOne / apply-subtree restart.
 			if armed, ok := s.tryRestartOne(runCtx, role, exitCh); ok {
 				// M3j: drop cascade exits buffered while waiting for killed
@@ -594,7 +599,7 @@ func (s *Server) tryRestartOne(ctx context.Context, dead authority.ProcessRole, 
 	// M2u: parser/plan loss on M2g — larger than apply-only subtree (M2r).
 	if m2g && (dead == authority.RoleParser || dead == authority.RolePlan ||
 		((dead == authority.RoleApply || dead == authority.RoleJournal || dead == authority.RoleAudit) &&
-			!s.childAlive(authority.RoleParser))) {
+			(!s.childAlive(authority.RoleParser) || !s.childAlive(authority.RolePlan)))) {
 		if s.restartParserDownM2g(ctx, exitCh) {
 			return []authority.ProcessRole{
 				authority.RoleAudit, authority.RoleJournal, authority.RoleApply,
@@ -607,7 +612,8 @@ func (s *Server) tryRestartOne(ctx context.Context, dead authority.ProcessRole, 
 	// M2v: parser/plan/index loss on M2h — larger than apply-only subtree (M2s).
 	if m2h && (dead == authority.RoleParser || dead == authority.RolePlan || dead == authority.RoleIndex ||
 		((dead == authority.RoleApply || dead == authority.RoleJournal || dead == authority.RoleAudit) &&
-			!s.childAlive(authority.RoleParser))) {
+			(!s.childAlive(authority.RoleParser) || !s.childAlive(authority.RolePlan) ||
+				!s.childAlive(authority.RoleIndex)))) {
 		if s.restartParserDownM2h(ctx, exitCh) {
 			return []authority.ProcessRole{
 				authority.RoleAudit, authority.RoleJournal, authority.RoleApply,
@@ -660,8 +666,14 @@ func (s *Server) tryRestartOne(ctx context.Context, dead authority.ProcessRole, 
 	if _, ok := rt.Child(live); !ok {
 		return nil, false
 	}
+	liveH, _ := rt.Child(live)
 	if err := rt.RestartOne(ctx, dead, live, initiator, exe); err != nil {
 		return nil, false
+	}
+	// Daemon survivors write RebindAckMagic after installing the peer FD;
+	// drain it so the KeyChannel does not retain a stale ACK byte.
+	if liveH != nil && liveH.KeyChannel != nil {
+		_ = ipc.WaitRebindAck(liveH.KeyChannel, 5*time.Second)
 	}
 	return []authority.ProcessRole{dead}, true
 }
@@ -680,6 +692,72 @@ func (s *Server) childAlive(role authority.ProcessRole) bool {
 	// Signal(0) detects a dying child still present in Children before Wait
 	// removes it — critical for cascade races (parser killed → apply exits first).
 	return h.Cmd.Process.Signal(syscall.Signal(0)) == nil
+}
+
+// escalateRestartTrigger coalesces cascade exits and picks the most upstream
+// dead role so RestartOne strategy matches the real failure set (M2t–M2v).
+func (s *Server) escalateRestartTrigger(first authority.ProcessRole, exitCh <-chan authority.ProcessRole) authority.ProcessRole {
+	seen := map[authority.ProcessRole]bool{first: true}
+	timer := time.NewTimer(50 * time.Millisecond)
+	defer timer.Stop()
+drain:
+	for {
+		select {
+		case r := <-exitCh:
+			seen[r] = true
+		case <-timer.C:
+			break drain
+		}
+	}
+	// Only roles that belong to this fleet: never-started roles are not "dead".
+	for _, r := range s.roleList() {
+		if r == authority.RoleNet {
+			continue
+		}
+		if !s.childAlive(r) {
+			seen[r] = true
+		}
+	}
+	order := []authority.ProcessRole{
+		authority.RoleParser, authority.RolePlan, authority.RoleIndex,
+		authority.RoleApply, authority.RoleJournal, authority.RoleAudit,
+		authority.RoleAuth,
+	}
+	for _, r := range order {
+		if seen[r] {
+			return r
+		}
+	}
+	return first
+}
+
+// conferPeerFD sends a rebound peer FD and waits briefly for the survivor ACK.
+// Send is hard-bounded: SetWriteDeadline alone does not always interrupt a
+// blocked SCM Sendmsg when the peer rebind loop is not reading.
+func conferPeerFD(keyCh, peerSock *os.File, primary bool) error {
+	if keyCh == nil || peerSock == nil {
+		return fmt.Errorf("nil key channel or peer socket")
+	}
+	errc := make(chan error, 1)
+	go func() {
+		var err error
+		if primary {
+			err = ipc.SendPrimaryPeerFDFile(keyCh, peerSock)
+		} else {
+			err = ipc.SendPeerFDFile(keyCh, peerSock)
+		}
+		errc <- err
+	}()
+	select {
+	case err := <-errc:
+		if err != nil {
+			return err
+		}
+	case <-time.After(5 * time.Second):
+		return fmt.Errorf("peer-fd send timed out")
+	}
+	_ = ipc.WaitRebindAck(keyCh, 5*time.Second)
+	return nil
 }
 
 // restartAuthPrimary respawns auth and rebinds net primary→auth while the
@@ -755,14 +833,11 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
-	_ = netH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	if err := ipc.SendPrimaryPeerFDFile(netH.KeyChannel, peerSock); err != nil {
+	if err := conferPeerFD(netH.KeyChannel, peerSock, true); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	_ = netH.KeyChannel.SetWriteDeadline(time.Time{})
-	_ = ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second)
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -779,14 +854,11 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 		}
 		_ = aep.Conn.Close()
 		aep.Conn = nil
-		_ = auditH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
-		if err := ipc.SendPeerFDFile(auditH.KeyChannel, auditSock); err != nil {
+		if err := conferPeerFD(auditH.KeyChannel, auditSock, false); err != nil {
 			_ = auditSock.Close()
 			return false
 		}
 		_ = auditSock.Close()
-		_ = auditH.KeyChannel.SetWriteDeadline(time.Time{})
-		_ = ipc.WaitRebindAck(auditH.KeyChannel, 5*time.Second)
 		if auditPID != 0 && auditH.Cmd != nil && auditH.Cmd.Process != nil &&
 			auditH.Cmd.Process.Pid != auditPID {
 			return false
@@ -863,14 +935,11 @@ func (s *Server) restartParserDownM2d(ctx context.Context, exitCh <-chan authori
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
-	_ = netH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	if err := ipc.SendPeerFDFile(netH.KeyChannel, peerSock); err != nil {
+	if err := conferPeerFD(netH.KeyChannel, peerSock, false); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	_ = netH.KeyChannel.SetWriteDeadline(time.Time{})
-	_ = ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second)
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -969,14 +1038,11 @@ func (s *Server) restartParserDownM2g(ctx context.Context, exitCh <-chan authori
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
-	_ = netH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	if err := ipc.SendPeerFDFile(netH.KeyChannel, peerSock); err != nil {
+	if err := conferPeerFD(netH.KeyChannel, peerSock, false); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	_ = netH.KeyChannel.SetWriteDeadline(time.Time{})
-	_ = ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second)
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -1087,14 +1153,11 @@ func (s *Server) restartParserDownM2h(ctx context.Context, exitCh <-chan authori
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
-	_ = netH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	if err := ipc.SendPeerFDFile(netH.KeyChannel, peerSock); err != nil {
+	if err := conferPeerFD(netH.KeyChannel, peerSock, false); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	_ = netH.KeyChannel.SetWriteDeadline(time.Time{})
-	_ = ipc.WaitRebindAck(netH.KeyChannel, 5*time.Second)
 	if netPID != 0 && netH.Cmd != nil && netH.Cmd.Process != nil &&
 		netH.Cmd.Process.Pid != netPID {
 		return false
@@ -1193,14 +1256,11 @@ func (s *Server) restartApplySubtree(ctx context.Context, exitCh <-chan authorit
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
-	_ = bridgeH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	if err := ipc.SendPeerFDFile(bridgeH.KeyChannel, peerSock); err != nil {
+	if err := conferPeerFD(bridgeH.KeyChannel, peerSock, false); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	_ = bridgeH.KeyChannel.SetWriteDeadline(time.Time{})
-	_ = ipc.WaitRebindAck(bridgeH.KeyChannel, 5*time.Second)
 	if bridgePID != 0 && bridgeH.Cmd != nil && bridgeH.Cmd.Process != nil &&
 		bridgeH.Cmd.Process.Pid != bridgePID {
 		return false
@@ -1242,14 +1302,11 @@ func (s *Server) sendAuthAuditPeerFD(rt *supervisor.Runtime) bool {
 	}
 	_ = ep.Conn.Close()
 	ep.Conn = nil
-	_ = authH.KeyChannel.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	if err := ipc.SendPeerFDFile(authH.KeyChannel, peerSock); err != nil {
+	if err := conferPeerFD(authH.KeyChannel, peerSock, false); err != nil {
 		_ = peerSock.Close()
 		return false
 	}
 	_ = peerSock.Close()
-	_ = authH.KeyChannel.SetWriteDeadline(time.Time{})
-	_ = ipc.WaitRebindAck(authH.KeyChannel, 5*time.Second)
 	return true
 }
 

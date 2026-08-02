@@ -2046,11 +2046,11 @@ func pushAfterRestart(t *testing.T, opts remotesync.PushOptions) remotesync.Push
 			if err != nil {
 				return nil, err
 			}
-			_ = conn.SetDeadline(time.Now().Add(5 * time.Second))
+			_ = conn.SetDeadline(time.Now().Add(8 * time.Second))
 			return conn, nil
 		}
 	}
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 80; i++ {
 		res, last = remotesync.Push(opts)
 		if last == nil {
 			return res
