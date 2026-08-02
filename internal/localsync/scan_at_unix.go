@@ -66,7 +66,9 @@ func scanAtDir(dirfd int, relPrefix string, entries *[]Entry) error {
 
 		fd, err := unix.Openat(dirfd, name, unix.O_RDONLY|unix.O_CLOEXEC|unix.O_NOFOLLOW|unix.O_NOCTTY, 0)
 		if err != nil {
-			if err == unix.ELOOP {
+			// FreeBSD historically returns EMLINK ("too many links") for
+			// O_NOFOLLOW on a symlink; Linux uses ELOOP.
+			if err == unix.ELOOP || err == unix.EMLINK {
 				return unsupported("scanat", rel, "symbolic link")
 			}
 			return wrap(KindRead, "scanat", rel, err)

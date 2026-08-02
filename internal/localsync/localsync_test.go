@@ -77,6 +77,9 @@ func TestReplaceExisting(t *testing.T) {
 }
 
 func TestReadError(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("chmod-0 read denial is not observable as root")
+	}
 	src, dst := t.TempDir(), t.TempDir()
 	p := filepath.Join(src, "a.txt")
 	mustWrite(t, p, "x")
@@ -94,6 +97,9 @@ func TestReadError(t *testing.T) {
 }
 
 func TestWriteError(t *testing.T) {
+	if os.Geteuid() == 0 {
+		t.Skip("chmod-based write denial is not observable as root")
+	}
 	src := t.TempDir()
 	dst := t.TempDir()
 	mustWrite(t, filepath.Join(src, "a.txt"), "data")

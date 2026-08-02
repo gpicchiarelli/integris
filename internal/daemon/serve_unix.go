@@ -6,12 +6,10 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
@@ -388,7 +386,7 @@ func (s *Server) KillRole(role authority.ProcessRole) error {
 	if rt == nil {
 		return fmt.Errorf("runtime closed")
 	}
-	h, ok := rt.Children[role]
+	h, ok := rt.Child(role)
 	if !ok || h == nil || h.Cmd == nil || h.Cmd.Process == nil {
 		return fmt.Errorf("role %s not running", role)
 	}
@@ -405,7 +403,7 @@ func (s *Server) ChildPID(role authority.ProcessRole) (int, bool) {
 	if s.rt == nil {
 		return 0, false
 	}
-	h, ok := s.rt.Children[role]
+	h, ok := s.rt.Child(role)
 	if !ok || h == nil || h.Cmd == nil || h.Cmd.Process == nil {
 		return 0, false
 	}
@@ -424,11 +422,12 @@ func (s *Server) supervise(parent, runCtx context.Context) {
 		deadline := time.Now().Add(5 * time.Second)
 		for time.Now().Before(deadline) {
 			s.mu.Lock()
-			n := 0
-			if s.rt != nil {
-				n = len(s.rt.Children)
-			}
+			rt := s.rt
 			s.mu.Unlock()
+			n := 0
+			if rt != nil {
+				n = rt.ChildrenLen()
+			}
 			if n == 0 {
 				break
 			}
@@ -496,12 +495,9 @@ func (s *Server) supervise(parent, runCtx context.Context) {
 				// M3j: drop cascade exits buffered while waiting for killed
 				// siblings so they do not burn the restart budget as "new" deaths.
 				flushExitPending(exitCh)
-				// If the listen role died (or closed the socket) during
-				// RestartOne, fall through to a full fleet restart instead of
-				// republishing a dead address. Probe TCP: childAlive alone can
-				// race the watcher delete, and flushExitPending can drop a
-				// concurrent net-exit notification.
-				if !s.childAlive(authority.RoleNet) || !s.listenReachable() {
+				// If the listen role is no longer tracked, fall through to a
+				// full fleet restart instead of republishing a dead address.
+				if !s.childAlive(authority.RoleNet) {
 					// RestartOne already incremented the budget; continue to
 					// full respawn below without a second increment.
 					s.mu.Lock()
@@ -660,7 +656,7 @@ func (s *Server) tryRestartOne(ctx context.Context, dead authority.ProcessRole, 
 		live = authority.RoleParser
 		initiator = authority.RoleParser
 	}
-	if _, ok := rt.Children[live]; !ok {
+	if _, ok := rt.Child(live); !ok {
 		return nil, false
 	}
 	if err := rt.RestartOne(ctx, dead, live, initiator, exe); err != nil {
@@ -675,31 +671,8 @@ func (s *Server) childAlive(role authority.ProcessRole) bool {
 	if s.rt == nil {
 		return false
 	}
-	h, ok := s.rt.Children[role]
-	if !ok || h == nil || h.Cmd == nil || h.Cmd.Process == nil {
-		return false
-	}
-	if h.Cmd.ProcessState != nil {
-		return false
-	}
-	return h.Cmd.Process.Signal(syscall.Signal(0)) == nil
-}
-
-// listenReachable probes the published listen address. Used after RestartOne so
-// a dead/half-closed listen socket is not republished as ready.
-func (s *Server) listenReachable() bool {
-	s.mu.Lock()
-	addr := s.listenAddr
-	s.mu.Unlock()
-	if addr == "" {
-		return false
-	}
-	conn, err := net.DialTimeout("tcp", addr, 250*time.Millisecond)
-	if err != nil {
-		return false
-	}
-	_ = conn.Close()
-	return true
+	h, ok := s.rt.Child(role)
+	return ok && h != nil && h.Cmd != nil && h.Cmd.Process != nil
 }
 
 // restartAuthPrimary respawns auth and rebinds net primary→auth while the
@@ -714,7 +687,7 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 	if rt == nil {
 		return false
 	}
-	netH, ok := rt.Children[authority.RoleNet]
+	netH, ok := rt.Child(authority.RoleNet)
 	if !ok || netH == nil || netH.KeyChannel == nil {
 		return false
 	}
@@ -725,7 +698,7 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 	var auditH *launcher.Handle
 	auditPID := 0
 	if m2j {
-		auditH, ok = rt.Children[authority.RoleAudit]
+		auditH, ok = rt.Child(authority.RoleAudit)
 		if !ok || auditH == nil || auditH.KeyChannel == nil {
 			return false
 		}
@@ -737,9 +710,7 @@ func (s *Server) restartAuthPrimary(ctx context.Context, exitCh <-chan authority
 	s.killRole(authority.RoleAuth)
 	deadline := time.Now().Add(15 * time.Second)
 	for {
-		s.mu.Lock()
-		_, still := rt.Children[authority.RoleAuth]
-		s.mu.Unlock()
+		_, still := rt.Child(authority.RoleAuth)
 		if !still {
 			flushExitPending(exitCh)
 			break
@@ -820,7 +791,7 @@ func (s *Server) restartParserDownM2d(ctx context.Context, exitCh <-chan authori
 	if rt == nil {
 		return false
 	}
-	netH, ok := rt.Children[authority.RoleNet]
+	netH, ok := rt.Child(authority.RoleNet)
 	if !ok || netH == nil || netH.KeyChannel == nil {
 		return false
 	}
@@ -835,14 +806,12 @@ func (s *Server) restartParserDownM2d(ctx context.Context, exitCh <-chan authori
 	}
 	deadline := time.Now().Add(15 * time.Second)
 	for {
-		s.mu.Lock()
 		left := 0
 		for _, role := range down {
-			if _, ok := rt.Children[role]; ok {
+			if _, ok := rt.Child(role); ok {
 				left++
 			}
 		}
-		s.mu.Unlock()
 		if left == 0 {
 			flushExitPending(exitCh)
 			break
@@ -903,7 +872,7 @@ func (s *Server) restartParserDownM2g(ctx context.Context, exitCh <-chan authori
 	if rt == nil {
 		return false
 	}
-	netH, ok := rt.Children[authority.RoleNet]
+	netH, ok := rt.Child(authority.RoleNet)
 	if !ok || netH == nil || netH.KeyChannel == nil {
 		return false
 	}
@@ -921,14 +890,12 @@ func (s *Server) restartParserDownM2g(ctx context.Context, exitCh <-chan authori
 	}
 	deadline := time.Now().Add(15 * time.Second)
 	for {
-		s.mu.Lock()
 		left := 0
 		for _, role := range down {
-			if _, ok := rt.Children[role]; ok {
+			if _, ok := rt.Child(role); ok {
 				left++
 			}
 		}
-		s.mu.Unlock()
 		if left == 0 {
 			flushExitPending(exitCh)
 			break
@@ -1008,7 +975,7 @@ func (s *Server) restartParserDownM2h(ctx context.Context, exitCh <-chan authori
 	if rt == nil {
 		return false
 	}
-	netH, ok := rt.Children[authority.RoleNet]
+	netH, ok := rt.Child(authority.RoleNet)
 	if !ok || netH == nil || netH.KeyChannel == nil {
 		return false
 	}
@@ -1026,14 +993,12 @@ func (s *Server) restartParserDownM2h(ctx context.Context, exitCh <-chan authori
 	}
 	deadline := time.Now().Add(15 * time.Second)
 	for {
-		s.mu.Lock()
 		left := 0
 		for _, role := range down {
-			if _, ok := rt.Children[role]; ok {
+			if _, ok := rt.Child(role); ok {
 				left++
 			}
 		}
-		s.mu.Unlock()
 		if left == 0 {
 			flushExitPending(exitCh)
 			break
@@ -1126,7 +1091,7 @@ func (s *Server) restartApplySubtree(ctx context.Context, exitCh <-chan authorit
 	if rt == nil {
 		return false
 	}
-	bridgeH, ok := rt.Children[bridge]
+	bridgeH, ok := rt.Child(bridge)
 	if !ok || bridgeH == nil || bridgeH.KeyChannel == nil {
 		return false
 	}
@@ -1136,7 +1101,7 @@ func (s *Server) restartApplySubtree(ctx context.Context, exitCh <-chan authorit
 	}
 	authPID := 0
 	if len(s.opts.Peers) > 0 {
-		if authH, ok := rt.Children[authority.RoleAuth]; ok && authH != nil &&
+		if authH, ok := rt.Child(authority.RoleAuth); ok && authH != nil &&
 			authH.Cmd != nil && authH.Cmd.Process != nil {
 			authPID = authH.Cmd.Process.Pid
 		}
@@ -1150,14 +1115,12 @@ func (s *Server) restartApplySubtree(ctx context.Context, exitCh <-chan authorit
 	}
 	deadline := time.Now().Add(15 * time.Second)
 	for {
-		s.mu.Lock()
 		left := 0
 		for _, role := range subtree {
-			if _, ok := rt.Children[role]; ok {
+			if _, ok := rt.Child(role); ok {
 				left++
 			}
 		}
-		s.mu.Unlock()
 		if left == 0 {
 			flushExitPending(exitCh)
 			break
@@ -1218,7 +1181,7 @@ func (s *Server) restartApplySubtree(ctx context.Context, exitCh <-chan authorit
 		return false
 	}
 	if authPID != 0 {
-		authH, ok := rt.Children[authority.RoleAuth]
+		authH, ok := rt.Child(authority.RoleAuth)
 		if !ok || authH == nil || authH.Cmd == nil || authH.Cmd.Process == nil ||
 			authH.Cmd.Process.Pid != authPID {
 			return false
@@ -1240,7 +1203,7 @@ func (s *Server) sendAuthAuditPeerFD(rt *supervisor.Runtime) bool {
 	if len(s.opts.Peers) == 0 || rt == nil {
 		return true
 	}
-	authH, ok := rt.Children[authority.RoleAuth]
+	authH, ok := rt.Child(authority.RoleAuth)
 	if !ok || authH == nil || authH.KeyChannel == nil {
 		return false
 	}
@@ -1305,12 +1268,12 @@ func (s *Server) roleList() []authority.ProcessRole {
 // handles elsewhere.
 func (s *Server) armWatchers(exitCh chan<- authority.ProcessRole) {
 	s.mu.Lock()
-	roles := make([]authority.ProcessRole, 0, len(s.rt.Children))
-	for role := range s.rt.Children {
-		roles = append(roles, role)
-	}
+	rt := s.rt
 	s.mu.Unlock()
-	for _, role := range roles {
+	if rt == nil {
+		return
+	}
+	for _, role := range rt.ChildRoles() {
 		s.armWatcher(role, exitCh)
 	}
 }
@@ -1318,12 +1281,13 @@ func (s *Server) armWatchers(exitCh chan<- authority.ProcessRole) {
 // armWatcher starts a Wait owner for one role.
 func (s *Server) armWatcher(role authority.ProcessRole, exitCh chan<- authority.ProcessRole) {
 	s.mu.Lock()
-	var h *launcher.Handle
-	if s.rt != nil {
-		h = s.rt.Children[role]
-	}
+	rt := s.rt
 	s.mu.Unlock()
-	if h == nil {
+	if rt == nil {
+		return
+	}
+	h, ok := rt.Child(role)
+	if !ok || h == nil {
 		return
 	}
 	go func() {
@@ -1332,12 +1296,7 @@ func (s *Server) armWatcher(role authority.ProcessRole, exitCh chan<- authority.
 			_ = h.KeyChannel.Close()
 			h.KeyChannel = nil
 		}
-		s.mu.Lock()
-		current := s.rt != nil && s.rt.Children[role] == h
-		if current {
-			delete(s.rt.Children, role)
-		}
-		s.mu.Unlock()
+		current := rt.DeleteChildIf(role, h)
 		// M3j: superseded handles (RestartOne replaced the child) must not
 		// signal exitCh — that stale role would burn the restart budget.
 		if !current {
@@ -1365,66 +1324,68 @@ func (s *Server) drainExits(exitCh <-chan authority.ProcessRole, d time.Duration
 	deadline := time.Now().Add(d)
 	for {
 		s.mu.Lock()
-		n := 0
-		if s.rt != nil {
-			n = len(s.rt.Children)
-		}
+		rt := s.rt
 		s.mu.Unlock()
+		n := 0
+		if rt != nil {
+			n = rt.ChildrenLen()
+		}
 		if n == 0 {
 			return nil
 		}
 		remain := time.Until(deadline)
 		if remain <= 0 {
-			return fmt.Errorf("children still tracked: %v", s.rt.ChildRoles())
+			return fmt.Errorf("children still tracked: %v", rt.ChildRoles())
 		}
 		select {
 		case <-exitCh:
 		case <-time.After(remain):
-			return fmt.Errorf("children still tracked: %v", s.rt.ChildRoles())
+			return fmt.Errorf("children still tracked: %v", rt.ChildRoles())
 		}
 	}
 }
 
 func (s *Server) killRole(role authority.ProcessRole) {
 	s.mu.Lock()
-	if s.rt == nil {
-		s.mu.Unlock()
+	rt := s.rt
+	s.mu.Unlock()
+	if rt == nil {
 		return
 	}
-	h := s.rt.Children[role]
-	s.mu.Unlock()
-	if h != nil && h.Cmd != nil && h.Cmd.Process != nil && h.Cmd.ProcessState == nil {
-		_ = h.Cmd.Process.Kill()
+	h, ok := rt.Child(role)
+	// Do not read Cmd.ProcessState here: Wait owns that field and races with Kill.
+	if !ok || h == nil || h.Cmd == nil || h.Cmd.Process == nil {
+		return
 	}
+	_ = h.Cmd.Process.Kill()
 }
 
 func (s *Server) killTracked() {
 	s.mu.Lock()
-	if s.rt == nil {
-		s.mu.Unlock()
+	rt := s.rt
+	s.mu.Unlock()
+	if rt == nil {
 		return
 	}
-	roles := make([]authority.ProcessRole, 0, len(s.rt.Children))
-	for role := range s.rt.Children {
-		roles = append(roles, role)
-	}
-	s.mu.Unlock()
-	for _, role := range roles {
+	for _, role := range rt.ChildRoles() {
 		s.killRole(role)
 	}
 }
 
 func (s *Server) respawnAll(ctx context.Context) error {
 	s.mu.Lock()
-	n := len(s.rt.Children)
+	rt := s.rt
 	s.mu.Unlock()
-	if n != 0 {
-		return fmt.Errorf("cannot respawn while children tracked: %v", s.rt.ChildRoles())
+	if rt == nil {
+		return fmt.Errorf("runtime closed")
 	}
-	if err := replaceRolePairs(s.rt, s.opts); err != nil {
+	if rt.ChildrenLen() != 0 {
+		return fmt.Errorf("cannot respawn while children tracked: %v", rt.ChildRoles())
+	}
+	if err := replaceRolePairs(rt, s.opts); err != nil {
 		return err
 	}
-	return startRoleChildren(s.rt, ctx, s.exe, s.opts)
+	return startRoleChildren(rt, ctx, s.exe, s.opts)
 }
 
 func replaceRolePairs(rt *supervisor.Runtime, opts ServeOptions) error {

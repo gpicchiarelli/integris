@@ -7,6 +7,7 @@ import (
 	"io"
 	"os"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
@@ -22,6 +23,7 @@ type Runtime struct {
 	Launch   LaunchSet
 	Fabric   *SocketFabric
 	RootKey  []byte
+	mu       sync.Mutex
 	Children map[authority.ProcessRole]*launcher.Handle
 	// KeyViaExtraFiles uses legacy ExtraFiles fd4 key conferral.
 	// Default (false) uses SCM_RIGHTS after spawn.
@@ -67,6 +69,61 @@ func OpenRuntime(p Plan, rootKey []byte, nonce [16]byte) (*Runtime, error) {
 	}, nil
 }
 
+// Child returns the tracked handle for role.
+func (r *Runtime) Child(role authority.ProcessRole) (*launcher.Handle, bool) {
+	if r == nil {
+		return nil, false
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	h, ok := r.Children[role]
+	return h, ok
+}
+
+// SetChild records a started child handle.
+func (r *Runtime) SetChild(role authority.ProcessRole, h *launcher.Handle) {
+	if r == nil {
+		return
+	}
+	r.mu.Lock()
+	r.Children[role] = h
+	r.mu.Unlock()
+}
+
+// DeleteChild removes a tracked child without waiting.
+func (r *Runtime) DeleteChild(role authority.ProcessRole) {
+	if r == nil {
+		return
+	}
+	r.mu.Lock()
+	delete(r.Children, role)
+	r.mu.Unlock()
+}
+
+// DeleteChildIf removes role only when the current handle equals h.
+func (r *Runtime) DeleteChildIf(role authority.ProcessRole, h *launcher.Handle) bool {
+	if r == nil {
+		return false
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if cur, ok := r.Children[role]; ok && cur == h {
+		delete(r.Children, role)
+		return true
+	}
+	return false
+}
+
+// ChildrenLen returns the number of tracked children.
+func (r *Runtime) ChildrenLen() int {
+	if r == nil {
+		return 0
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return len(r.Children)
+}
+
 // StartChild launches one role stub with the conferred peer socket for peer.
 // executable must be absolute. EngineeringMode is the default; ReleaseMode
 // selects fail-closed release-shaped launch (M2k).
@@ -74,9 +131,12 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 	if r == nil || r.Fabric == nil {
 		return fail("runtime", "nil runtime")
 	}
+	r.mu.Lock()
 	if _, ok := r.Children[role]; ok {
+		r.mu.Unlock()
 		return fail("runtime", "child already started: "+string(role))
 	}
+	r.mu.Unlock()
 	ep, err := r.Fabric.Endpoint(role, peer)
 	if err != nil {
 		return err
@@ -153,7 +213,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 			if err != nil {
 				return err
 			}
-			r.Children[role] = h
+			r.SetChild(role, h)
 			return nil
 		}
 		h, err := launcher.Start(ctx, req)
@@ -161,7 +221,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 		if err != nil {
 			return err
 		}
-		r.Children[role] = h
+		r.SetChild(role, h)
 		return nil
 	}
 
@@ -265,7 +325,7 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 		_ = h.ExtraKeyFD.Close()
 		h.ExtraKeyFD = nil
 	}
-	r.Children[role] = h
+	r.SetChild(role, h)
 	return nil
 }
 
@@ -323,12 +383,17 @@ func (r *Runtime) childInventory(role authority.ProcessRole) ([]authority.Capabi
 
 // WaitChild waits for a started child.
 func (r *Runtime) WaitChild(role authority.ProcessRole) error {
+	r.mu.Lock()
 	h, ok := r.Children[role]
 	if !ok {
+		r.mu.Unlock()
 		return fail("runtime", "unknown child "+string(role))
 	}
+	r.mu.Unlock()
 	err := h.Wait()
+	r.mu.Lock()
 	delete(r.Children, role)
+	r.mu.Unlock()
 	return err
 }
 
@@ -339,13 +404,18 @@ func (r *Runtime) RestartChild(ctx context.Context, role, peer authority.Process
 	if r == nil || r.Fabric == nil {
 		return fail("runtime", "nil runtime")
 	}
-	if h, ok := r.Children[role]; ok {
+	r.mu.Lock()
+	h, ok := r.Children[role]
+	if ok {
+		delete(r.Children, role)
+	}
+	r.mu.Unlock()
+	if ok {
 		closeSCMKeys(h)
 		if h != nil && h.Cmd != nil && h.Cmd.Process != nil {
 			_ = h.Cmd.Process.Kill()
 		}
 		_ = h.Wait()
-		delete(r.Children, role)
 	}
 	if err := r.Fabric.ReplacePair(role, peer, r.RootKey); err != nil {
 		return err
@@ -382,11 +452,14 @@ func (r *Runtime) StartPair(ctx context.Context, a, b, initiator authority.Proce
 		return err
 	}
 	if err := r.StartChild(ctx, initiator, responder, executable); err != nil {
-		if h := r.Children[responder]; h != nil && h.Cmd != nil && h.Cmd.Process != nil {
+		r.mu.Lock()
+		h := r.Children[responder]
+		delete(r.Children, responder)
+		r.mu.Unlock()
+		if h != nil && h.Cmd != nil && h.Cmd.Process != nil {
 			_ = h.Cmd.Process.Kill()
 			_ = h.Wait()
 		}
-		delete(r.Children, responder)
 		return err
 	}
 	return nil
@@ -398,13 +471,18 @@ func (r *Runtime) RestartPair(ctx context.Context, a, b, initiator authority.Pro
 		return fail("runtime", "nil runtime")
 	}
 	for _, role := range []authority.ProcessRole{a, b} {
-		if h, ok := r.Children[role]; ok {
+		r.mu.Lock()
+		h, ok := r.Children[role]
+		if ok {
+			delete(r.Children, role)
+		}
+		r.mu.Unlock()
+		if ok {
 			closeSCMKeys(h)
 			if h != nil && h.Cmd != nil && h.Cmd.Process != nil {
 				_ = h.Cmd.Process.Kill()
 			}
 			_ = h.Wait()
-			delete(r.Children, role)
 		}
 	}
 	if err := r.Fabric.ReplacePair(a, b, r.RootKey); err != nil {
@@ -421,7 +499,9 @@ func (r *Runtime) WaitPairHoldReady(roles []authority.ProcessRole, timeout time.
 	}
 	deadline := time.Now().Add(timeout)
 	for _, role := range roles {
+		r.mu.Lock()
 		h, ok := r.Children[role]
+		r.mu.Unlock()
 		if !ok || h == nil || h.KeyChannel == nil {
 			return fail("runtime", "missing KeyChannel for "+string(role))
 		}
@@ -455,22 +535,29 @@ func (r *Runtime) RestartOne(ctx context.Context, dead, live, initiator authorit
 	if r.KeyViaExtraFiles {
 		return fail("runtime", "RestartOne requires SCM key-channel path")
 	}
+	r.mu.Lock()
 	liveH, ok := r.Children[live]
 	if !ok || liveH == nil || liveH.KeyChannel == nil {
+		r.mu.Unlock()
 		return fail("runtime", "live child missing open KeyChannel")
 	}
 	if liveH.Cmd == nil || liveH.Cmd.Process == nil {
+		r.mu.Unlock()
 		return fail("runtime", "live child has no process")
 	}
 	livePID := liveH.Cmd.Process.Pid
-
-	if h, ok := r.Children[dead]; ok {
-		closeSCMKeys(h)
-		if h != nil && h.Cmd != nil && h.Cmd.Process != nil {
-			_ = h.Cmd.Process.Kill()
-		}
-		_ = h.Wait()
+	deadH, deadOk := r.Children[dead]
+	if deadOk {
 		delete(r.Children, dead)
+	}
+	r.mu.Unlock()
+
+	if deadOk {
+		closeSCMKeys(deadH)
+		if deadH != nil && deadH.Cmd != nil && deadH.Cmd.Process != nil {
+			_ = deadH.Cmd.Process.Kill()
+		}
+		_ = deadH.Wait()
 	}
 	if err := r.Fabric.ReplacePair(dead, live, r.RootKey); err != nil {
 		return err
@@ -516,20 +603,24 @@ func (r *Runtime) Close() error {
 		return nil
 	}
 	var first error
+	r.mu.Lock()
 	roles := make([]authority.ProcessRole, 0, len(r.Children))
-	for role := range r.Children {
+	handles := make(map[authority.ProcessRole]*launcher.Handle, len(r.Children))
+	for role, h := range r.Children {
 		roles = append(roles, role)
+		handles[role] = h
 	}
+	r.Children = make(map[authority.ProcessRole]*launcher.Handle)
+	r.mu.Unlock()
 	sort.Slice(roles, func(i, j int) bool { return roles[i] < roles[j] })
 	for _, role := range roles {
-		if h := r.Children[role]; h != nil {
+		if h := handles[role]; h != nil {
 			closeSCMKeys(h)
 			if h.Cmd != nil && h.Cmd.Process != nil {
 				_ = h.Cmd.Process.Kill()
 				_ = h.Wait()
 			}
 		}
-		delete(r.Children, role)
 	}
 	if r.Fabric != nil {
 		if err := r.Fabric.Close(); err != nil && first == nil {
@@ -542,10 +633,15 @@ func (r *Runtime) Close() error {
 
 // ChildRoles returns started roles in sorted order.
 func (r *Runtime) ChildRoles() []authority.ProcessRole {
+	if r == nil {
+		return nil
+	}
+	r.mu.Lock()
 	out := make([]authority.ProcessRole, 0, len(r.Children))
 	for role := range r.Children {
 		out = append(out, role)
 	}
+	r.mu.Unlock()
 	sort.Slice(out, func(i, j int) bool { return out[i] < out[j] })
 	return out
 }

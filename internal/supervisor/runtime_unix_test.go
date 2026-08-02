@@ -1473,8 +1473,8 @@ func TestRuntimeRestartOneIPC(t *testing.T) {
 	if err := rt.StartPair(ctx, authority.RoleParser, authority.RoleNet, authority.RoleParser, bin); err != nil {
 		t.Fatal(err)
 	}
-	live := rt.Children[authority.RoleNet]
-	if live == nil || live.Cmd == nil || live.Cmd.Process == nil {
+	live, ok := rt.Child(authority.RoleNet)
+	if !ok || live == nil || live.Cmd == nil || live.Cmd.Process == nil {
 		t.Fatal("missing live net child")
 	}
 	livePID := live.Cmd.Process.Pid
@@ -1488,8 +1488,12 @@ func TestRuntimeRestartOneIPC(t *testing.T) {
 	if err := rt.RestartOne(ctx, authority.RoleParser, authority.RoleNet, authority.RoleParser, bin); err != nil {
 		t.Fatal(err)
 	}
-	if rt.Children[authority.RoleNet].Cmd.Process.Pid != livePID {
-		t.Fatalf("live PID changed: got %d want %d", rt.Children[authority.RoleNet].Cmd.Process.Pid, livePID)
+	liveAfter, ok := rt.Child(authority.RoleNet)
+	if !ok || liveAfter == nil || liveAfter.Cmd == nil || liveAfter.Cmd.Process == nil {
+		t.Fatal("missing live net child after RestartOne")
+	}
+	if liveAfter.Cmd.Process.Pid != livePID {
+		t.Fatalf("live PID changed: got %d want %d", liveAfter.Cmd.Process.Pid, livePID)
 	}
 	if err := rt.WaitChild(authority.RoleParser); err != nil {
 		t.Fatal(err)
