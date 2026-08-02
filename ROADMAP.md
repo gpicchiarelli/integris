@@ -625,6 +625,16 @@ Exit: Darwin/OpenBSD key FD residual explicit; `docs/daemon-m2a.md`.
 Exit: non-FreeBSD release ambient ROLE-NET deny post-condition green;
 `docs/daemon-m2a.md`.
 
+## M4e — Darwin StrictLaunch Seatbelt push first cut (landed engineering)
+
+- Darwin `TestM4eStrictLaunchSeatbeltPushServe`: StrictLaunch Once product
+  children under Seatbelt `sandbox_init` (cgo) complete a push with
+  journal/audit/plan (M2k + M3q/M4d fail-closed ambient FS-read + ROLE-NET);
+- FreeBSD CapEnter push first cut remains M3p; not an IC-1 claim.
+
+Exit: supervised Darwin Seatbelt StrictLaunch push first cut green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

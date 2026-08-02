@@ -166,6 +166,8 @@ is accepted.
 - M4d release ambient ROLE-NET deny (non-FreeBSD): `ChildEnv.Confine` calls
   `RequireAmbientRoleNetDenied` (`NEG-ROLE-NET`) on Linux/Darwin/OpenBSD;
   FreeBSD remains a no-op (M3s CapEnter residual);
+- M4e Darwin StrictLaunch Seatbelt push first cut: StrictLaunch Once under
+  `sandbox_init` completes push with journal/audit/plan (M3p Darwin parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
