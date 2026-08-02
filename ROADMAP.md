@@ -876,6 +876,17 @@ Exit: supervised Linux Landlock StrictLaunch peer parser-down RestartOne green;
 Exit: supervised OpenBSD pledge StrictLaunch push first cut green;
 `docs/daemon-m2a.md`.
 
+## M4z — OpenBSD StrictLaunch pledge+unveil RestartOne apply (landed engineering)
+
+- OpenBSD `TestM4zStrictLaunchPledgeRestartOneApply`: StrictLaunch persistent
+  serve under pledge+unveil; kill apply after first push; net+auth+index and
+  listen address survive; apply+journal+audit respawn under M3q/M4d
+  fail-closed confine; second push succeeds (M3r/M4f/M4p OpenBSD parity);
+- OpenBSD CI `-run` includes M4z alongside M4y push; not an IC-1 claim.
+
+Exit: supervised OpenBSD pledge StrictLaunch RestartOne apply green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
