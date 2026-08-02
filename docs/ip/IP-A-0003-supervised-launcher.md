@@ -92,7 +92,8 @@ profile defect.
   peer-key Once push M4k, and Darwin StrictLaunch Seatbelt peer deny/admit
   M4l, Darwin StrictLaunch Seatbelt peer apply RestartOne M4m, and Darwin
   StrictLaunch Seatbelt peer parser-down RestartOne M4n, and Linux StrictLaunch
-  Landlock+seccomp push first cut M4o); it is not a
+  Landlock+seccomp push first cut M4o, and Linux StrictLaunch Landlock+seccomp
+  RestartOne apply M4p); it is not a
   product
   IC-1 release claim.
 
@@ -169,7 +170,8 @@ directory owned for the test/run.
   Once push landed in M4k; Darwin StrictLaunch Seatbelt peer deny/admit landed
   in M4l; Darwin StrictLaunch Seatbelt peer apply RestartOne landed in M4m;
   Darwin StrictLaunch Seatbelt peer parser-down RestartOne landed in M4n;
-  Linux StrictLaunch Landlock+seccomp push first cut landed in M4o).
+  Linux StrictLaunch Landlock+seccomp push first cut landed in M4o; Linux
+  StrictLaunch Landlock+seccomp RestartOne apply landed in M4p).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

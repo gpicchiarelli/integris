@@ -198,6 +198,9 @@ is accepted.
   Darwin parity);
 - M4o Linux StrictLaunch Landlock+seccomp push first cut: StrictLaunch Once
   completes push with journal/audit/plan (M3p/M4e Linux parity);
+- M4p Linux StrictLaunch Landlock+seccomp RestartOne apply: kill apply after
+  first push; net+auth+index + listen survive; apply+journal+audit respawn;
+  second push succeeds (M3r/M4f Linux parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
