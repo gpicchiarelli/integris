@@ -865,9 +865,10 @@ Exit: supervised Linux Landlock StrictLaunch peer parser-down RestartOne green;
   (M2k + M3q/M4d fail-closed ambient FS-read + ROLE-NET; M3p/M4e/M4o OpenBSD
   parity);
 - Role-parameterized `pledge` (broad M4y first-cut set + omit exec/inet where
-  applicable) and locked `unveil` (AllowRoots + /dev+/tmp+/etc); prior
-  `stdio unix` alone aborted supervised children; promise tightening remains
-  a follow-on residual;
+  applicable; no `tmppath` — removed from OpenBSD pledgenames) after locked
+  `unveil` (AllowRoots + /dev only; not /etc or /tmp so ambient FS-read deny
+  holds); prior `stdio unix` alone aborted supervised children; promise
+  tightening remains a follow-on residual;
 - `DISC-PLEDGE` / `DISC-UNVEIL` discovery reflect ApplyEngineering; FreeBSD
   CapEnter, Darwin Seatbelt, and Linux Landlock push first cuts remain
   M3p/M4e/M4o; not an IC-1 claim.

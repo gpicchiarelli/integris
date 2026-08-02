@@ -259,8 +259,8 @@ ExtraPeer chain (one extra peer per child):
   parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit`
   (M4a/M4n Linux parity); completes Linux Landlock campaign M4o–M4x
 - **M4y:** OpenBSD StrictLaunch pledge+unveil push first cut — OpenBSD CI VM;
-  StrictLaunch Once under pledge+unveil completes push with
-  journal/audit/plan; role-parameterized pledge (`sendfd`/`recvfd` + FS);
+  StrictLaunch Once under unveil-then-pledge completes push with
+  journal/audit/plan; broad first-cut promises (no `tmppath`);
   DISC-PLEDGE/DISC-UNVEIL Available (M3p/M4e/M4o OpenBSD parity)
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
