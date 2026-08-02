@@ -577,6 +577,17 @@ Exit: supervised CapEnter peer-key push green; `docs/daemon-m2a.md`.
 
 Exit: supervised CapEnter peer-apply RestartOne green; `docs/daemon-m2a.md`.
 
+## M4a — FreeBSD StrictLaunch CapEnter M2j parser-down RestartOne (landed engineering)
+
+- FreeBSD `TestM4aStrictLaunchCapEnterRestartOneParserDownPeer`: StrictLaunch
+  persistent serve under CapEnter with peer keyring; kill parser after first peer
+  push; net+auth + listen survive; parser→plan→index→apply→journal→audit
+  respawn under M3m–M3q fail-closed confine; second peer push yields ≥2
+  `auth.peer.admit` (M3u path under M2j);
+- not an IC-1 claim.
+
+Exit: supervised CapEnter peer parser-down RestartOne green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

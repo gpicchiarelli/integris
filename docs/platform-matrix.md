@@ -49,7 +49,7 @@ StrictLaunch CapEnter RestartOne first cut by M3r; CapEnter parser-down
 RestartOne by M3u; CapEnter auth-primary RestartOne by M3v; CapEnter M2j
 auth ExtraPeer RestartOne by M3w; CapEnter M2j audit ExtraPeer RestartOne by
 M3x; CapEnter M2j peer-key Once push by M3y; CapEnter M2j apply RestartOne by
-M3z. FreeBSD sealed MAC key FD
+M3z. FreeBSD CapEnter M2j parser-down RestartOne by M4a. FreeBSD sealed MAC key FD
 (`shm_open2`+`F_ADD_SEALS`) landed in M3t; Darwin/OpenBSD remain
 anon-unlinked residual. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
