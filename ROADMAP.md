@@ -898,6 +898,17 @@ Exit: supervised OpenBSD pledge StrictLaunch RestartOne apply green;
 Exit: supervised OpenBSD pledge StrictLaunch RestartOne parser-down green;
 `docs/daemon-m2a.md`.
 
+## M5b — OpenBSD StrictLaunch pledge+unveil RestartOne auth-primary (landed engineering)
+
+- OpenBSD `TestM5bStrictLaunchPledgeRestartOneAuthPrimary`: StrictLaunch
+  persistent serve; kill auth after first push; net + full data plane and
+  listen survive; auth respawns with primary peer rebind under M3q/M4d
+  fail-closed confine; second push succeeds (M3v/M4h/M4r OpenBSD parity);
+- OpenBSD CI `-run` includes M5b; not an IC-1 claim.
+
+Exit: supervised OpenBSD pledge StrictLaunch RestartOne auth-primary green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
