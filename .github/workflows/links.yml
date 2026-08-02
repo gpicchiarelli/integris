@@ -35,6 +35,7 @@ jobs:
             --max-concurrency 8
             --accept 200,206,429
             --exclude 'https://www\.iso\.org/'
+            --exclude 'https://man\.openbsd\.org/'
             --include-mail=false
             './**/*.md'
           fail: true

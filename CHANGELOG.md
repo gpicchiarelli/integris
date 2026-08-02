@@ -157,6 +157,9 @@ is accepted.
 - M4a FreeBSD StrictLaunch CapEnter M2j parser-down RestartOne: peer keyring;
   kill parser after first peer push; net+auth + listen survive;
   parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit`;
+- M4b FreeBSD StrictLaunch CapEnter M2j peer deny/admit: unknown peer and
+  wrong-key rejected without destination mutation; valid peer push admits with
+  `auth.peer.deny` + `auth.peer.admit`;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
