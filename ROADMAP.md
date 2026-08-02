@@ -635,6 +635,17 @@ Exit: non-FreeBSD release ambient ROLE-NET deny post-condition green;
 Exit: supervised Darwin Seatbelt StrictLaunch push first cut green;
 `docs/daemon-m2a.md`.
 
+## M4f — Darwin StrictLaunch Seatbelt RestartOne apply (landed engineering)
+
+- Darwin `TestM4fStrictLaunchSeatbeltRestartOneApply`: StrictLaunch persistent
+  serve under Seatbelt; kill apply after first push; net PID + listen addr
+  survive; apply+journal+audit subtree respawns with M3q/M4d fail-closed
+  confine; second push succeeds (M3r Darwin parity);
+- not an IC-1 claim.
+
+Exit: supervised Darwin Seatbelt RestartOne first cut green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
