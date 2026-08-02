@@ -82,8 +82,8 @@ profile defect.
   auth ExtraPeer RestartOne M3w, and FreeBSD CapEnter M2j audit ExtraPeer
   RestartOne M3x, FreeBSD CapEnter M2j peer-key push M3y, and FreeBSD CapEnter
   M2j apply RestartOne M3z, and FreeBSD CapEnter M2j parser-down RestartOne
-  M4a, FreeBSD CapEnter M2j peer deny/admit M4b, and Darwin/OpenBSD anon key
-  FD residual M4c); it is not a
+  M4a, FreeBSD CapEnter M2j peer deny/admit M4b, Darwin/OpenBSD anon key
+  FD residual M4c, and non-FreeBSD release ambient ROLE-NET deny M4d); it is not a
   product
   IC-1 release claim.
 
@@ -149,7 +149,8 @@ directory owned for the test/run.
   peer-key push landed in M3y; FreeBSD StrictLaunch CapEnter M2j apply
   RestartOne landed in M3z; FreeBSD StrictLaunch CapEnter M2j parser-down
   RestartOne landed in M4a; FreeBSD StrictLaunch CapEnter M2j peer deny/admit
-  landed in M4b; Darwin/OpenBSD anon key FD residual documented in M4c).
+  landed in M4b; Darwin/OpenBSD anon key FD residual documented in M4c;
+  non-FreeBSD release ambient ROLE-NET deny fail-closed landed in M4d).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

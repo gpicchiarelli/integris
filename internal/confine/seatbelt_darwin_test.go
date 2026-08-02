@@ -61,4 +61,7 @@ func TestSeatbeltAllowRootAndDeniesAmbient(t *testing.T) {
 	if net.Status != confine.StatusDeniedExpected {
 		t.Fatalf("NEG-ROLE-NET: %+v", net)
 	}
+	if err := confine.RequireAmbientRoleNetDenied(authority.RoleApply); err != nil {
+		t.Fatal(err)
+	}
 }

@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M4c engineering increments)
+# Privilege-separated receive (M2a–M4d engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,8 +65,9 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M4c CapMode, Capsicum rights-limit, ambient FS-read deny, CapEnter
-  RestartOne first cut; FreeBSD ambient AF_INET residual documented on FreeBSD)
+  (M3m–M4d CapMode, Capsicum rights-limit, ambient FS-read deny, ambient
+  ROLE-NET deny on non-FreeBSD, CapEnter RestartOne first cut; FreeBSD ambient
+  AF_INET residual documented on FreeBSD)
 - **M2l:** default key conferral is SCM-only — ExtraFiles carries IPC sockets plus
   a dedicated key-channel socketpair end (fd4); MAC/root/extra keys arrive via
   `SCM_RIGHTS` on that channel (`Handle.KeyChannel`). Legacy
@@ -155,7 +156,8 @@ ExtraPeer chain (one extra peer per child):
 - **M3s:** FreeBSD ambient AF_INET residual — CapEnter does not deny sockets
   (`NEG-ROLE-NET` UnexpectedAllow); jail ip-disable evaluated and rejected for
   product children (conflicts with allow-root `CapRightsLimit`); residual probe
-  + CapEnter test; `RequireAmbientRoleNetFinding` kept for a future deny
+  + CapEnter test; `RequireAmbientRoleNetDenied` no-ops on FreeBSD; wired on
+  Linux/Darwin/OpenBSD in M4d; `RequireAmbientRoleNetFinding` is the probe core
 - **M3t:** FreeBSD sealed MAC key FD — `CreateKeyFD` via `shm_open2(SHM_ANON)`
   + `F_ADD_SEALS` (`memfd-sealed`); `DISC-KEY-FD` Available; Darwin/OpenBSD
   remain anon-unlinked residual
@@ -189,6 +191,9 @@ ExtraPeer chain (one extra peer per child):
 - **M4c:** Darwin/OpenBSD anon key FD residual — `CreateKeyFD` stays
   anon-unlinked O_RDONLY; `DISC-KEY-FD` Unavailable; sealed path remains
   Linux/FreeBSD only
+- **M4d:** release-mode `Confine` fails closed unless ambient AF_INET is
+  denied for non-network roles (`RequireAmbientRoleNetDenied` /
+  `NEG-ROLE-NET`) on Linux/Darwin/OpenBSD; FreeBSD no-op (M3s residual)
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK

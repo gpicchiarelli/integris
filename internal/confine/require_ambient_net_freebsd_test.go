@@ -31,4 +31,8 @@ func TestM3sCapEnterLeavesAmbientAFINET(t *testing.T) {
 	if after.Status != confine.StatusUnexpectedAllow {
 		t.Fatalf("expected CapEnter residual UnexpectedAllow, got %+v", after)
 	}
+	// M4d: release Confine must not fail closed on this residual.
+	if err := confine.RequireAmbientRoleNetDenied(role); err != nil {
+		t.Fatal(err)
+	}
 }

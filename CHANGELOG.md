@@ -163,6 +163,9 @@ is accepted.
 - M4c Darwin/OpenBSD anon key FD residual documented: `CreateKeyFD` stays
   anon-unlinked O_RDONLY; `DISC-KEY-FD` Unavailable; sealed path remains
   Linux/FreeBSD only;
+- M4d release ambient ROLE-NET deny (non-FreeBSD): `ChildEnv.Confine` calls
+  `RequireAmbientRoleNetDenied` (`NEG-ROLE-NET`) on Linux/Darwin/OpenBSD;
+  FreeBSD remains a no-op (M3s CapEnter residual);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
