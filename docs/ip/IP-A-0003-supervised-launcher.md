@@ -74,8 +74,8 @@ profile defect.
   false or both true, Start refuses. `ReleaseMode` sets
   `INTEGRIS_LAUNCH_MODE=release` for fail-closed child confinement checks
   (`integrisd -strict-launch`, including FreeBSD CapMode M3m, Capsicum
-  rights-limit M3n/M3o, and ambient FS-read deny M3q); it is not a product
-  IC-1 release claim.
+  rights-limit M3n/M3o, ambient FS-read deny M3q, and CapEnter RestartOne
+  first cut M3r); it is not a product IC-1 release claim.
 
 No `/bin/sh`, no interpolated command lines, no `PATH` search for the executable
 (caller supplies an absolute path). Working directory is set to an empty temp
@@ -126,7 +126,8 @@ directory owned for the test/run.
   release mode landed in M3n; product conferred IPC/key `cap_rights_limit`
   fail-closed in release mode landed in M3o; FreeBSD supervised CapEnter push
   first cut landed in M3p; product ambient FS-read deny fail-closed in release
-  mode landed in M3q).
+  mode landed in M3q; FreeBSD StrictLaunch CapEnter RestartOne first cut
+  landed in M3r).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

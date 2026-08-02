@@ -1,4 +1,4 @@
-# Privilege-separated receive (M2a–M3q engineering increments)
+# Privilege-separated receive (M2a–M3r engineering increments)
 
 Status: **Implemented engineering preview (not the product daemon)**  
 Package: `internal/daemon`  
@@ -65,7 +65,8 @@ ExtraPeer chain (one extra peer per child):
   `auth.peer.admit` / `auth.peer.deny` (opaque peer digest only)
 - **M2k:** `-strict-launch` / `StrictLaunch` — full eight-role chain; children
   launch with `INTEGRIS_LAUNCH_MODE=release`; confinement APPLY-* fail-closed
-  (M3m–M3q CapMode, Capsicum rights-limit, and ambient FS-read deny on FreeBSD)
+  (M3m–M3r CapMode, Capsicum rights-limit, ambient FS-read deny, and CapEnter
+  RestartOne first cut on FreeBSD)
 - **M2l:** default key conferral is SCM-only — ExtraFiles carries IPC sockets plus
   a dedicated key-channel socketpair end (fd4); MAC/root/extra keys arrive via
   `SCM_RIGHTS` on that channel (`Handle.KeyChannel`). Legacy
@@ -147,6 +148,10 @@ ExtraPeer chain (one extra peer per child):
 - **M3q:** release-mode `Confine` fails closed unless ambient path open is
   denied (`RequireAmbientFSReadDenied` / `NEG-FS-READ`); FreeBSD AllowRoots
   stubs also assert `|NEG-FS-READ:denied_as_expected` beside openat path allow
+- **M3r:** FreeBSD StrictLaunch CapEnter RestartOne first cut — persistent
+  serve under CapEnter; kill apply; net PID + listen addr survive;
+  apply+journal+audit subtree respawns with M3m–M3q fail-closed confine;
+  second push succeeds
 - At commit, index scans the destination readonly and confers a dest manifest so
   apply’s `localsync.Sync` skips `Scan(destination)`
 - Same wire protocol as `integris push` / monolithic `integris serve` (shared PSK
@@ -209,5 +214,5 @@ Library topology flags: `DisableAuth`, `DisableParser`, `DisableAudit`,
 
 ## Next increment (proposed)
 
-RestartOne under CapEnter, FreeBSD ambient socket / NEG-ROLE-NET hardening,
-broader product authz / PKI, or IC-1 evidence campaigns.
+FreeBSD ambient socket / NEG-ROLE-NET hardening under CapEnter, broader
+product authz / PKI, or IC-1 evidence campaigns.
