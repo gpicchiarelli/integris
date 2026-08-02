@@ -196,6 +196,8 @@ is accepted.
   kill parser after first peer push; net+auth + listen survive;
   parser→plan→index→apply→journal→audit respawn; ≥2 `auth.peer.admit` (M4a
   Darwin parity);
+- M4o Linux StrictLaunch Landlock+seccomp push first cut: StrictLaunch Once
+  completes push with journal/audit/plan (M3p/M4e Linux parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
