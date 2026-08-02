@@ -269,6 +269,8 @@ is accepted.
 - M5i OpenBSD pledge promise tightening: `wpath`/`cpath`/`fattr`/`flock` only
   for ArchiveFSReadWrite roles; base `stdio rpath unix sendfd recvfd proc`
   (+ `inet` when CapNetwork); closes M4y broad-promise residual;
+- M5j OpenBSD CI widen: `go test` all packages except full daemon RestartOne
+  matrix; focused StrictLaunch `-run` retained; `go vet ./...`;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

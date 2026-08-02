@@ -988,6 +988,16 @@ Exit: supervised OpenBSD pledge StrictLaunch peer parser-down RestartOne green;
 
 Exit: OpenBSD role-FS pledge tightening green; `docs/daemon-m2a.md`.
 
+## M5j — OpenBSD CI widen toward FreeBSD parity (landed engineering)
+
+- OpenBSD CI runs `go test` on all packages except the full
+  `./internal/daemon` RestartOne matrix; daemon keeps focused StrictLaunch
+  `-run` (M4y–M5i + M2k/M2a); `go vet ./...`; job timeout 90m;
+- Documents remaining residual: unbounded daemon RestartOne suite on the
+  OpenBSD VM; not an IC-1 claim.
+
+Exit: broadened OpenBSD CI green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

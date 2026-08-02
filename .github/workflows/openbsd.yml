@@ -18,7 +18,7 @@ jobs:
   test:
     name: OpenBSD test
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -51,8 +51,9 @@ jobs:
             export TMPDIR="${PWD}/.ci-tmp"
             mkdir -p "$TMPDIR"
             go version
-            # Focused OpenBSD StrictLaunch campaign + confine unit tests (M4y–M5i).
-            go test -timeout 15m -count=1 ./internal/confine/
-            go test -timeout 15m -count=1 ./internal/daemon/ -run 'TestM4y|TestM4z|TestM5|TestM2kStrictLaunchPushServe|TestM2aPushServeSplit'
-            go test -timeout 10m -count=1 ./internal/launcher/ -run 'TestLaunchStubIPC|TestM4c'
-            go vet ./internal/confine/ ./internal/daemon/ ./internal/launcher/
+            # M5j: broaden toward FreeBSD-parity coverage. Full ./internal/daemon
+            # RestartOne matrix stays focused (VM budget); all other packages run.
+            pkgs=$(go list ./... | grep -v '/internal/daemon$')
+            go test -timeout 25m -count=1 $pkgs
+            go test -timeout 20m -count=1 ./internal/daemon/ -run 'TestM4y|TestM4z|TestM5|TestM2kStrictLaunchPushServe|TestM2aPushServeSplit'
+            go vet ./...
