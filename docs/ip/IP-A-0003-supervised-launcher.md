@@ -78,7 +78,8 @@ profile defect.
   rights-limit M3n/M3o, ambient FS-read deny M3q, CapEnter RestartOne
   first cut M3r, FreeBSD ambient AF_INET residual documented M3s, FreeBSD
   sealed MAC key FD M3t, FreeBSD CapEnter parser-down RestartOne M3u, and
-  FreeBSD CapEnter auth-primary RestartOne M3v); it is not a product
+  FreeBSD CapEnter auth-primary RestartOne M3v, and FreeBSD CapEnter M2j
+  auth ExtraPeer RestartOne M3w); it is not a product
   IC-1 release claim.
 
 No `/bin/sh`, no interpolated command lines, no `PATH` search for the executable
@@ -136,7 +137,8 @@ directory owned for the test/run.
   does not deny sockets; jail ip-disable rejected with allow-root CapRightsLimit;
   FreeBSD sealed MAC key FD landed in M3t; FreeBSD StrictLaunch CapEnter
   parser-down RestartOne landed in M3u; FreeBSD StrictLaunch CapEnter
-  auth-primary RestartOne landed in M3v).
+  auth-primary RestartOne landed in M3v; FreeBSD StrictLaunch CapEnter M2j
+  auth ExtraPeer RestartOne landed in M3w).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
