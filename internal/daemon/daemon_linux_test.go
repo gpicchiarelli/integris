@@ -756,3 +756,100 @@ func TestM4uStrictLaunchLandlockPeerPushServe(t *testing.T) {
 		t.Fatalf("plan snapshot under Landlock StrictLaunch peer push: %v", err)
 	}
 }
+
+// TestM4vStrictLaunchLandlockPeerDenyAdmit is Linux Landlock+seccomp
+// StrictLaunch coverage for M2i/M2j: peer keyring under Landlock; unknown peer
+// and wrong-key pushes are rejected without mutating the destination; a valid
+// peer push admits with journal/audit/plan and auth.peer.deny +
+// auth.peer.admit (M4b/M4l Linux parity).
+func TestM4vStrictLaunchLandlockPeerDenyAdmit(t *testing.T) {
+	bin := buildIntegrisd(t)
+	alice := make([]byte, remotesync.RootKeySize)
+	bob := make([]byte, remotesync.RootKeySize)
+	if _, err := rand.Read(alice); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := rand.Read(bob); err != nil {
+		t.Fatal(err)
+	}
+	src, dst := t.TempDir(), t.TempDir()
+	mustWrite(t, filepath.Join(src, "a.txt"), "hello-m4v")
+	marker := filepath.Join(dst, "untouched.txt")
+	mustWrite(t, marker, "keep")
+
+	ready := make(chan string, 4)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	srv, err := daemon.Start(ctx, daemon.ServeOptions{
+		Addr:        "127.0.0.1:0",
+		Destination: dst,
+		Peers: remotesync.PeerKeyring{
+			"alice": alice,
+			"bob":   bob,
+		},
+		Once:         false,
+		MaxRestarts:  2,
+		StrictLaunch: true,
+		Executable:   bin,
+		Ready:        ready,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = srv.Close() }()
+
+	addr := <-ready
+
+	if _, err := remotesync.Push(remotesync.PushOptions{
+		Addr: addr, Source: src, RootKey: alice, PeerID: "eve",
+	}); err == nil {
+		t.Fatal("expected unknown peer rejection under Landlock StrictLaunch")
+	}
+	assertFile(t, marker, "keep")
+	if _, err := os.Lstat(filepath.Join(dst, "a.txt")); err == nil {
+		t.Fatal("destination mutated after unknown peer under Landlock")
+	}
+
+	if _, err := remotesync.Push(remotesync.PushOptions{
+		Addr: addr, Source: src, RootKey: alice, PeerID: "bob",
+	}); err == nil {
+		t.Fatal("expected wrong-key rejection under Landlock StrictLaunch")
+	}
+	assertFile(t, marker, "keep")
+
+	res, err := remotesync.Push(remotesync.PushOptions{
+		Addr: addr, Source: src, RootKey: alice, PeerID: "alice",
+	})
+	if err != nil {
+		t.Fatalf("push: %v", err)
+	}
+	if res.Outcome != "success" {
+		t.Fatalf("%+v", res)
+	}
+	assertFile(t, filepath.Join(dst, "a.txt"), "hello-m4v")
+	assertFile(t, marker, "keep")
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "local.jrn")); err != nil {
+		t.Fatalf("journal under Landlock peer deny/admit: %v", err)
+	}
+	if _, err := os.Lstat(filepath.Join(dst, ".integris", "last-plan.json")); err != nil {
+		t.Fatalf("plan snapshot under Landlock peer deny/admit: %v", err)
+	}
+
+	deadline := time.Now().Add(5 * time.Second)
+	var auditRaw []byte
+	for time.Now().Before(deadline) {
+		auditRaw, err = os.ReadFile(filepath.Join(dst, ".integris", "audit.events"))
+		if err == nil && bytes.Contains(auditRaw, []byte("auth.peer.admit")) &&
+			bytes.Contains(auditRaw, []byte("auth.peer.deny")) {
+			break
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	if !bytes.Contains(auditRaw, []byte("auth.peer.deny")) {
+		t.Fatalf("audit missing auth.peer.deny under Landlock: %q", auditRaw)
+	}
+	if !bytes.Contains(auditRaw, []byte("auth.peer.admit")) {
+		t.Fatalf("audit missing auth.peer.admit under Landlock: %q", auditRaw)
+	}
+}
