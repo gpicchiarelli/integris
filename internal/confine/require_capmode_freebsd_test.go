@@ -17,7 +17,6 @@ func TestRequireCapModeAvailableAfterCapEnter(t *testing.T) {
 	if err := confine.RequireCapModeAvailable(); err == nil {
 		t.Fatal("expected refuse before CapEnter")
 	}
-	launcher.SkipSubprocessCleanupOnSuccess(t)
 	if err := unix.CapEnter(); err != nil {
 		t.Fatal(err)
 	}

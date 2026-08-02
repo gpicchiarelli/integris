@@ -18,7 +18,7 @@ func TestJournalBootstrapAtAfterCapEnter(t *testing.T) {
 	if !launcher.InTestSubprocess(t) {
 		return
 	}
-	dest := t.TempDir()
+	dest := launcher.CapEnterTempDir(t)
 	fd, err := unix.Open(dest, unix.O_RDONLY|unix.O_DIRECTORY|unix.O_CLOEXEC, 0)
 	if err != nil {
 		t.Fatal(err)
@@ -42,7 +42,6 @@ func TestJournalBootstrapAtAfterCapEnter(t *testing.T) {
 	if err := unix.CapRightsLimit(dir.Fd(), rights); err != nil {
 		t.Fatal(err)
 	}
-	launcher.SkipSubprocessCleanupOnSuccess(t)
 	if err := unix.CapEnter(); err != nil {
 		t.Fatal(err)
 	}

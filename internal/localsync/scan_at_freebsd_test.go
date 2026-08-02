@@ -16,7 +16,7 @@ func TestScanAtAfterCapEnter(t *testing.T) {
 	if !launcher.InTestSubprocess(t) {
 		return
 	}
-	root := t.TempDir()
+	root := launcher.CapEnterTempDir(t)
 	mustWrite(t, filepath.Join(root, "cap.txt"), "capsicum-scanat")
 
 	fd, err := unix.Open(root, unix.O_RDONLY|unix.O_DIRECTORY|unix.O_CLOEXEC, 0)
@@ -35,7 +35,6 @@ func TestScanAtAfterCapEnter(t *testing.T) {
 	if err := unix.CapRightsLimit(dir.Fd(), rights); err != nil {
 		t.Fatal(err)
 	}
-	launcher.SkipSubprocessCleanupOnSuccess(t)
 	if err := unix.CapEnter(); err != nil {
 		t.Fatal(err)
 	}

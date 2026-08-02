@@ -15,7 +15,8 @@ const testChildEnv = "INTEGRIS_TEST_CHILD"
 //
 // Parent: re-runs only t.Name(), waits, fails t on child error, returns false.
 // Child (INTEGRIS_TEST_CHILD=1): returns true so the caller runs the test body.
-// CapEnter tests must also call SkipSubprocessCleanupOnSuccess before CapEnter.
+// CapEnter tests must use CapEnterTempDir instead of t.TempDir for any dirs
+// needed after unix.CapEnter.
 func InTestSubprocess(t *testing.T) bool {
 	t.Helper()
 	if os.Getenv(testChildEnv) == "1" {
@@ -33,19 +34,16 @@ func InTestSubprocess(t *testing.T) bool {
 	return false
 }
 
-// SkipSubprocessCleanupOnSuccess exits a CapEnter subprocess test before t.TempDir
-// cleanups run (ambient /tmp access is denied after unix.CapEnter). Call after all
-// t.TempDir setup and immediately before unix.CapEnter.
-func SkipSubprocessCleanupOnSuccess(t *testing.T) {
+// CapEnterTempDir returns a temporary directory for CapEnter subprocess tests.
+// It does not register t.Cleanup: after unix.CapEnter, ambient /tmp access is
+// denied and cleanup would fail. The child process exits soon; orphaned dirs are OK in CI.
+func CapEnterTempDir(t *testing.T) string {
 	t.Helper()
-	if os.Getenv(testChildEnv) != "1" {
-		return
+	dir, err := os.MkdirTemp("", "integris-capenter-*")
+	if err != nil {
+		t.Fatal(err)
 	}
-	t.Cleanup(func() {
-		if !t.Failed() {
-			os.Exit(0)
-		}
-	})
+	return dir
 }
 
 func forwardedTestArgs() []string {

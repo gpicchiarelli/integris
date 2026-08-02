@@ -18,7 +18,6 @@ func TestNegativeCapModeAfterCapEnter(t *testing.T) {
 	if before.Status != confine.StatusUnexpectedAllow {
 		t.Fatalf("before CapEnter: %+v", before)
 	}
-	launcher.SkipSubprocessCleanupOnSuccess(t)
 	if err := unix.CapEnter(); err != nil {
 		t.Fatal(err)
 	}

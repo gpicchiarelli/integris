@@ -6,10 +6,12 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
@@ -494,9 +496,12 @@ func (s *Server) supervise(parent, runCtx context.Context) {
 				// M3j: drop cascade exits buffered while waiting for killed
 				// siblings so they do not burn the restart budget as "new" deaths.
 				flushExitPending(exitCh)
-				// If the listen role died during RestartOne, fall through to a
-				// full fleet restart instead of republishing a dead address.
-				if !s.childAlive(authority.RoleNet) {
+				// If the listen role died (or closed the socket) during
+				// RestartOne, fall through to a full fleet restart instead of
+				// republishing a dead address. Probe TCP: childAlive alone can
+				// race the watcher delete, and flushExitPending can drop a
+				// concurrent net-exit notification.
+				if !s.childAlive(authority.RoleNet) || !s.listenReachable() {
 					// RestartOne already incremented the budget; continue to
 					// full respawn below without a second increment.
 					s.mu.Lock()
@@ -670,8 +675,31 @@ func (s *Server) childAlive(role authority.ProcessRole) bool {
 	if s.rt == nil {
 		return false
 	}
-	_, ok := s.rt.Children[role]
-	return ok
+	h, ok := s.rt.Children[role]
+	if !ok || h == nil || h.Cmd == nil || h.Cmd.Process == nil {
+		return false
+	}
+	if h.Cmd.ProcessState != nil {
+		return false
+	}
+	return h.Cmd.Process.Signal(syscall.Signal(0)) == nil
+}
+
+// listenReachable probes the published listen address. Used after RestartOne so
+// a dead/half-closed listen socket is not republished as ready.
+func (s *Server) listenReachable() bool {
+	s.mu.Lock()
+	addr := s.listenAddr
+	s.mu.Unlock()
+	if addr == "" {
+		return false
+	}
+	conn, err := net.DialTimeout("tcp", addr, 250*time.Millisecond)
+	if err != nil {
+		return false
+	}
+	_ = conn.Close()
+	return true
 }
 
 // restartAuthPrimary respawns auth and rebinds net primary→auth while the
@@ -1337,7 +1365,10 @@ func (s *Server) drainExits(exitCh <-chan authority.ProcessRole, d time.Duration
 	deadline := time.Now().Add(d)
 	for {
 		s.mu.Lock()
-		n := len(s.rt.Children)
+		n := 0
+		if s.rt != nil {
+			n = len(s.rt.Children)
+		}
 		s.mu.Unlock()
 		if n == 0 {
 			return nil
@@ -1356,6 +1387,10 @@ func (s *Server) drainExits(exitCh <-chan authority.ProcessRole, d time.Duration
 
 func (s *Server) killRole(role authority.ProcessRole) {
 	s.mu.Lock()
+	if s.rt == nil {
+		s.mu.Unlock()
+		return
+	}
 	h := s.rt.Children[role]
 	s.mu.Unlock()
 	if h != nil && h.Cmd != nil && h.Cmd.Process != nil && h.Cmd.ProcessState == nil {
@@ -1365,6 +1400,10 @@ func (s *Server) killRole(role authority.ProcessRole) {
 
 func (s *Server) killTracked() {
 	s.mu.Lock()
+	if s.rt == nil {
+		s.mu.Unlock()
+		return
+	}
 	roles := make([]authority.ProcessRole, 0, len(s.rt.Children))
 	for role := range s.rt.Children {
 		roles = append(roles, role)

@@ -16,7 +16,7 @@ func TestApplyAtAfterCapEnter(t *testing.T) {
 	if !launcher.InTestSubprocess(t) {
 		return
 	}
-	src, dst := t.TempDir(), t.TempDir()
+	src, dst := launcher.CapEnterTempDir(t), launcher.CapEnterTempDir(t)
 	mustWrite(t, filepath.Join(src, "cap.txt"), "capsicum-m3g-publish")
 
 	srcFD, err := unix.Open(src, unix.O_RDONLY|unix.O_DIRECTORY|unix.O_CLOEXEC, 0)
@@ -53,7 +53,6 @@ func TestApplyAtAfterCapEnter(t *testing.T) {
 	if err := unix.CapRightsLimit(dstDir.Fd(), rw); err != nil {
 		t.Fatal(err)
 	}
-	launcher.SkipSubprocessCleanupOnSuccess(t)
 	if err := unix.CapEnter(); err != nil {
 		t.Fatal(err)
 	}

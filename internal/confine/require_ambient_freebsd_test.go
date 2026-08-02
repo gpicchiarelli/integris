@@ -18,7 +18,6 @@ func TestRequireAmbientFSReadDeniedAfterCapEnter(t *testing.T) {
 		if err := confine.RequireAmbientFSReadDenied(); err == nil {
 			t.Fatal("expected refuse before CapEnter")
 		}
-		launcher.SkipSubprocessCleanupOnSuccess(t)
 		if err := unix.CapEnter(); err != nil {
 			t.Fatal(err)
 		}

@@ -17,7 +17,7 @@ func TestJournalAtAfterCapEnter(t *testing.T) {
 	if !launcher.InTestSubprocess(t) {
 		return
 	}
-	dest := t.TempDir()
+	dest := launcher.CapEnterTempDir(t)
 	// Pre-create ambient so we can contrast reopen after CapEnter.
 	jpath := filepath.Join(dest, localsync.MetaDirName, localsync.JournalFileName)
 	if err := os.MkdirAll(filepath.Dir(jpath), 0o700); err != nil {
@@ -47,7 +47,6 @@ func TestJournalAtAfterCapEnter(t *testing.T) {
 	if err := unix.CapRightsLimit(dir.Fd(), rights); err != nil {
 		t.Fatal(err)
 	}
-	launcher.SkipSubprocessCleanupOnSuccess(t)
 	if err := unix.CapEnter(); err != nil {
 		t.Fatal(err)
 	}
