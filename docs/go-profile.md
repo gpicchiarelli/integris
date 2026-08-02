@@ -11,7 +11,11 @@ unless an isolated, reviewed platform adapter explicitly requires otherwise.
 
 ## Prohibited
 
-- `unsafe` in IC-1/IC-2 and by default everywhere;
+- `unsafe` in IC-1/IC-2 and by default everywhere — reviewed exceptions:
+  - `internal/confine` Landlock/seccomp/Capsicum probes (out-pointers / raw
+    syscalls not wrapped in `golang.org/x/sys`) under IP-A-0003;
+  - `internal/launcher/keyfd_freebsd.go` `shm_open2(SHM_ANON)` name pointer
+    for sealed MAC key FDs under IP-A-0003 (`CGO_ENABLED=0`);
 - cgo outside an isolated platform adapter with an accepted IP — exceptions when
   `CGO_ENABLED=1` (nocgo builds report skipped/UNKNOWN):
   - `internal/confine` Darwin Seatbelt (`sandbox_init`) under IP-A-0003;

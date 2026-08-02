@@ -66,16 +66,18 @@ profile defect.
     `ipc.SendFDFile(Handle.KeyChannel, Handle.KeyFD/…)` before the first
     authenticated frame; `StartPair` / `RestartPair` use this path by default;
   - **legacy opt-in** (`KeyViaExtraFiles`): key on **fd 4** (`ExtraFiles[1]`);
-  - **Linux:** sealed `memfd` (`F_SEAL_WRITE|SHRINK|GROW|SEAL`);
-  - **other Unix:** unlinked temp file reopened `O_RDONLY` (engineering residual
-    until memfd seals land);
+  - **Linux / FreeBSD:** sealed anonymous FD (`F_SEAL_WRITE|SHRINK|GROW|SEAL`;
+    Linux `memfd_create`, FreeBSD `shm_open2`+`F_ADD_SEALS`);
+  - **Darwin / OpenBSD:** unlinked temp file reopened `O_RDONLY` (engineering
+    residual until memfd seals land);
 - a finite `context` deadline for wait;
 - Exactly one of `EngineeringMode` or `ReleaseMode` (M2k) required; when both
   false or both true, Start refuses. `ReleaseMode` sets
   `INTEGRIS_LAUNCH_MODE=release` for fail-closed child confinement checks
   (`integrisd -strict-launch`, including FreeBSD CapMode M3m, Capsicum
   rights-limit M3n/M3o, ambient FS-read deny M3q, CapEnter RestartOne
-  first cut M3r, and FreeBSD ambient AF_INET residual documented M3s); it is not a product
+  first cut M3r, FreeBSD ambient AF_INET residual documented M3s, and FreeBSD
+  sealed MAC key FD M3t); it is not a product
   IC-1 release claim.
 
 No `/bin/sh`, no interpolated command lines, no `PATH` search for the executable
@@ -114,7 +116,8 @@ directory owned for the test/run.
 - Legacy ExtraFiles fd4 key path remains available via `KeyViaExtraFiles`.
 - Darwin App Sandbox / Hardened Runtime / launchd identities (Seatbelt engineering
   apply is not claimed equivalent).
-- Darwin/FreeBSD/OpenBSD memfd-equivalent seals (anon-unlinked residual).
+- Darwin/OpenBSD memfd-equivalent seals (anon-unlinked residual; FreeBSD sealed
+  key FD landed in M3t).
 - Broader role path allow-lists beyond Apply/Index/Journal/Audit archive caps
   (FreeBSD conferred directory FDs claimed in product children as of M3c;
   index ScanAt openat landed in M3d; apply staging openat landed in M3e;
@@ -129,7 +132,8 @@ directory owned for the test/run.
   first cut landed in M3p; product ambient FS-read deny fail-closed in release
   mode landed in M3q; FreeBSD StrictLaunch CapEnter RestartOne first cut
   landed in M3r; FreeBSD ambient AF_INET residual documented in M3s — CapEnter
-  does not deny sockets; jail ip-disable rejected with allow-root CapRightsLimit).
+  does not deny sockets; jail ip-disable rejected with allow-root CapRightsLimit;
+  FreeBSD sealed MAC key FD landed in M3t).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.

@@ -12,3 +12,6 @@ internal/plan/property_test.go
 
 # CapGetMode is not wrapped in x/sys; the FreeBSD probe needs the out-pointer.
 internal/confine/negative_capmode_freebsd.go
+
+# FreeBSD shm_open2 is not wrapped in x/sys; sealed key FD needs the name pointer.
+internal/launcher/keyfd_freebsd.go
