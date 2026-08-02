@@ -22,7 +22,7 @@ Linux, and
 .Sy Status :
 an engineering preview binary exists for
 .Cm serve
-.Pq M2a Ns – Ns M5w :
+.Pq M2a Ns – Ns M5x :
 privilege-separated eight-role receive chain —
 .Nm Ns -auth ,
 .Nm Ns -parser ,
@@ -97,6 +97,8 @@ and Linux no_new_privs verify and Require
 .Pq M5v ,
 and Linux seccomp TSYNC and Require
 .Pq M5w ,
+and Linux dumpable clear and Require
+.Pq M5x ,
 and Darwin StrictLaunch Seatbelt push first cut
 .Pq M4e ,
 and Darwin StrictLaunch Seatbelt RestartOne apply
@@ -186,7 +188,9 @@ and Linux ambient capability clear
 and Linux no_new_privs verify and Require
 .Pq M5v ,
 and Linux seccomp TSYNC and Require
-.Pq M5w .
+.Pq M5w ,
+and Linux dumpable clear and Require
+.Pq M5x .
 Default key conferral is SCM-only on a dedicated key channel
 .Pq M2l .
 It is not the release product daemon, not PKI, and not the full nine-role

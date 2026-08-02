@@ -299,6 +299,8 @@ is accepted.
 - M5w Linux seccomp TSYNC + Require: `SECCOMP_SET_MODE_FILTER` +
   `SECCOMP_FILTER_FLAG_TSYNC`, `RequireSeccompFilter`; `DISC-SECCOMP`
   Available; Landlock per-thread residual unchanged;
+- M5x Linux dumpable clear + Require: `PR_SET_DUMPABLE(0)`,
+  `RequireDumpableClear`; `DISC-DUMPABLE` Available; `NEG-PTRACE` residual;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

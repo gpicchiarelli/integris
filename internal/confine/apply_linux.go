@@ -68,6 +68,30 @@ func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 		})
 	}
 
+	// Clear dumpable (M5x): process-wide; reduces core dumps and complements
+	// seccomp ptrace deny without claiming Yama discrimination (NEG-PTRACE).
+	if err := unix.Prctl(unix.PR_SET_DUMPABLE, 0, 0, 0, 0); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-DUMPABLE", Platform: plat, Control: "dumpable",
+			Status: StatusUnavailable, Detail: err.Error(),
+		})
+	} else if clear, err := dumpableClear(); err != nil {
+		out = append(out, Finding{
+			ID: "APPLY-DUMPABLE", Platform: plat, Control: "dumpable",
+			Status: StatusUnavailable, Detail: "verify: " + err.Error(),
+		})
+	} else if !clear {
+		out = append(out, Finding{
+			ID: "APPLY-DUMPABLE", Platform: plat, Control: "dumpable",
+			Status: StatusUnavailable, Detail: "PR_SET_DUMPABLE(0) left process dumpable",
+		})
+	} else {
+		out = append(out, Finding{
+			ID: "APPLY-DUMPABLE", Platform: plat, Control: "dumpable",
+			Status: StatusAvailable, Detail: "PR_SET_DUMPABLE(0); PR_GET verified",
+		})
+	}
+
 	// Clear ambient capability set (M5u). Does not empty permitted/effective/
 	// bounding sets — dedicated account residual remains for full empty caps.
 	if err := unix.Prctl(unix.PR_CAP_AMBIENT, unix.PR_CAP_AMBIENT_CLEAR_ALL, 0, 0, 0); err != nil {

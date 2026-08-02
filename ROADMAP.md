@@ -1126,6 +1126,16 @@ Exit: Linux no_new_privs verify green; `docs/daemon-m2a.md`.
 
 Exit: Linux seccomp TSYNC verify green; `docs/daemon-m2a.md`.
 
+## M5x — Linux dumpable clear + Require (landed engineering)
+
+- `APPLY-DUMPABLE` sets `PR_SET_DUMPABLE(0)` and verifies via
+  `PR_GET_DUMPABLE`;
+- `NegativeDumpable` + release `RequireDumpableClear` (Available or Skipped);
+- `DISC-DUMPABLE` Available; complements seccomp ptrace deny without claiming
+  Yama discrimination (`NEG-PTRACE` remains observational); not an IC-1 claim.
+
+Exit: Linux dumpable clear green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

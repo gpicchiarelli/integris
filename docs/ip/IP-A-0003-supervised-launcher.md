@@ -119,7 +119,8 @@ profile defect.
   honesty M5q, and NEG-FS-READ pre-apply existence M5r, and NEG-FS-WRITE
   unique probe + readonly Require M5s, and archive allow-root path/write
   Available Require M5t, and Linux ambient capability clear M5u, and Linux
-  no_new_privs verify Require M5v, and Linux seccomp TSYNC Require M5w); it is
+  no_new_privs verify Require M5v, and Linux seccomp TSYNC Require M5w, and
+  Linux dumpable clear Require M5x); it is
   not a
   product
   IC-1 release claim.
@@ -136,8 +137,8 @@ directory owned for the test/run.
   call `confine.ApplyEngineeringOpts(role, opts)`:
   - Linux: `no_new_privs` + Landlock (empty or path_beneath allow-roots for
     Apply/Index/Journal/Audit) + seccomp exec/ptrace denylist via
-    `SECCOMP_SET_MODE_FILTER`+TSYNC (M5w); roles without `network_sockets`
-    also deny socket/connect/bind/listen/accept*;
+    `SECCOMP_SET_MODE_FILTER`+TSYNC (M5w) + `PR_SET_DUMPABLE(0)` (M5x);
+    roles without `network_sockets` also deny socket/connect/bind/listen/accept*;
   - OpenBSD: role-parameterized `pledge` + `unveil` of allow-roots then lock;
   - FreeBSD: `cap_enter` after `LimitConferredFDs` + `LimitAllowRootFDs` on
     conferred archive directory FDs (`NEG-FS-PATH`/`NEG-FS-WRITE` via
@@ -228,7 +229,8 @@ directory owned for the test/run.
   in M5r; NEG-FS-WRITE unique probe + readonly Require landed in M5s;
   archive allow-root path/write Available Require landed in M5t; Linux
   ambient capability clear landed in M5u; Linux no_new_privs verify Require
-  landed in M5v; Linux seccomp TSYNC Require landed in M5w).
+  landed in M5v; Linux seccomp TSYNC Require landed in M5w; Linux dumpable
+  clear Require landed in M5x).
 - Broader product authz / PKI beyond landed M2o–M3b selective RestartOne
   (apply/parser/auth-primary and M2j dual ExtraPeer auth↔audit).
 - Windows process model.
