@@ -220,11 +220,20 @@ func closeAll(files ...*os.File) {
 // open denial via NEG-FS-READ (M3q), and ambient AF_INET deny via
 // NEG-ROLE-NET (M3s; FreeBSD jail ip4/ip6=disable before CapEnter).
 func (e ChildEnv) Confine() error {
-	allowRoots := confine.LimitAllowRootFDs(confine.RoleArchiveFSMode(e.Role), e.AllowRootFDs...)
 	r := confine.ApplyEngineeringOpts(e.Role, confine.ApplyOptions{
 		AllowRoots:   e.AllowRoots,
 		AllowRootFDs: e.AllowRootFDs,
 	})
+	allowRoots := confine.Finding{
+		ID: "APPLY-CAP-ALLOW-ROOTS", Status: confine.StatusSkipped,
+		Detail: "no allow-root limit finding",
+	}
+	for _, f := range r.Findings {
+		if f.ID == "APPLY-CAP-ALLOW-ROOTS" {
+			allowRoots = f
+			break
+		}
+	}
 	if os.Getenv(launcher.EnvMode) == launcher.ModeRelease {
 		if err := confine.RequireConferredLimitFinding(e.ConferredRights); err != nil {
 			return err

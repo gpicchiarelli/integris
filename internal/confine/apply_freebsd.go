@@ -66,10 +66,17 @@ func LimitConferredFDs(files ...*os.File) Finding {
 
 func applyEngineering(role authority.ProcessRole, opts ApplyOptions) []Finding {
 	plat := runtime.GOOS + "/" + runtime.GOARCH
-	out := make([]Finding, 0, 2)
+	out := make([]Finding, 0, 3)
+
+	// Order matters (M3s): jail attach before cap_rights_limit on allow-root
+	// FDs; CapEnter last. Limiting rights before jail_set left AllowRoots
+	// stubs with NEG-ROLE-NET unexpected_allow on FreeBSD CI.
 	if !RoleMayHoldNetwork(role) {
 		out = append(out, attachNoIPJail())
 	}
+
+	allowRoots := LimitAllowRootFDs(RoleArchiveFSMode(role), opts.AllowRootFDs...)
+	out = append(out, allowRoots)
 
 	if err := unix.CapEnter(); err != nil {
 		out = append(out, Finding{
@@ -138,11 +145,11 @@ func jailSetAttachNoIP(name string) (int, error) {
 	setStr(3, nameVal)
 	setStr(4, statfsKey)
 	iov[5].Base = (*byte)(unsafe.Pointer(&statfsVal)) // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
-	iov[5].SetLen(int(unsafe.Sizeof(statfsVal)))      // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
+	iov[5].SetLen(4)
 
 	r1, _, errno := unix.Syscall( // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
 		unix.SYS_JAIL_SET,
-		uintptr(unsafe.Pointer(&iov[0])),
+		uintptr(unsafe.Pointer(&iov[0])), // nosemgrep: go.lang.security.audit.unsafe.use-of-unsafe-block
 		uintptr(len(iov)),
 		uintptr(jailCreate|jailAttach),
 	)

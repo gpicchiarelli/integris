@@ -66,7 +66,14 @@ func (r Report) RequireApplyAvailable() error {
 		}
 		sawApply = true
 		switch f.Status {
-		case StatusUnavailable, StatusSkipped:
+		case StatusUnavailable:
+			return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
+		case StatusSkipped:
+			// FreeBSD LimitAllowRootFDs reports Skipped when no FDs; checked
+			// separately via RequireAllowRootLimitFinding (allows Skipped).
+			if f.ID == "APPLY-CAP-ALLOW-ROOTS" {
+				continue
+			}
 			return &Error{Code: "confine", Message: f.ID + ": " + string(f.Status) + ": " + f.Detail}
 		}
 	}
