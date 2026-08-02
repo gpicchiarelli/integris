@@ -818,6 +818,18 @@ Exit: supervised Linux Landlock StrictLaunch RestartOne audit ExtraPeer green;
 Exit: supervised Linux Landlock StrictLaunch peer-key Once push green;
 `docs/daemon-m2a.md`.
 
+## M4v — Linux StrictLaunch Landlock+seccomp peer deny/admit (landed engineering)
+
+- Linux `TestM4vStrictLaunchLandlockPeerDenyAdmit`: StrictLaunch under
+  Landlock+seccomp with peer keyring; unknown peer and wrong-key rejected
+  without destination mutation; valid peer push admits with
+  `auth.peer.deny` + `auth.peer.admit` (M4b/M4l Linux parity);
+- FreeBSD CapEnter and Darwin Seatbelt peer deny/admit remain M4b/M4l; not an
+  IC-1 claim.
+
+Exit: supervised Linux Landlock StrictLaunch peer deny/admit green;
+`docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;

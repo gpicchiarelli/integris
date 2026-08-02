@@ -219,6 +219,9 @@ is accepted.
 - M4u Linux StrictLaunch Landlock+seccomp peer-key Once push: peer keyring
   completes push with journal/audit/plan and ≥1 `auth.peer.admit` (M3y/M4k
   Linux parity);
+- M4v Linux StrictLaunch Landlock+seccomp peer deny/admit: unknown peer and
+  wrong-key rejected without destination mutation; valid peer push admits with
+  `auth.peer.deny` + `auth.peer.admit` (M4b/M4l Linux parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
