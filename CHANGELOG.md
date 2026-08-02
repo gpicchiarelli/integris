@@ -183,6 +183,9 @@ is accepted.
 - M4j Darwin StrictLaunch Seatbelt audit ExtraPeer RestartOne: peer keyring;
   kill audit; auth+upstream + listen survive; apply+journal+audit respawn;
   ≥2 `auth.peer.admit` (M3x Darwin parity);
+- M4k Darwin StrictLaunch Seatbelt peer-key push: StrictLaunch Once with peer
+  keyring under Seatbelt; peer push succeeds with journal/audit/plan and ≥1
+  `auth.peer.admit` (M3y Darwin parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
