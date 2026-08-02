@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
+	"github.com/gpicchiarelli/integris/internal/confine"
 	"github.com/gpicchiarelli/integris/internal/crypto"
 	"github.com/gpicchiarelli/integris/internal/ipc"
 	"github.com/gpicchiarelli/integris/internal/launcher"
@@ -29,7 +30,7 @@ type Runtime struct {
 	// Default (false) uses SCM_RIGHTS after spawn.
 	KeyViaExtraFiles bool
 	// AllowRoots maps roles to absolute archive path allow-lists forwarded to
-	// launcher/stub ApplyEngineeringOpts (EvalSymlinks in child).
+	// launcher/stub. StartChild / launcher.Start EvalSymlinks fail-closed (M5m).
 	AllowRoots map[authority.ProcessRole][]string
 	// StubMode maps roles to launcher stub IPC mode (respond/initiate).
 	StubMode map[authority.ProcessRole]string
@@ -152,7 +153,11 @@ func (r *Runtime) StartChild(ctx context.Context, role, peer authority.ProcessRo
 		return fail("key", err.Error())
 	}
 	confer, slotKinds := r.childInventory(role)
-	allowRoots := r.allowRootsFor(role)
+	allowRoots, err := r.allowRootsFor(role)
+	if err != nil {
+		_ = sock.Close()
+		return err
+	}
 	stubMode := r.stubModeFor(role)
 
 	if r.KeyViaExtraFiles {
@@ -351,15 +356,20 @@ func closeSCMKeys(h *launcher.Handle) {
 	}
 }
 
-func (r *Runtime) allowRootsFor(role authority.ProcessRole) []string {
+func (r *Runtime) allowRootsFor(role authority.ProcessRole) ([]string, error) {
 	if r == nil || r.AllowRoots == nil {
-		return nil
+		return nil, nil
 	}
 	roots := r.AllowRoots[role]
 	if len(roots) == 0 {
-		return nil
+		return nil, nil
 	}
-	return append([]string{}, roots...)
+	norm, err := confine.NormalizeAllowRoots(roots)
+	if err != nil {
+		return nil, err
+	}
+	r.AllowRoots[role] = norm
+	return append([]string{}, norm...), nil
 }
 
 func (r *Runtime) stubModeFor(role authority.ProcessRole) string {

@@ -14,6 +14,7 @@ import (
 	"syscall"
 
 	"github.com/gpicchiarelli/integris/internal/authority"
+	"github.com/gpicchiarelli/integris/internal/confine"
 )
 
 // Handle is a started child.
@@ -79,8 +80,15 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 	if len(req.SlotKinds) > 0 {
 		env = append(env, EnvSlots+"="+strings.Join(req.SlotKinds, ","))
 	}
-	if len(req.AllowRoots) > 0 {
-		env = append(env, EnvAllowRoots+"="+strings.Join(req.AllowRoots, ":"))
+	allowRoots := req.AllowRoots
+	if len(allowRoots) > 0 {
+		// M5m: normalize before env + FD open (child ClaimChild also fails closed).
+		norm, err := confine.NormalizeAllowRoots(allowRoots)
+		if err != nil {
+			return nil, fail("allow_roots", err.Error())
+		}
+		allowRoots = norm
+		env = append(env, EnvAllowRoots+"="+strings.Join(allowRoots, ":"))
 	}
 	stubMode := req.StubMode
 	if stubMode == "" {
@@ -128,7 +136,7 @@ func Start(ctx context.Context, req Request) (*Handle, error) {
 		}
 		env = append(env, EnvExtraPeer+"="+string(req.ExtraPeer))
 	}
-	rootFiles, _, err := openAllowRootDirs(req.AllowRoots)
+	rootFiles, _, err := openAllowRootDirs(allowRoots)
 	if err != nil {
 		_ = keyFD.Close()
 		if pushRootFD != nil {
