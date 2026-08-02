@@ -174,6 +174,9 @@ is accepted.
 - M4g Darwin StrictLaunch Seatbelt parser-down RestartOne: kill parser after
   first push; net+auth + listen survive; parser→plan→index→apply→journal→audit
   respawn; second push succeeds (M3u Darwin parity);
+- M4h Darwin StrictLaunch Seatbelt auth-primary RestartOne: kill auth after
+  first push; net + data plane + listen survive; auth respawns; second push
+  succeeds (M3v Darwin parity);
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;
