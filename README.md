@@ -76,7 +76,7 @@ go run ./cmd/integris push -source ./A -addr 127.0.0.1:9100 -key "$HEX32" -chunk
 
 See [docs/remotesync.md](docs/remotesync.md).
 
-Privilege-separated receive (M2a–M5w engineering preview — full eight-role
+Privilege-separated receive (M2a–M5x engineering preview — full eight-role
 receive chain under the supervisor; PSK or per-peer keyring held by
 `integrisd-auth`; parser/plan/index/journal/audit/net/apply as separate OS
 processes; optional `-strict-launch` for fail-closed confinement):

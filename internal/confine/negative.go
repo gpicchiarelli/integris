@@ -330,6 +330,7 @@ func NegativeEngineeringOpts(role authority.ProcessRole, opts ApplyOptions, fsRe
 		NegativeCapAmbient(),    // M5u: Linux CapAmb empty; skipped elsewhere
 		NegativeNoNewPrivs(),    // M5v: Linux PR_NO_NEW_PRIVS; skipped elsewhere
 		NegativeSeccompFilter(), // M5w: Linux SECCOMP_MODE_FILTER; skipped elsewhere
+		NegativeDumpable(),      // M5x: Linux PR_DUMPABLE clear; skipped elsewhere
 		NegativeFSOpen(),
 		NegativeFSRead(fsReadProbeExisted),
 		NegativeFSPath(role, opts),
@@ -353,6 +354,8 @@ func FormatNegativeAck(findings []Finding) string {
 			b.WriteString("|NEG-NO-NEW-PRIVS:")
 		case "NEG-SECCOMP":
 			b.WriteString("|NEG-SECCOMP:")
+		case "NEG-DUMPABLE":
+			b.WriteString("|NEG-DUMPABLE:")
 		case "NEG-FS-OPEN":
 			b.WriteString("|NEG-FS:")
 		case "NEG-FS-READ":
