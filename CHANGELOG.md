@@ -127,6 +127,9 @@ is accepted.
 - M3q product ambient FS-read deny fail-closed: release-mode `Confine`
   requires `NEG-FS-READ` DeniedExpected (`RequireAmbientFSReadDenied`);
   FreeBSD AllowRoots stubs assert ambient deny beside openat path allow;
+- M3r FreeBSD StrictLaunch CapEnter RestartOne first cut: persistent serve
+  under CapEnter; kill apply; net PID + listen addr survive; second push
+  succeeds with M3m–M3q fail-closed confine on replacement children;
 - mdoc manual pages for all shipped tools plus overview/daemon pages
   (`man/man1`, `man/man7/integris.7`, `man/man8/integrisd.8`) with portable
   `make install-man` / `install` (`PREFIX`, `DESTDIR`, `MANDIR`) and `man-lint`;

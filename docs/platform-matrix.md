@@ -43,7 +43,7 @@ is confirmed (`RequireCapModeAvailable`, M3m) and Capsicum
 (`RequireAllowRootLimitFinding` M3n, `RequireConferredLimitFinding` M3o) and
 ambient path open is denied (`RequireAmbientFSReadDenied`, M3q).
 FreeBSD supervised StrictLaunch push first cut under CapEnter is covered by
-M3p. Provisional
+M3p; StrictLaunch CapEnter RestartOne first cut by M3r. Provisional
 session AEAD is draft [IP-C-0002](ip/IP-C-0002-session-aead.md). Dedicated
 accounts remain open.
 

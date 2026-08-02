@@ -481,6 +481,16 @@ Exit: supervised CapEnter push first cut green; `docs/daemon-m2a.md`.
 
 Exit: product ambient FS-read deny post-condition green; `docs/daemon-m2a.md`.
 
+## M3r — FreeBSD StrictLaunch CapEnter RestartOne first cut (landed engineering)
+
+- FreeBSD `TestM3rStrictLaunchCapEnterRestartOneApply`: StrictLaunch persistent
+  serve under CapEnter; kill apply after first push; net PID + listen addr
+  survive; apply+journal+audit subtree respawns; second push succeeds;
+- replacement children keep M3m–M3q fail-closed confine; not a full ambient
+  socket / NEG-ROLE-NET CapEnter campaign; not an IC-1 claim.
+
+Exit: supervised CapEnter RestartOne first cut green; `docs/daemon-m2a.md`.
+
 ## M1 — Executable reference kernels (in progress)
 
 - canonical codec with resource limits;
